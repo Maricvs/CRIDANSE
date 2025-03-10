@@ -1,0 +1,36 @@
+/* Контейнер для компонента Libraries */
+.libraries-container {
+    align-items: center;
+    padding: 20px;
+    background-color: #747272;
+    border-radius: 10px;
+  }
+  
+  .libraries-container h2 {
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .libraries-container ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .libraries-container li {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .libraries-container li h3 {
+    font-size: 20px;
+    color: #717375;
+  }
+  
+  .libraries-container li p {
+    font-size: 16px;
+    color: #555;
+  }
+  

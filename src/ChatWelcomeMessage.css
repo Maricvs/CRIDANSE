@@ -1,0 +1,12 @@
+/* ChatWelcomeMessage.css */
+.chat-welcome-message {
+  text-align: center;
+  color: white;
+  font-size: 1.25rem;
+  margin-bottom: 100px; /* Отступ от текста до контейнера чата */
+  font-weight: bold;
+  background-color: #242424; /* Фон для контраста */
+  padding: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap; /* Чтобы переносить строки */
+}

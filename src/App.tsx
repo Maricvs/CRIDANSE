@@ -1,0 +1,33 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import ChatField from './components/ChatField';
+// import SuppChat from './components/SuppChat';
+// import SubscrPackage from './components/SubscrPackage';
+// import UserCollege from './components/UserCollege';
+// import Documents from './components/Documents';
+import Libraries from './components/Libraries';
+import './App.css';
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <div className="app-container">
+        <Sidebar />
+        <div className="main-content">
+          <Routes>
+            <Route path="/" element={<ChatField />} />
+            {/* <Route path="/support" element={<SuppChat />} />
+            <Route path="/subscriptions" element={<SubscrPackage />} />
+            <Route path="/profile" element={<UserCollege />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/documents" element={<Documents />} /> */}
+            <Route path="/libraries" element={<Libraries />} />
+          </Routes>
+        </div>
+      </div>
+    </Router>
+  );
+};
+
+export default App;
