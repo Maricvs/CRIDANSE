@@ -1,0 +1,27 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main  # Specify the branch you want to deploy
+
+jobs:
+  deploy:
+    runs-on: debian-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+            # Additional commands if you need to add after scripts(for example, restarting services)
+            # sudo systemctl restart my-service
+          script: |
+            cd /root/Unlim-Mind-AI
+            git pull origin main
