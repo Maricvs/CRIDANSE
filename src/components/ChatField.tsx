@@ -20,42 +20,9 @@ const ChatField: React.FC = () => {
     }
   };
 
-/*  return (
-    <div className="chat-container-center">
-      {!hasMessage && <ChatWelcomeMessage />} */ {/* Показываем приветственное сообщение, если нет сообщений */}
-
-/*      <div className="chat-messages">
-        {messages.map((message, index) => (
-          <div key={index} className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}>
-            {message.text}
-          </div>
-        ))}
-      </div>
-
-      <div className="chat-input-container">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Введите сообщение..."
-          className="chat-input"
-        />
-        <button
-          onClick={handleSendMessage}
-          className={`send-button ${inputValue.trim() ? 'active' : ''}`}
-          disabled={!inputValue.trim()}
-        >
-          <FaPaperPlane className="send-icon" />
-        </button>
-      </div>
-    </div>
-  );
-};  */
-
 return (
   <div className="chat-container-center">
-    {!hasMessage && <ChatWelcomeMessage />}
+    {!hasMessage && <ChatWelcomeMessage />} {/* Показываем приветственное сообщение, если нет сообщений */}
 
     <div className="chat-messages">
       {messages.map((message, index) => (
