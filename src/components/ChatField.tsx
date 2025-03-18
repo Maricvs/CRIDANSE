@@ -22,7 +22,7 @@ const ChatField: React.FC = () => {
 
 return (
   <div className="chat-container-center">
-    {!hasMessage && <ChatWelcomeMessage />} {/* Показываем приветственное сообщение, если нет сообщений */}
+    {!hasMessage && <ChatWelcomeMessage />}
 
     <div className="chat-messages">
       {messages.map((message, index) => (
@@ -51,5 +51,5 @@ return (
     </div>
   </div>
 );
-
+};
 export default ChatField;
