@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import ChatWelcomeMessage from './ChatWelcomeMessage'; // Импортируем компонент
-import '../ChatField.css';
+//import '../ChatField.css'; 1 ver style
+import '../styles/ChatField.css';  // Подключаем стили
 
 const ChatField: React.FC = () => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
@@ -19,11 +20,11 @@ const ChatField: React.FC = () => {
     }
   };
 
-  return (
+/*  return (
     <div className="chat-container-center">
-      {!hasMessage && <ChatWelcomeMessage />} {/* Показываем приветственное сообщение, если нет сообщений */}
+      {!hasMessage && <ChatWelcomeMessage />} */ {/* Показываем приветственное сообщение, если нет сообщений */}
 
-      <div className="chat-messages">
+/*      <div className="chat-messages">
         {messages.map((message, index) => (
           <div key={index} className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}>
             {message.text}
@@ -50,6 +51,38 @@ const ChatField: React.FC = () => {
       </div>
     </div>
   );
-};
+};  */
+
+return (
+  <div className="chat-container-center">
+    {!hasMessage && <ChatWelcomeMessage />}
+
+    <div className="chat-messages">
+      {messages.map((message, index) => (
+        <div key={index} className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}>
+          {message.text}
+        </div>
+      ))}
+    </div>
+
+    <div className="chat-input-container">
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+        placeholder="Введите сообщение..."
+        className="chat-input"
+      />
+      <button
+        onClick={handleSendMessage}
+        className={`send-button ${inputValue.trim() ? 'active' : ''}`}
+        disabled={!inputValue.trim()}
+      >
+        <FaPaperPlane />
+      </button>
+    </div>
+  </div>
+);
 
 export default ChatField;
