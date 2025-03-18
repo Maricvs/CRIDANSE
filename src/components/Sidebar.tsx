@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaComments, 
-  FaCreditCard, 
-  FaUser, 
-  FaFile, 
-  FaBook, 
+import {
+  FaHome,
+  FaComments,
+  FaCreditCard,
+  FaUser,
+  FaFile,
+  FaBook,
   FaSignInAlt,
   FaChevronDown,
   FaChevronUp
@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
         <Link to="/">
-          {!isCollapsed && <span>UnlimAI</span>}
+          {!isCollapsed && <span>Unlim Mind AI</span>}
         </Link>
         <button onClick={toggleSidebar} className="sidebar-toggle">
           {isCollapsed ? '>' : '<'}
