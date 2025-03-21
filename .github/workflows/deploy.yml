@@ -21,5 +21,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /var/www/react-app
+            cd /var/www/unlim-mind-ai
             git pull origin main
+            npm install
+            npm run build
+            sudo rm -rf /var/www/react-app/*
+            sudo cp -r /var/www/unlim-mind-ai/dist/* /var/www/react-app/
+            sudo systemctl restart nginx
