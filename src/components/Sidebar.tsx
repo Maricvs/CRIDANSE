@@ -64,7 +64,7 @@ const Sidebar: React.FC = () => {
           <li>
             <Link to="/subscriptions">
               <FaCreditCard className="icon" />
-              {!isCollapsed && <span>Подписки</span>}
+              {!isCollapsed && <span>Подписьки</span>}
             </Link>
           </li>
           <li>
