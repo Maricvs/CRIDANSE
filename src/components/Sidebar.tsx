@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
         <Link to="/">
-          {!isCollapsed && <span>Unlim EdME AI2</span>}
+          {!isCollapsed && <span>Unlim Mind AI</span>}
         </Link>
         <button onClick={toggleSidebar} className="sidebar-toggle">
           {isCollapsed ? '>' : '<'}
@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
               <FaHome className="icon" />
               {!isCollapsed && (
                 <div className="chat-link-content">
-                  <span>Чатички</span>
+                  <span>Чат</span>
                   {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
                 </div>
               )}
