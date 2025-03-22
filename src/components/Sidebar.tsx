@@ -42,7 +42,7 @@ const Sidebar: React.FC = () => {
               <FaHome className="icon" />
               {!isCollapsed && (
                 <div className="chat-link-content">
-                  <span>Чат</span>
+                  <span>Чатички</span>
                   {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
                 </div>
               )}
