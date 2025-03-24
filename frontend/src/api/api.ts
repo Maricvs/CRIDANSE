@@ -9,7 +9,7 @@ export interface GPTResponse {
 }
 
 export const askGPT = async (data: GPTRequest): Promise<GPTResponse> => {
-  const res = await fetch(`${BASE_URL}/gpt/ask`, {
+  const res = await fetch(`${BASE_URL}/api/gpt/ask`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
