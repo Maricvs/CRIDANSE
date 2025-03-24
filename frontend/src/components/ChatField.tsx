@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { askGPT } from '../api/api';
 import { FaPaperPlane } from 'react-icons/fa';
 import ChatWelcomeMessage from './ChatWelcomeMessage'; // Импортируем компонент
 //import '../ChatField.css'; 1 ver style
@@ -9,14 +10,22 @@ const ChatField: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [hasMessage, setHasMessage] = useState(false); // Состояние для отслеживания сообщений
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      setMessages([...messages, { text: inputValue, isUser: true }]);
-      setInputValue('');
-      setHasMessage(true); // Помечаем, что сообщение введено
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { text: 'Это ответ бота!', isUser: false }]);
-      }, 1000);
+  const handleSendMessage = async () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return;
+
+    const userMessage = { text: trimmed, isUser: true };
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue('');
+    setHasMessage(true);
+
+    try {
+      const res = await askGPT({ prompt: trimmed });
+      const botMessage = { text: res.response, isUser: false };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (err) {
+      const errorMessage = { text: 'Ошибка при запросе к GPT 😢', isUser: false };
+      setMessages((prev) => [...prev, errorMessage]);
     }
   };
 
