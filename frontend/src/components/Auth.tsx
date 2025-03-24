@@ -38,13 +38,15 @@ const Auth = () => {
   }
 
   return (
-    <GoogleLogin
-      onSuccess={handleSuccess}
-      onError={() => {
-        console.log('❌ Google Login Failed')
-      }}
-    />
+    <>
+      <h2>СТРАНИЦА АВТОРИЗАЦИИ</h2>
+      <GoogleLogin
+        onSuccess={handleSuccess}
+        onError={() => {
+          console.log('❌ Google Login Failed')
+        }}
+      />
+    </>
   )
-}
 
 export default Auth
