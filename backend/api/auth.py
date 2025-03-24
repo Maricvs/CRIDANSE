@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from db import SessionLocal
+from backend.db import SessionLocal
 from models.models import Profile
 
 router = APIRouter()
