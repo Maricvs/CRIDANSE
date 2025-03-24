@@ -41,3 +41,7 @@ sudo systemctl restart nginx
 
 // SSL Certificat
 sudo certbot --nginx -d unlimcode.com -d www.unlimcode.com
+
+
+// Установить Google Identity SDK (если ещё не стоит):
+npm install @react-oauth/google
