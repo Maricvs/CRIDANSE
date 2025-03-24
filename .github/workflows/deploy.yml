@@ -23,10 +23,11 @@ jobs:
           script: |
             cd /var/www/unlim-mind-ai
             git pull origin main
+            cd frontend
             npm install
             npm run build
             sudo rm -rf /var/www/react-app/*
-            sudo cp -r /var/www/unlim-mind-ai/dist/* /var/www/react-app/
+            sudo cp -r dist/* /var/www/react-app/
             sudo chown -R www-data:www-data /var/www/react-app
             sudo chmod -R 755 /var/www/react-app
             sudo systemctl restart nginx
