@@ -24,7 +24,7 @@ const ChatField: React.FC = () => {
       const botMessage = { text: res.response, isUser: false };
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
-      const errorMessage = { text: 'Ошибка при запросе к GPT 😢', isUser: false };
+      const errorMessage = { text: 'Ошибка при запросе 😢', isUser: false };
       setMessages((prev) => [...prev, errorMessage]);
     }
   };

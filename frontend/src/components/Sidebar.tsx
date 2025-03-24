@@ -15,7 +15,7 @@ import '../Sidebar.css';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isChatListVisible, setIsChatListVisible] = useState(false);
+  const [isChatListVisible, setIsChatListVisible] = useState(true); // Исправлено, только одно объявление!
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -24,10 +24,10 @@ const Sidebar: React.FC = () => {
   const toggleChatList = () => {
     setIsChatListVisible(!isChatListVisible);
   };
+
   const [chats, setChats] = useState([
-  { id: 1, title: 'Новый чат' },
+    { id: 1, title: 'Новый чат' },
   ]);
-  const [isChatListVisible, setIsChatListVisible] = useState(true);
 
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
@@ -42,34 +42,33 @@ const Sidebar: React.FC = () => {
       <nav className="sidebar-nav">
         <ul>
           <li>
+            <div onClick={toggleChatList} className="chat-link">
+              <FaHome className="icon" />
+              {!isCollapsed && (
+                <div className="chat-link-content">
+                  <span>Чаты</span>
+                  {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
+                </div>
+              )}
+            </div>
 
-          <div onClick={toggleChatList} className="chat-link">
-            <FaHome className="icon" />
-            {!isCollapsed && (
-              <div className="chat-link-content">
-                <span>Чаты</span>
-                {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
-              </div>
-            )}
-          </div>
-
-          {!isCollapsed && isChatListVisible && (
-            <ul className="chat-list">
-              {chats.map((chat) => (
-                <li key={chat.id}>
-                  <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+            {!isCollapsed && isChatListVisible && (
+              <ul className="chat-list">
+                {chats.map((chat) => (
+                  <li key={chat.id}>
+                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                  </li>
+                ))}
+                <li>
+                  <button onClick={() => {
+                    const newId = Date.now();
+                    setChats([...chats, { id: newId, title: `Чат ${chats.length + 1}` }]);
+                  }}>
+                    + Новый чат
+                  </button>
                 </li>
-              ))}
-              <li>
-                <button onClick={() => {
-                  const newId = Date.now();
-                  setChats([...chats, { id: newId, title: `Чат ${chats.length + 1}` }]);
-                }}>
-                  + Новый чат
-                </button>
-              </li>
-            </ul>
-          )}
+              </ul>
+            )}
           </li>
           <li>
             <Link to="/support">
