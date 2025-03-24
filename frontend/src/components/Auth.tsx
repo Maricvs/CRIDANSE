@@ -38,7 +38,7 @@ const Auth = () => {
   }
 
   return (
-    <>
+    <div style={{ padding: '2rem', backgroundColor: '#f0f0f0' }}>
       <h2>СТРАНИЦА АВТОРИЗАЦИИ</h2>
       <GoogleLogin
         onSuccess={handleSuccess}
@@ -46,7 +46,7 @@ const Auth = () => {
           console.log('❌ Google Login Failed')
         }}
       />
-    </>
+    </div>
   )
 }
 export default Auth
