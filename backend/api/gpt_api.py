@@ -1,10 +1,12 @@
+# backend/api/gpt_api.py
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from openai import OpenAI
-from dotenv import load_dotenv
 import os
-
-load_dotenv()
 
 router = APIRouter()
 
