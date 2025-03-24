@@ -14,9 +14,8 @@ const Auth = () => {
     if (!credentialResponse.credential) return
     const decoded: DecodedToken = jwt_decode(credentialResponse.credential)
 
-    console.log('✅ User info from Google:', decoded)
+    console.log('✅ Google decoded:', decoded)
 
-    // Отправка на бэкенд
     fetch('/api/auth/oauth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -31,16 +30,19 @@ const Auth = () => {
       .then(res => res.json())
       .then(data => {
         console.log('🟢 Saved to backend:', data)
-        // например, сохранить user_id:
         localStorage.setItem('user_id', data.user_id)
       })
-      .catch(err => console.error('❌ Ошибка при отправке:', err))
+      .catch(err => {
+        console.error('❌ Ошибка при отправке на сервер:', err)
+      })
   }
 
   return (
     <GoogleLogin
       onSuccess={handleSuccess}
-      onError={() => console.log('❌ Login Failed')}
+      onError={() => {
+        console.log('❌ Google Login Failed')
+      }}
     />
   )
 }

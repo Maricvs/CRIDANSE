@@ -8,6 +8,7 @@ import ChatField from './components/ChatField';
 // import Documents from './components/Documents';
 import Libraries from './components/Libraries
 import Chat from './components/Chat';
+import Auth from './components/Auth';
 import './App.css';
 
 const App: React.FC = () => {
@@ -20,6 +21,7 @@ const App: React.FC = () => {
             <Route path="/" element={<ChatField />} />
             <Route path="/chat/:id" element={<Chat />} /> {/* ← Добавлено это */}
             <Route path="/libraries" element={<Libraries />} />
+            <Route path="/auth" element={<Auth />} />
           </Routes>
         </div>
       </div>
