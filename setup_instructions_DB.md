@@ -99,3 +99,12 @@ CREATE TABLE chats.messages (
 
 // Установи зависимости
 pip install sqlalchemy psycopg2-binary python-dotenv
+
+//Пользователь PostgreSQL, от имени которого работает FastAPI (в твоём случае это unlim_user), не имеет прав доступа к таблице users.profiles.
+sudo -u postgres psql unlim_ai
+
+//А затем выполни:
+GRANT USAGE ON SCHEMA users TO unlim_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA users TO unlim_user;
+
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE users.profiles_id_seq TO unlim_user;
