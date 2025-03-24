@@ -37,3 +37,7 @@ location /api/ {
 //restart nginx
 sudo nginx -t
 sudo systemctl restart nginx
+
+
+// SSL Certificat
+sudo certbot --nginx -d unlimcode.com -d www.unlimcode.com

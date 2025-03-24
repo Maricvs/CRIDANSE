@@ -1,0 +1,54 @@
+// /etc/nginx/sites-enabled/Unlim-Mind-AI
+
+
+server {
+    server_name unlimcode.com www.unlimcode.com;
+
+    root /var/www/react-app;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /favicon.ico {
+        try_files $uri /favicon.ico =404;
+    }
+
+    location /api/ {
+    proxy_pass http://localhost:8000/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    #  ^~   ^`       ^b        ^h
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/unlimcode.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/unlimcode.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+
+}
+
+server {
+    if ($host = www.unlimcode.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    if ($host = unlimcode.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name unlimcode.com www.unlimcode.com;
+    return 404; # managed by Certbot
