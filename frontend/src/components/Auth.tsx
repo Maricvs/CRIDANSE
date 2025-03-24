@@ -38,15 +38,8 @@ const Auth = () => {
   }
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '400px',
-      padding: '2rem',
-      backgroundColor: '#f0f0f0',
-      borderRadius: '8px',
-      boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    }}>
-      <h2 style={{ textAlign: 'center' }}>СТРАНИЦА АВТОРИЗАЦИИ</h2>
+    <div className="auth-container">
+      <h2>СТРАНИЦА АВТОРИЗАЦИИ</h2>
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
         <GoogleLogin
           onSuccess={handleSuccess}

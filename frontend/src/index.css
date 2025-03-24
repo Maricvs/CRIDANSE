@@ -35,13 +35,14 @@ a:hover {
 body {
   margin: 0;
   padding: 0;
+  display: flex;
   justify-content: center;  /* Центрирование по горизонтали */
   align-items: center;      /* Центрирование по вертикали */
   min-height: 100vh;        /* Минимальная высота экрана */
   min-width: 320px;
   color: #333;
   background-color: var(--bg-color);
-  color: var(--text-color);  
+  color: var(--text-color);
   font-family: 'Figtree', sans-serif;
 }
 
