@@ -29,7 +29,7 @@ const Sidebar: React.FC = () => {
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
         <Link to="/">
-          {!isCollapsed && <span>Unlim Mind</span>}
+          {!isCollapsed && <span>Unlim Min</span>}
         </Link>
         <button onClick={toggleSidebar} className="sidebar-toggle">
           {isCollapsed ? '>' : '<'}
