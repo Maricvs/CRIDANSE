@@ -45,3 +45,6 @@ sudo certbot --nginx -d unlimcode.com -d www.unlimcode.com
 
 // Установить Google Identity SDK (если ещё не стоит):
 npm install @react-oauth/google
+
+// декодирование для OAuth
+npm install jwt-decode
