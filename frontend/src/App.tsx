@@ -6,7 +6,8 @@ import ChatField from './components/ChatField';
 // import SubscrPackage from './components/SubscrPackage';
 // import UserCollege from './components/UserCollege';
 // import Documents from './components/Documents';
-import Libraries from './components/Libraries';
+import Libraries from './components/Libraries
+import Chat from './components/Chat';
 import './App.css';
 
 const App: React.FC = () => {
@@ -17,11 +18,7 @@ const App: React.FC = () => {
         <div className="main-content">
           <Routes>
             <Route path="/" element={<ChatField />} />
-            {/* <Route path="/support" element={<SuppChat />} />
-            <Route path="/subscriptions" element={<SubscrPackage />} />
-            <Route path="/profile" element={<UserCollege />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/documents" element={<Documents />} /> */}
+            <Route path="/chat/:id" element={<Chat />} /> {/* ← Добавлено это */}
             <Route path="/libraries" element={<Libraries />} />
           </Routes>
         </div>
