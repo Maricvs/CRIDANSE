@@ -15,7 +15,7 @@ dpkg-reconfigure locales - choose en_US.UTF-8
 
 
 Enter in DB
--u postgres psql
+sudo -u postgres psql
 
 
 Creating DB
@@ -69,3 +69,33 @@ CREATE TABLE documents (
     document_path TEXT NOT NULL,  -- Путь к файлу
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+//Создание схемы для пользователей:
+CREATE SCHEMA users AUTHORIZATION unlim_user;
+
+//Внутри этой схемы создаём таблицу профилей (пример структуры):
+CREATE TABLE users.profiles (
+    id SERIAL PRIMARY KEY,
+    oauth_provider VARCHAR(50) NOT NULL, -- например "google"
+    provider_user_id VARCHAR(255) UNIQUE NOT NULL, -- ID из Google OAuth
+    email VARCHAR(255) UNIQUE NOT NULL,
+    full_name VARCHAR(255),
+    avatar_url TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+// Создание схемы для хранения чатов и сообщений:
+CREATE SCHEMA chats AUTHORIZATION unlim_user;
+
+Внутри схемы chats можно создать таблицу сообщений с привязкой к пользователю:
+CREATE TABLE chats.messages (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users.profiles(id), -- ссылка на профиль
+    role VARCHAR(20) NOT NULL, -- например "user" или "assistant"
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+
+// Установи зависимости
+pip install sqlalchemy psycopg2-binary python-dotenv
