@@ -15,7 +15,7 @@ class OAuthProfile(BaseModel):
     full_name: str | None = None
     avatar_url: str | None = None
 
-@router.post("/auth/oauth")
+@router.post("/oauth")
 def save_oauth_profile(profile: OAuthProfile):
     db: Session = SessionLocal()
     try:
