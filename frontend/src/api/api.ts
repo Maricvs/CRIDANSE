@@ -1,6 +1,5 @@
 // src/api/api.ts
-export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-
+export const BASE_URL = "https://www.unlimcode.com/api";
 export interface GPTRequest {
   prompt: string;
 }
