@@ -1,5 +1,5 @@
 // src/api/api.ts
-export const BASE_URL = "https://www.unlimcode.com/api";
+export const BASE_URL = "https://www.unlimcode.com/";
 export interface GPTRequest {
   prompt: string;
 }
