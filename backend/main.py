@@ -1,7 +1,7 @@
 # backend/main.py
 
 from fastapi import FastAPI
-from backend.api import gpt_api, auth
+from api import gpt_api, auth
 
 app = FastAPI()
 
