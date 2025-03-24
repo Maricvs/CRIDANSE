@@ -1,11 +1,12 @@
 # backend/test_db.py
 
 from db import SessionLocal
+from sqlalchemy import text
 
 def test_connection():
     try:
         db = SessionLocal()
-        result = db.execute("SELECT 1")
+        result = db.execute(text("SELECT 1"))
         print("✅ Подключение к БД установлено:", result.scalar())
     except Exception as e:
         print("❌ Ошибка подключения:", e)
