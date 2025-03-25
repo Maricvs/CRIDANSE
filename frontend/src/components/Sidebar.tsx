@@ -110,6 +110,8 @@ const Sidebar: React.FC = () => {
       </div>
     </div>
   );
+  <div className="sidebar" style={{ backgroundColor: 'red' }}>
+
 };
 
 export default Sidebar;
