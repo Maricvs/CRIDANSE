@@ -15,18 +15,20 @@ import '../Sidebar.css';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isChatListVisible, setIsChatListVisible] = useState(true); // Исправлено, только одно объявление!
+  const [isChatListVisible, setIsChatListVisible] = useState(true);
+  const [chats, setChats] = useState([{ id: 1, title: 'Новый чат' }]);
 
   const userId = localStorage.getItem('user_id');
+  const userName = localStorage.getItem('user_name');
 
-useEffect(() => {
-  if (!userId) return;
+  useEffect(() => {
+    if (!userId) return;
 
-  fetch(`/api/chats/${userId}`)
-    .then(res => res.json())
-    .then(data => setChats(data))
-    .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
-}, [userId]);
+    fetch(`/api/chats/${userId}`)
+      .then(res => res.json())
+      .then(data => setChats(data))
+      .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
+  }, [userId]);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -36,10 +38,21 @@ useEffect(() => {
     setIsChatListVisible(!isChatListVisible);
   };
 
-  const [chats, setChats] = useState([
-    { id: 1, title: 'Новый чат' },
-  ]);
-  const userName = localStorage.getItem('user_name');
+  const createNewChat = () => {
+    fetch('/api/chats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: parseInt(userId || '0'),
+        title: `Чат ${chats.length + 1}`,
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setChats([...chats, data]);
+      })
+      .catch(err => console.error('❌ Ошибка при создании чата:', err));
+  };
 
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
@@ -72,21 +85,7 @@ useEffect(() => {
                   </li>
                 ))}
                 <li>
-                <button onClick={() => {
-                  fetch('/api/chats', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      user_id: parseInt(userId || '0'),
-                      title: `Чат ${chats.length + 1}`,
-                    }),
-                  })
-                    .then(res => res.json())
-                    .then(data => {
-                      setChats([...chats, data]);
-                    })
-                    .catch(err => console.error('❌ Ошибка при создании чата:', err));
-                  }}>
+                  <button onClick={createNewChat}>
                     + Новый чат
                   </button>
                 </li>
@@ -128,15 +127,15 @@ useEffect(() => {
       <div className="sidebar-footer">
         {userName ? (
           <div className="user-greeting">
-          <FaUser className="icon" />
-          {!isCollapsed && <span>Привет, {userName}</span>}
+            <FaUser className="icon" />
+            {!isCollapsed && <span>Привет, {userName}</span>}
           </div>
-      ) : (
-        <Link to="/auth">
-          <FaSignInAlt className="icon" />
-          {!isCollapsed && <span>Войти</span>}
-        </Link>
-      )}
+        ) : (
+          <Link to="/auth">
+            <FaSignInAlt className="icon" />
+            {!isCollapsed && <span>Войти</span>}
+          </Link>
+        )}
       </div>
     </div>
   );
