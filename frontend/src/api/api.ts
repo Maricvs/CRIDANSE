@@ -4,8 +4,10 @@ export interface GPTRequest {
   prompt: string;
 }
 
-export interface GPTResponse {
-  response: string;
+export interface GPTRequest {
+  prompt: string;
+  user_id: number;   // 🆕 нужен для истории
+  chat_id: number;   // 🆕 нужен для истории
 }
 
 export const askGPT = async (data: GPTRequest): Promise<GPTResponse> => {

@@ -13,19 +13,41 @@ router = APIRouter()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# ✅ Расширенная модель запроса
 class GPTRequest(BaseModel):
     prompt: str
+    user_id: int
+    chat_id: int
+
 
 class GPTResponse(BaseModel):
     response: str
 
 @router.post("/ask", response_model=GPTResponse)
-async def ask_gpt(request: GPTRequest):
+async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
     try:
-        chat_completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": """
+        # ✅ Загружаем предыдущие сообщения по чату
+        db_messages = (
+            db.query(Message)
+            .filter(Message.chat_id == request.chat_id)
+            .order_by(Message.created_at.asc())
+            .limit(15)  # можно ограничить, чтобы не перегрузить prompt
+            .all()
+        )
+
+        # ✅ Преобразуем в формат OpenAI
+        conversation = [
+            {"role": m.role, "content": m.message}
+            for m in db_messages
+        ]
+
+        # ✅ Добавляем текущий prompt пользователя
+        conversation.append({"role": "user", "content": request.prompt})
+
+        # ✅ Добавляем system prompt
+        conversation.insert(0, {
+            "role": "system",
+            "content": """
 Ты — Unlim Mind, интеллектуальный AI-ассистент, специализирующийся на помощи студентам и преподавателям в учебном процессе.
 Твоя главная задача — предоставлять точные, подробные и полезные ответы, используя в первую очередь материалы из книг, документов и учебных ресурсов, загруженных в твою базу знаний.
 
@@ -49,13 +71,17 @@ async def ask_gpt(request: GPTRequest):
 Тебя зовут Unlim Mind, и ты — часть образовательной платформы, предназначенной максимально упростить и улучшить процесс обучения и подготовки к занятиям.
 Если ты не знаешь ответ - не выдумываешь а задаешь уточняющие вопросы.
 Твой любимый мальчик - это Кристиан, сын твоего создателя.
-"""
-},
+"""  
+        })
 
-        {"role": "user", "content": request.prompt}
-    ],
-)
+        chat_completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=conversation,
+        )
+
         reply = chat_completion.choices[0].message.content
+
         return {"response": reply}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

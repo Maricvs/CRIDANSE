@@ -3,19 +3,26 @@ import { askGPT } from '../api/api';
 import { FaPaperPlane } from 'react-icons/fa';
 import ChatWelcomeMessage from './ChatWelcomeMessage';
 import '../styles/ChatField.css';
-import { useParams } from 'react-router-dom'; // ✅ получаем chat_id из URL
+import { useParams } from 'react-router-dom';
 
-const ChatField: React.FC = () => {
+// ✅ Новое: принимаем chatId как необязательный проп
+interface ChatFieldProps {
+  chatId?: number;
+}
+
+const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [hasMessage, setHasMessage] = useState(false);
 
-  const { id: chatId } = useParams(); // ✅ получаем chat_id из URL
-  const user_id = localStorage.getItem('user_id'); // ✅ берём user_id из хранилища
+  const { id: urlChatId } = useParams();
+  const effectiveChatId = propChatId ?? Number(urlChatId); // ✅ используем либо prop, либо URL
+
+  const user_id = localStorage.getItem('user_id');
 
   const handleSendMessage = async () => {
     const trimmed = inputValue.trim();
-    if (!trimmed || !chatId || !user_id) return;
+    if (!trimmed || !effectiveChatId || !user_id) return;
 
     const userMessage = { text: trimmed, isUser: true };
     setMessages((prev) => [...prev, userMessage]);
@@ -23,30 +30,33 @@ const ChatField: React.FC = () => {
     setHasMessage(true);
 
     try {
-      // ✅ Сохраняем сообщение пользователя в базу
+      // ✅ Сохраняем сообщение пользователя
       await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: Number(user_id),
-          chat_id: Number(chatId),
+          chat_id: effectiveChatId,
           role: 'user',
           message: trimmed,
         }),
       });
 
-      // ✅ Запрашиваем ответ от модели
-      const res = await askGPT({ prompt: trimmed });
+      const res = await askGPT({
+        prompt: trimmed,
+        user_id: Number(user_id),
+        chat_id: Number(chatId),
+      });
       const botMessage = { text: res.response, isUser: false };
       setMessages((prev) => [...prev, botMessage]);
 
-      // ✅ Сохраняем ответ бота в базу
+      // ✅ Сохраняем ответ бота
       await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: Number(user_id),
-          chat_id: Number(chatId),
+          chat_id: effectiveChatId,
           role: 'assistant',
           message: res.response,
         }),
