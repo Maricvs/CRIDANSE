@@ -6,6 +6,7 @@ load_dotenv()
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from openai import OpenAI
+from db import get_db
 import os
 print("OPENAI_API_KEY =", os.getenv("OPENAI_API_KEY"))
 
