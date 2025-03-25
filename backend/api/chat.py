@@ -45,3 +45,48 @@ def get_user_messages(user_id: int):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
+from models.models import Chat
+
+# Получить все чаты пользователя
+@router.get("/chats/{user_id}")
+def get_chats(user_id: int):
+    db: Session = SessionLocal()
+    try:
+        chats = db.query(Chat).filter(Chat.user_id == user_id).order_by(Chat.created_at).all()
+        return [
+            {
+                "id": chat.id,
+                "title": chat.title,
+                "created_at": chat.created_at.isoformat()
+            }
+            for chat in chats
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+# Создать новый чат
+class ChatCreate(BaseModel):
+    user_id: int
+    title: str = "Новый чат"
+
+@router.post("/chats")
+def create_chat(chat: ChatCreate):
+    db: Session = SessionLocal()
+    try:
+        new_chat = Chat(user_id=chat.user_id, title=chat.title)
+        db.add(new_chat)
+        db.commit()
+        db.refresh(new_chat)
+        return {
+            "id": new_chat.id,
+            "title": new_chat.title,
+            "created_at": new_chat.created_at.isoformat()
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()

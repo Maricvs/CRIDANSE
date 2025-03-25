@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FaHome,
@@ -16,6 +16,17 @@ import '../Sidebar.css';
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isChatListVisible, setIsChatListVisible] = useState(true); // Исправлено, только одно объявление!
+
+  const userId = localStorage.getItem('user_id');
+
+useEffect(() => {
+  if (!userId) return;
+
+  fetch(`/api/chats/${userId}`)
+    .then(res => res.json())
+    .then(data => setChats(data))
+    .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
+}, [userId]);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -61,9 +72,20 @@ const Sidebar: React.FC = () => {
                   </li>
                 ))}
                 <li>
-                  <button onClick={() => {
-                    const newId = Date.now();
-                    setChats([...chats, { id: newId, title: `Чат ${chats.length + 1}` }]);
+                <button onClick={() => {
+                  fetch('/api/chats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      user_id: parseInt(userId || '0'),
+                      title: `Чат ${chats.length + 1}`,
+                    }),
+                  })
+                    .then(res => res.json())
+                    .then(data => {
+                      setChats([...chats, data]);
+                    })
+                    .catch(err => console.error('❌ Ошибка при создании чата:', err));
                   }}>
                     + Новый чат
                   </button>
