@@ -23,7 +23,14 @@ def save_oauth_profile(profile: OAuthProfile):
         if existing:
             return {"message": "User already exists", "user_id": existing.id}
 
-        new_user = Profile(**profile.dict())
+        new_user = Profile(
+            oauth_provider=profile.oauth_provider,
+            provider_user_id=profile.provider_user_id,
+            email=profile.email,
+            full_name=profile.full_name,
+            avatar_url=profile.avatar_url,
+            # created_at не указываем — добавится автоматически
+        )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)

@@ -29,17 +29,19 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
-    role = Column(String(20), nullable=False)  # user / assistant
+    chat_id = Column(Integer, ForeignKey("chats.chats.id"), nullable=False)
+    role = Column(String, nullable=False)
     message = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(TIMESTAMP, server_default=func.now())
 
-    user = relationship("Profile", back_populates="messages")
+    chat = relationship("Chat", back_populates="messages")
 
 # Таблица chats.chats
 class Chat(Base):
     __tablename__ = "chats"
     __table_args__ = {"schema": "chats"}
 
+    messages = relationship("Message", back_populates="chat", cascade="all, delete")
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
     title = Column(String(255), nullable=False, default="Новый чат")
