@@ -28,6 +28,7 @@ const Sidebar: React.FC = () => {
   const [chats, setChats] = useState([
     { id: 1, title: 'Новый чат' },
   ]);
+  const userName = localStorage.getItem('user_name');
 
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
@@ -110,6 +111,7 @@ const Sidebar: React.FC = () => {
       </div>
     </div>
   );
+  return <div>Привет, {userName}</div>;
 };
 
 export default Sidebar;

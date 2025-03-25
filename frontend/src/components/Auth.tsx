@@ -1,5 +1,6 @@
 import { GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
+import { useNavigate } from 'react-router-dom' // ✅ добавлен для навигации
 
 interface DecodedToken {
   email: string
@@ -9,6 +10,8 @@ interface DecodedToken {
 }
 
 const Auth = () => {
+  const navigate = useNavigate() // ✅ хук для редиректа
+
   const handleSuccess = (credentialResponse: any) => {
     if (!credentialResponse.credential) return
     const decoded: DecodedToken = jwtDecode(credentialResponse.credential)
@@ -30,6 +33,8 @@ const Auth = () => {
       .then(data => {
         console.log('🟢 Saved to backend:', data)
         localStorage.setItem('user_id', data.user_id)
+        localStorage.setItem('user_name', decoded.name) // опционально
+        navigate('/') // ✅ редирект на главную (или /chat, /profile)
       })
       .catch(err => {
         console.error('❌ Ошибка при отправке на сервер:', err)
