@@ -11,7 +11,7 @@ router = APIRouter()
 class MessageCreate(BaseModel):
     user_id: int
     role: str
-    message:
+    message: str
 
 @router.post("/message")
 def save_message(msg: MessageCreate):
