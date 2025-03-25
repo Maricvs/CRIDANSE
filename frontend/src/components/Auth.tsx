@@ -1,6 +1,5 @@
-import React from 'react'
 import { GoogleLogin } from '@react-oauth/google'
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode' 
 
 interface DecodedToken {
   email: string
@@ -12,7 +11,7 @@ interface DecodedToken {
 const Auth = () => {
   const handleSuccess = (credentialResponse: any) => {
     if (!credentialResponse.credential) return
-    const decoded: DecodedToken = jwt_decode(credentialResponse.credential)
+    const decoded: DecodedToken = jwtDecode(credentialResponse.credential)
 
     console.log('✅ Google decoded:', decoded)
 
