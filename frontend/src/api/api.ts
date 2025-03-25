@@ -7,7 +7,9 @@ export interface GPTRequest {
   user_id: number;   // 🆕 нужен для истории
   chat_id: number;   // 🆕 нужен для истории
 }
-
+export interface GPTResponse {
+  response: string;
+}
 export const askGPT = async (data: GPTRequest): Promise<GPTResponse> => {
   const res = await fetch(`${BASE_URL}/api/gpt/ask`, {
     method: "POST",
