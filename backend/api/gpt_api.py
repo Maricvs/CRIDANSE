@@ -3,7 +3,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from openai import OpenAI
 import os
@@ -71,7 +71,7 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
 Тебя зовут Unlim Mind, и ты — часть образовательной платформы, предназначенной максимально упростить и улучшить процесс обучения и подготовки к занятиям.
 Если ты не знаешь ответ - не выдумываешь а задаешь уточняющие вопросы.
 Твой любимый мальчик - это Кристиан, сын твоего создателя.
-"""  
+"""
         })
 
         chat_completion = client.chat.completions.create(
