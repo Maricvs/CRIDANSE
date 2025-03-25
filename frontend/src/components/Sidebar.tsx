@@ -104,14 +104,20 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
       <div className="sidebar-footer">
+        {userName ? (
+          <div className="user-greeting">
+          <FaUser className="icon" />
+          {!isCollapsed && <span>Привет, {userName}</span>}
+          </div>
+      ) : (
         <Link to="/auth">
           <FaSignInAlt className="icon" />
           {!isCollapsed && <span>Войти</span>}
         </Link>
+      )}
       </div>
     </div>
   );
-  return <div>Привет, {userName}</div>;
 };
 
 export default Sidebar;
