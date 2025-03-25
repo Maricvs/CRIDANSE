@@ -65,6 +65,11 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
       const errorMessage = { text: 'Ошибка при запросе 😢', isUser: false };
       setMessages((prev) => [...prev, errorMessage]);
     }
+    console.log("👉 GPT запрос:", {
+      prompt: trimmed,
+      user_id: Number(user_id),
+      chat_id: effectiveChatId,
+    });
   };
 
   return (
