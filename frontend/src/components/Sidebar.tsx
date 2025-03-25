@@ -30,13 +30,10 @@ const Sidebar: React.FC = () => {
   ]);
 
   return (
-    <div
-      className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}
-      style={{ backgroundColor: 'red' }}
-    >
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
         <Link to="/">
-          {!isCollapsed && <span>Unlim Mind q</span>}
+          {!isCollapsed && <span>Unlim Mind</span>}
         </Link>
         <button onClick={toggleSidebar} className="sidebar-toggle">
           {isCollapsed ? '>' : '<'}

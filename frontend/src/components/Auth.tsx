@@ -1,5 +1,5 @@
 import { GoogleLogin } from '@react-oauth/google'
-import { jwtDecode } from 'jwt-decode' 
+import { jwtDecode } from 'jwt-decode'
 
 interface DecodedToken {
   email: string
@@ -38,8 +38,8 @@ const Auth = () => {
 
   return (
     <div className="auth-container">
-      <h2>СТРАНИЦА АВТОРИЗАЦИИ</h2>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+      <h2>Вход через Google</h2>
+      <div className="auth-button">
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={() => {
