@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from db import SessionLocal
 from typing import List
 from models.models import Message
+from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
@@ -49,7 +50,7 @@ def get_user_messages(user_id: int):
 from models.models import Chat
 
 # Получить все чаты пользователя
-@router.get("/chats/{user_id}")
+@router.get("/{user_id}")
 def get_chats(user_id: int):
     db: Session = SessionLocal()
     try:
@@ -72,7 +73,7 @@ class ChatCreate(BaseModel):
     user_id: int
     title: str = "Новый чат"
 
-@router.post("/chats")
+@router.post("/")
 def create_chat(chat: ChatCreate):
     db: Session = SessionLocal()
     try:
@@ -80,7 +81,7 @@ def create_chat(chat: ChatCreate):
         db.add(new_chat)
         db.commit()
         db.refresh(new_chat)
-        return {
+        return JSONResponse(status_code=201, content={
             "id": new_chat.id,
             "title": new_chat.title,
             "created_at": new_chat.created_at.isoformat()

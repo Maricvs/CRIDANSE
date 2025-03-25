@@ -12,12 +12,13 @@ import {
   FaChevronUp
 } from 'react-icons/fa';
 import '../Sidebar.css';
+import { useNavigate } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isChatListVisible, setIsChatListVisible] = useState(true);
   const [chats, setChats] = useState([{ id: 1, title: 'Новый чат' }]);
-
+  const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
   const userName = localStorage.getItem('user_name');
 
@@ -50,6 +51,7 @@ const Sidebar: React.FC = () => {
       .then(res => res.json())
       .then(data => {
         setChats([...chats, data]);
+        navigate(`/chat/${data.id}`);
       })
       .catch(err => console.error('❌ Ошибка при создании чата:', err));
   };
@@ -79,7 +81,7 @@ const Sidebar: React.FC = () => {
 
             {!isCollapsed && isChatListVisible && (
               <ul className="chat-list">
-                {chats.map((chat) => (
+                {Array.isArray(chats) && chats.map((chat) => (
                   <li key={chat.id}>
                     <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
                   </li>
