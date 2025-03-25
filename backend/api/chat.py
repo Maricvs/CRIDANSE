@@ -85,7 +85,7 @@ def create_chat(chat: ChatCreate):
             "id": new_chat.id,
             "title": new_chat.title,
             "created_at": new_chat.created_at.isoformat()
-        }
+        })
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
