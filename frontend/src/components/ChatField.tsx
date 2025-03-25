@@ -45,7 +45,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
       const res = await askGPT({
         prompt: trimmed,
         user_id: Number(user_id),
-        chat_id: Number(chatId),
+        chat_id: effectiveChatId,
       });
       const botMessage = { text: res.response, isUser: false };
       setMessages((prev) => [...prev, botMessage]);
