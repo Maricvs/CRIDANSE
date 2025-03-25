@@ -14,6 +14,14 @@
   width: 100px;
 }
 
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem;
+  color: white;
+}
+
 /* Логотип сайдбара */
 .sidebar-logo {
   padding: 20px;

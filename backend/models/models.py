@@ -34,3 +34,13 @@ class Message(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("Profile", back_populates="messages")
+
+# Таблица chats.chats
+class Chat(Base):
+    __tablename__ = "chats"
+    __table_args__ = {"schema": "chats"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="Новый чат")
+    created_at = Column(DateTime, default=datetime.utcnow)
