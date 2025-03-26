@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
@@ -12,7 +12,7 @@ const ChatField: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
 
-  // 📥 Загружаем сообщения при наличии chatId
+  // 📥 Загрузка сообщений при открытии чата
   useEffect(() => {
     if (!chatId) return;
 
@@ -79,9 +79,11 @@ const ChatField: React.FC = () => {
     }
   };
 
+  const hasMessage = messages.length > 0;
+
   return (
     <div className="chat-container-center">
-      {messages.length === 0 && (
+      {!hasMessage && (
         <div className="chat-welcome">
           {!chatId ? (
             <>
