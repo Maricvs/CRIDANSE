@@ -86,21 +86,21 @@ const Sidebar: React.FC = () => {
             </div>
 
             {/* Выпадающий список чатов */}
-            {!isCollapsed && isChatListVisible && (
-              <ul className="chat-list">
-                {chats.length === 0 && (
-                  <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-                )}
-                {Array.isArray(chats) && chats.map((chat) => (
-                  <li key={chat.id}>
-                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+              {!isCollapsed && isChatListVisible && (
+                <ul className="chat-list">
+                  {chats.length === 0 && (
+                    <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+                  )}
+                  {Array.isArray(chats) && chats.map((chat) => (
+                    <li key={chat.id}>
+                      <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                    </li>
+                  ))}
+                  <li>
+                    <button onClick={createNewChat}>+ Новый чат</button>
                   </li>
-                ))}
-                <li>
-                  <button onClick={createNewChat}>+ Новый чат</button>
-                </li>
-              </ul>
-            )}
+                </ul>
+              )}
           </li>
 
           {/* Остальные пункты меню */}
