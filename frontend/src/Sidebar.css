@@ -18,6 +18,7 @@ a:hover {
   border-right: 1px solid #333;
   overflow-y: auto;
   transition: all 0.3s ease-in-out;
+  z-index: 999;
 }
 
 .sidebar-section li,
@@ -31,10 +32,12 @@ a:hover {
   margin-right: 6px;
 }
 
+.sidebar.expanded {
+  display: flex;
+}
+
 .sidebar.collapsed {
-  width: 60px;
-  overflow: hidden;
-  transition: all 0.3s ease-in-out;
+  display: none;
 }
 
 .sidebar.collapsed .chat-list,

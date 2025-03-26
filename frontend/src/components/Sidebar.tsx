@@ -54,7 +54,8 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-  <>
+    <>
+
     {isCollapsed && (
       <button onClick={() => setIsCollapsed(false)} className="sidebar-toggle-fixed">
         <FaBars />
