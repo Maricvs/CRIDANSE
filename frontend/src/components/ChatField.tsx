@@ -18,7 +18,7 @@ const ChatField: React.FC = () => {
 
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`/api/messages/${chatId}`);
+        const response = await fetch(`/api/messages/by_chat/${chatId}`);
         const data = await response.json();
         if (data && Array.isArray(data.messages)) {
           setMessages(data.messages);
