@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isChatListVisible, setIsChatListVisible] = useState(true);
-  const [chats, setChats] = useState([{ id: 1, title: 'Новый чат' }]);
+  const [chats, setChats] = useState([]);
   const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
   const userName = localStorage.getItem('user_name');
@@ -42,16 +42,13 @@ const Sidebar: React.FC = () => {
     setIsChatListVisible(!isChatListVisible);
   };
 
-  const [chats, setChats] = useState([]);
-
   const createNewChat = () => {
     fetch('/api/chats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: parseInt(userId || '0'),
-        title: `Чат ${chats.length === 0 && (
-          <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>)}`,
+        title: `Чат ${chats.length + 1}`,
       }),
     })
       .then(res => res.json())
@@ -87,17 +84,20 @@ const Sidebar: React.FC = () => {
 
             {!isCollapsed && isChatListVisible && (
               <ul className="chat-list">
-                {Array.isArray(chats) && chats.map((chat) => (
-                  <li key={chat.id}>
-                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
-                  </li>
-                ))}
-                <li>
-                  <button onClick={createNewChat}>
-                    + Новый чат
-                  </button>
+              {chats.length === 0 && (
+                <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+              )}
+              {Array.isArray(chats) && chats.map((chat) => (
+                <li key={chat.id}>
+                  <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
                 </li>
-              </ul>
+              ))}
+              <li>
+                <button onClick={createNewChat}>
+                  + Новый чат
+                </button>
+              </li>
+            </ul>
             )}
           </li>
           <li>
