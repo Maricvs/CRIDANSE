@@ -6,6 +6,7 @@ html, body, #root {
 .app-container {
   display: flex;
   height: 100vh;
+  background-color: var(--bg-color);
 }
 
 .auth-container {
@@ -36,9 +37,15 @@ html, body, #root {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: stretch; /* 👈 растягивает чат по высоте */
-  padding: 15px;
+  align-items: stretch;
   overflow: hidden;
+}
+
+.chat-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 @media (max-width: 768px) {

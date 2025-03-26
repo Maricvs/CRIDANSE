@@ -1,181 +1,133 @@
-/* Стили для сайдбара */
 .sidebar {
-  position: fixed;
+  height: 100vh;
+  width: 260px;
+  min-width: 200px;
+  background-color: #1e1e1e;
+  color: #fff;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  width: 250px;
-  height: 100vh;
-  background-color: #1e1e1e;
-  color: white;
-  transition: width 0.3s ease, padding 0.3s ease;
+  border-right: 1px solid #333;
+  overflow-y: auto;
+  transition: width 0.3s;
 }
 
-/* Класс для сжатого сайдбара */
 .sidebar.collapsed {
-  width: 100px;
+  width: 60px;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+  background-color: #2c2c2c;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.sidebar-section {
+  padding: 12px 0;
+  border-bottom: 1px solid #333;
+}
+
+.sidebar-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-section li {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sidebar-section li:hover {
+  background-color: #2a2a2a;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding-top: 10px;
+}
+
+.chat-link {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border-top: 1px solid #333;
+}
+
+.chat-link:hover {
+  background-color: #2a2a2a;
+}
+
+.chat-link-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-list {
+  padding: 6px 0 10px 16px;
+}
+
+.chat-list li {
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.chat-list li button {
+  background: none;
+  border: none;
+  color: #6ebeff;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.chat-list li button:hover {
+  text-decoration: underline;
+}
+
+.icon {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #333;
+  background-color: #2c2c2c;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.subscription-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
 }
 
 .user-greeting {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0.5rem;
-  color: white;
-}
-
-/* Логотип сайдбара */
-.sidebar-logo {
-  padding: 20px;
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  background-color: #2c2c2c;
-  position: relative;
-  flex-shrink: 0;
-  transition: padding 0.3s ease;
-}
-
-.sidebar.collapsed .sidebar-logo {
-  padding: 20px 10px;
-}
-
-.sidebar-logo a {
-  color: white;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar.collapsed .sidebar-logo a span {
-  display: none;
-}
-
-/* Кнопка для сжатия сайдбара */
-.sidebar-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-/* Навигационное меню */
-.sidebar-nav {
-  flex: 1;
-  padding: 20px 0;
-  overflow-y: auto;
-}
-
-.sidebar.collapsed .sidebar-nav {
-  padding: 0;
-}
-
-/* Навигационные ссылки */
-.sidebar-nav ul li a,
-.sidebar-nav ul li .chat-link {
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  transition: background-color 0.3s ease;
-}
-
-.sidebar-nav ul li a:hover,
-.sidebar-nav ul li .chat-link:hover {
-  background-color: #34495e;
-}
-
-.sidebar.collapsed .sidebar-nav ul li a,
-.sidebar.collapsed .sidebar-nav ul li .chat-link {
-  padding: 20px 10px;
-}
-
-/* Иконки должны быть видны всегда */
-.sidebar .icon {
-  font-size: 20px;
-  width: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar.collapsed .icon {
-  width: 24px;
-}
-
-/* Список чатов */
-.chat-link-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.chat-list {
-  list-style: none;
-  padding-left: 30px;
-  margin: 0;
-  max-height: none;
-  overflow: visible;
-  transition: none;
-  display: block;
-  opacity: 1;
-  visibility: visible;
-}
-
-.sidebar-nav ul li .chat-list.open {
-  max-height: 200px;
-}
-
-.chat-list li {
-  padding: 8px 14px;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.chat-list li:hover {
-  background-color: #2d3e3f;
-}
-/* Футер сайдбара */
-.sidebar-footer {
-  padding: 20px;
-  text-align: center;
-  background-color: #2c2c2c;
-  flex-shrink: 0;
-}
-
-.sidebar-footer a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-footer a:hover {
-  color: #1abc9c;
-}
-
-/* Основной контент */
-.main-content {
-  margin-left: 250px;
-  padding: 20px;
-  min-height: 100vh;
-  transition: margin-left 0.3s ease;
-}
-
-.sidebar.collapsed + .main-content {
-  margin-left: 80px;
+  gap: 10px;
+  font-size: 14px;
 }

@@ -51,6 +51,17 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
+      {/* Верхний блок с основными ссылками */}
+      <div className="sidebar-section">
+        <ul>
+          <li><Link to="/support"><FaComments className="icon" /> {!isCollapsed && <span>Поддержка</span>}</Link></li>
+          <li><Link to="/profile"><FaUser className="icon" /> {!isCollapsed && <span>Профиль</span>}</Link></li>
+          <li><Link to="/documents"><FaFile className="icon" /> {!isCollapsed && <span>Документы</span>}</Link></li>
+          <li><Link to="/libraries"><FaBook className="icon" /> {!isCollapsed && <span>Библиотеки</span>}</Link></li>
+        </ul>
+      </div>
+
+      {/* Чаты */}
       <nav className="sidebar-nav">
         <ul>
           <li>
@@ -80,27 +91,31 @@ const Sidebar: React.FC = () => {
               </ul>
             )}
           </li>
-
-          <li><Link to="/support"><FaComments className="icon" /> {!isCollapsed && <span>Поддержка</span>}</Link></li>
-          <li><Link to="/subscriptions"><FaCreditCard className="icon" /> {!isCollapsed && <span>Подписки</span>}</Link></li>
-          <li><Link to="/profile"><FaUser className="icon" /> {!isCollapsed && <span>Профиль</span>}</Link></li>
-          <li><Link to="/documents"><FaFile className="icon" /> {!isCollapsed && <span>Документы</span>}</Link></li>
-          <li><Link to="/libraries"><FaBook className="icon" /> {!isCollapsed && <span>Библиотеки</span>}</Link></li>
         </ul>
       </nav>
 
+      {/* Низ — Подписка + Приветствие */}
       <div className="sidebar-footer">
-        {userName ? (
-          <div className="user-greeting">
-            <FaUser className="icon" />
-            {!isCollapsed && <span>Привет, {userName}</span>}
-          </div>
-        ) : (
-          <Link to="/auth">
-            <FaSignInAlt className="icon" />
-            {!isCollapsed && <span>Войти</span>}
+        <div className="subscription-link">
+          <Link to="/subscriptions">
+            <FaCreditCard className="icon" />
+            {!isCollapsed && <span>Подписка</span>}
           </Link>
-        )}
+        </div>
+
+        <div className="user-greeting">
+          {userName ? (
+            <>
+              <FaUser className="icon" />
+              {!isCollapsed && <span>Привет, {userName}</span>}
+            </>
+          ) : (
+            <Link to="/auth">
+              <FaSignInAlt className="icon" />
+              {!isCollapsed && <span>Войти</span>}
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );
