@@ -82,7 +82,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
   };
 
   // Используем временно: если chatData не пришёл — берём фейковый
-  const messagesToRender = chatData?.messages || fakeChatData.messages;
+  const messagesToRender = messages.length > 0 ? messages : fakeChatData.messages;
 
   return (
     <div className="chat-container-center">
