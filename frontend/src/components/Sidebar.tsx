@@ -8,7 +8,7 @@ import '../Sidebar.css';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState<{ id: number; title: string }[]>([]);
   const navigate = useNavigate();
 
   const userId = localStorage.getItem('user_id');
