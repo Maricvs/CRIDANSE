@@ -54,81 +54,92 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    {!isCollapsed && (
-  <div className="sidebar-content">
-    <div className="sidebar-logo">
-      <Link to="/" className="logo-text">
-        <span>Unlim Mind</span>
-      </Link>
-      <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
-        <FaChevronLeft />
+  <>
+    {isCollapsed && (
+      <button onClick={() => setIsCollapsed(false)} className="sidebar-toggle-fixed">
+        <FaBars />
       </button>
-    </div>
+    )}
 
-    {/* Верхний блок с основными ссылками */}
-    <div className="sidebar-section">
-      <ul>
-        <li><Link to="/support"><FaComments className="icon" /> <span>Поддержка</span></Link></li>
-        <li><Link to="/profile"><FaUser className="icon" /> <span>Профиль</span></Link></li>
-        <li><Link to="/documents"><FaFile className="icon" /> <span>Документы</span></Link></li>
-        <li><Link to="/libraries"><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
-      </ul>
-    </div>
-
-    {/* Чаты */}
-    <nav className="sidebar-nav">
-      <ul>
-        <li>
-          <div onClick={() => {}} className="chat-link">
-            <FaHome className="icon" />
-            <span>Чаты</span>
-            <FaChevronDown />
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      {!isCollapsed && (
+        <div className="sidebar-content">
+          <div className="sidebar-logo">
+            <Link to="/" className="logo-text">
+              <span>Unlim Mind</span>
+            </Link>
+            <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
+              <FaChevronLeft />
+            </button>
           </div>
-          <ul className="chat-list">
-            {chats.length === 0 && (
-              <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-            )}
-            {Array.isArray(chats) && chats.map((chat: any) => {
-              const isActive = chat.id === parseInt(selectedChatId || '', 10);
-              return (
-                <li key={chat.id} className={isActive ? 'active' : ''}>
-                  <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
-                </li>
-              );
-            })}
-            <li>
-              <button onClick={createNewChat}>+ Новый чат</button>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
 
-    {/* Низ — Подписка + Приветствие */}
-    <div className="sidebar-footer">
-      <div className="subscription-link">
-        <Link to="/subscriptions">
-          <FaCreditCard className="icon" />
-          <span>Подписка</span>
-        </Link>
-      </div>
+          {/* Верхний блок с основными ссылками */}
+          <div className="sidebar-section">
+            <ul>
+              <li><Link to="/support"><FaComments className="icon" /> <span>Поддержка</span></Link></li>
+              <li><Link to="/profile"><FaUser className="icon" /> <span>Профиль</span></Link></li>
+              <li><Link to="/documents"><FaFile className="icon" /> <span>Документы</span></Link></li>
+              <li><Link to="/libraries"><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
+            </ul>
+          </div>
 
-      <div className="user-greeting">
-        {userName ? (
-          <>
-            <FaUser className="icon" />
-            <span>Привет, {userName}</span>
-          </>
-        ) : (
-          <Link to="/auth">
-            <FaSignInAlt className="icon" />
-            <span>Войти</span>
-          </Link>
-        )}
-      </div>
+          {/* Чаты */}
+          <nav className="sidebar-nav">
+            <ul>
+              <li>
+                <div onClick={() => {}} className="chat-link">
+                  <FaHome className="icon" />
+                  <span>Чаты</span>
+                  <FaChevronDown />
+                </div>
+                <ul className="chat-list">
+                  {chats.length === 0 && (
+                    <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+                  )}
+                  {Array.isArray(chats) && chats.map((chat: any) => {
+                    const isActive = chat.id === parseInt(selectedChatId || '', 10);
+                    return (
+                      <li key={chat.id} className={isActive ? 'active' : ''}>
+                        <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                      </li>
+                    );
+                  })}
+                  <li>
+                    <button onClick={createNewChat}>+ Новый чат</button>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Низ — Подписка + Приветствие */}
+          <div className="sidebar-footer">
+            <div className="subscription-link">
+              <Link to="/subscriptions">
+                <FaCreditCard className="icon" />
+                <span>Подписка</span>
+              </Link>
+            </div>
+
+            <div className="user-greeting">
+              {userName ? (
+                <>
+                  <FaUser className="icon" />
+                  <span>Привет, {userName}</span>
+                </>
+              ) : (
+                <Link to="/auth">
+                  <FaSignInAlt className="icon" />
+                  <span>Войти</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
-)}
+  </>
+);
 };
 
 export default Sidebar;
