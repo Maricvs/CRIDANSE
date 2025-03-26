@@ -73,16 +73,14 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
   };
 
     // Временно вставим это в верхнюю часть ChatField.tsx, до return:
-  const fakeChatData = {
-    messages: [
-      { role: "user", content: "Привет! Это тестовое сообщение." },
-      { role: "assistant", content: "Привет! Я тебя слышу, это ответ бота." },
-      { role: "user", content: "Супер, значит фронт работает." },
-    ],
-  };
+    const fakeChatData = [
+      { text: "Привет! Это тестовое сообщение.", isUser: true },
+      { text: "Привет! Я тебя слышу, это ответ бота.", isUser: false },
+      { text: "Супер, значит фронт работает.", isUser: true },
+    ];
 
   // Используем временно: если chatData не пришёл — берём фейковый
-  const messagesToRender = messages.length > 0 ? messages : fakeChatData.messages;
+  const messagesToRender = messages.length > 0 ? messages : fakeChatData;
 
   return (
     <div className="chat-container-center">
@@ -96,16 +94,16 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
 //      </div>*/}
         <div className="flex flex-col gap-4 p-4">
         {messagesToRender.map((message, index) => (
-        <div
-        key={index}
-        className={`max-w-[85%] px-4 py-2 rounded-xl whitespace-pre-line ${
-          message.role === "user"
-            ? "bg-white text-black self-end"
-            : "bg-slate-900 text-white self-start"
-        }`}
-        >
-        {message.content}
-        </div>
+          <div
+            key={index}
+            className={`max-w-[85%] px-4 py-2 rounded-xl whitespace-pre-line ${
+              message.isUser
+                ? "bg-white text-black self-end"
+                : "bg-slate-900 text-white self-start"
+            }`}
+          >
+            {message.text}
+          </div>
         ))}
         </div>
       <div className="chat-input-container">

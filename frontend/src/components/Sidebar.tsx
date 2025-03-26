@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Состояние: показывать ли список чатов
-  const [isChatListVisible, setIsChatListVisible] = useState(true);
+//  const [isChatListVisible, setIsChatListVisible] = useState(true);
 
   // Список чатов, загружается с сервера
   //const [chats, setChats] = useState([]);
@@ -75,7 +75,7 @@ const Sidebar: React.FC = () => {
         <ul>
           <li>
             {/* Кнопка "Чаты" */}
-            <div onClick={toggleChatList} className="chat-link">
+            <div onClick={() => {}} className="chat-link">
               <FaHome className="icon" />
               {!isCollapsed && (
                 <div className="chat-link-content">
