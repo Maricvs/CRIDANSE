@@ -107,14 +107,23 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
         ))}
         </div>
       <div className="chat-input-container">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Введите сообщение..."
-          className="chat-input"
-        />
+          <textarea
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Введите сообщение..."
+            className="chat-input"
+            rows={1}
+          />
         <button
           onClick={handleSendMessage}
           className={`send-button ${inputValue.trim() ? 'active' : ''}`}

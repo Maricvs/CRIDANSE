@@ -2,10 +2,13 @@
 .chat-container-center {
   display: flex;
   flex-direction: column;
-  width: 100%; /* Занимает 80% ширины родителя */
-  max-width: 800px; /* Ограничиваем максимальную ширину */
-  background-color: rgb(30, 30, 30); /* Цвет фона контейнера */
-  overflow: hidden; /* Скрываем лишнее содержимое */
+  flex-grow: 1;
+  height: 100vh;
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #1e1e1e;
 }
 
 /* Заголовок чата */
@@ -19,12 +22,14 @@
 /* Контейнер сообщений */
 .chat-messages {
   flex: 1;
-  width: 100%;
   overflow-y: auto;
   padding: 20px;
-  background-color: rgb(30, 30, 30);
-  box-sizing: border-box;
+  background-color: #1e1e1e;
   border-radius: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Сообщения */
@@ -54,23 +59,29 @@
 .chat-input-container {
   display: flex;
   gap: 10px;
-  padding: 15px;
-  background-color: #1b1c1d;
+  padding: 15px 20px;
   border-top: 1px solid #34495e;
+  background-color: #1e1e1e;
   box-sizing: border-box;
-  border-radius: 10px;
+  width: 100%;
 }
 
 /* Поле ввода */
 .chat-input {
   flex: 1;
-  padding: 10px;
+  padding: 10px 14px;
   border: 1px solid #4a5568;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 16px;
   outline: none;
-  background-color: #34373b;
+  background-color: #2a2a2a;
   color: white;
+  resize: none;
+  line-height: 1.4;
+  overflow-y: auto;
+  max-height: 200px;
+  min-height: 40px;
+  height: auto;
 }
 
 .chat-input:focus {
@@ -105,4 +116,3 @@
   color: #919191;
   transition: color 0.3s, transform 0.3s;
 }
-
