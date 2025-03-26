@@ -11,11 +11,13 @@
   transition: width 0.3s;
 }
 
-.sidebar li {
-  gap: 10px;
+.sidebar-section li,
+.chat-link {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
+
 .icon {
   margin-right: 6px;
 }
@@ -33,10 +35,11 @@
 }
 
 .sidebar-logo {
+  position: relative;
+  height: 60px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px;
+  justify-content: center; /* центрирует логотип */
   font-size: 18px;
   font-weight: bold;
   border-bottom: 1px solid #333;
@@ -44,11 +47,19 @@
 }
 
 .sidebar-toggle {
+  position: absolute;
+  left: 10px;
+  top: 16px;
   background: none;
   border: none;
   color: #aaa;
   cursor: pointer;
   font-size: 18px;
+  z-index: 10;
+}
+
+.sidebar-toggle:hover {
+  color: white;
 }
 
 .sidebar-section {
@@ -107,7 +118,9 @@
 }
 
 .chat-list {
-  padding: 6px 0 10px 16px;
+  list-style: none;
+  padding: 6px 0 10px 10px;
+  margin: 0;
 }
 
 .chat-list li {
@@ -166,7 +179,6 @@
 }
 
 .user-greeting {
-  display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;

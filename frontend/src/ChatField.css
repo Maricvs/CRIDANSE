@@ -1,6 +1,7 @@
 /* Центрированный чат */
 .chat-container-center {
-  min-width: 768px;
+  width: 100%;
+  max-width: 768px;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
@@ -8,7 +9,6 @@
   height: 100%;
   box-sizing: border-box;
 }
-
 /* Приветствие */
 .chat-welcome h1,
 .chat-welcome p {

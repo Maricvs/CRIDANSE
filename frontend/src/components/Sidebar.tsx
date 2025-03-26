@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaHome, FaComments, FaCreditCard, FaUser, FaFile,
-  FaBook, FaSignInAlt, FaChevronDown
+  FaBook, FaSignInAlt, FaChevronDown, FaBars
 } from 'react-icons/fa';
 import '../Sidebar.css';
 
@@ -12,6 +12,7 @@ const Sidebar: React.FC = () => {
   const navigate = useNavigate();
 
   const userId = localStorage.getItem('user_id');
+  const { id: selectedChatId } = useParams();
   const userName = localStorage.getItem('user_name');
 
   useEffect(() => {
@@ -46,10 +47,11 @@ const Sidebar: React.FC = () => {
         <Link to="/" className="logo-text">
           {!isCollapsed && <span>Unlim Mind</span>}
         </Link>
-        <button onClick={() => setIsCollapsed(!isCollapsed)} className="sidebar-toggle">
-          {isCollapsed ? '>' : '<'}
-        </button>
       </div>
+
+      <button onClick={() => setIsCollapsed(!isCollapsed)} className="sidebar-toggle">
+        {isCollapsed ? <FaBars /> : <FaChevronLeft />}
+      </button>
 
       {/* Верхний блок с основными ссылками */}
       <div className="sidebar-section">
@@ -80,11 +82,14 @@ const Sidebar: React.FC = () => {
                 {chats.length === 0 && (
                   <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
                 )}
-                {Array.isArray(chats) && chats.map((chat: any) => (
-                  <li key={chat.id}>
-                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
-                  </li>
-                ))}
+                {Array.isArray(chats) && chats.map((chat: any) => {
+                  const isActive = chat.id === parseInt(selectedChatId || '', 10);
+                  return (
+                    <li key={chat.id} className={isActive ? 'active' : ''}>
+                      <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                    </li>
+                  );
+                })}
                 <li>
                   <button onClick={createNewChat}>+ Новый чат</button>
                 </li>
