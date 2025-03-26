@@ -19,12 +19,26 @@ html, body, #root {
   box-shadow: 0 0 15px rgba(0,0,0,0.1);
 }
 
+/* Боковая панель */
+.sidebar {
+  width: 260px;
+  min-width: 200px;
+  background-color: #2c2c2c;
+  border-right: 1px solid #444;
+  color: white;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Область чата */
 .main-content {
   flex-grow: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: stretch; /* 👈 растягивает чат по высоте */
   padding: 15px;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {

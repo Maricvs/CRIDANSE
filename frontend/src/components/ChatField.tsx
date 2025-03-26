@@ -100,7 +100,7 @@ const ChatField: React.FC = () => {
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`chat-bubble ${message.isUser ? 'user' : 'bot'}`}
+            className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}
           >
             {message.text}
           </div>
