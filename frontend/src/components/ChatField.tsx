@@ -87,13 +87,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
   return (
     <div className="chat-container-center">
       {!hasMessage && <ChatWelcomeMessage />}
-//      <div className="chat-messages">
+{/*      <div className="chat-messages">
 //        {messages.map((message, index) => (
 //          <div key={index} className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}>
 //            {message.text}
 //          </div>
 //        ))}
-//      </div>
+//      </div>*/}
         <div className="flex flex-col gap-4 p-4">
         {messagesToRender.map((message, index) => (
         <div
