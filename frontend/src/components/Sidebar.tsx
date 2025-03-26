@@ -14,7 +14,10 @@ const Sidebar: React.FC = () => {
   const [isChatListVisible, setIsChatListVisible] = useState(true);
 
   // Список чатов, загружается с сервера
-  const [chats, setChats] = useState([]);
+  //const [chats, setChats] = useState([]);
+  const [chats, setChats] = useState([
+  { id: 999, title: "Тестовый чат (локальный)" }
+  ]);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');      // ID пользователя
