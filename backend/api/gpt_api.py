@@ -85,24 +85,24 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
 
         reply = chat_completion.choices[0].message.content
 
-            # 💾 Сохраняем в БД
-            user_message = Message(
-                user_id=request.user_id,
-                chat_id=request.chat_id,
-                role="user",
-                message=request.prompt
-            )
-            db.add(user_message)
+        # 💾 Сохраняем в БД
+        user_message = Message(
+            user_id=request.user_id,
+            chat_id=request.chat_id,
+            role="user",
+            message=request.prompt
+        )
+        db.add(user_message)
 
-            bot_message = Message(
-                user_id=request.user_id,
-                chat_id=request.chat_id,
-                role="assistant",
-                message=reply
-            )
-            db.add(bot_message)
+        bot_message = Message(
+            user_id=request.user_id,
+            chat_id=request.chat_id,
+            role="assistant",
+            message=reply
+        )
+        db.add(bot_message)
 
-            db.commit()
+        db.commit()
         return {"response": reply}
 
     except Exception as e:
