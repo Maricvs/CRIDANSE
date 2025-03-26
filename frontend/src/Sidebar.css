@@ -17,7 +17,7 @@ a:hover {
   flex-direction: column;
   border-right: 1px solid #333;
   overflow-y: auto;
-  transition: width 0.3s;
+  transition: all 0.3s ease-in-out;
 }
 
 .sidebar-section li,
@@ -34,6 +34,7 @@ a:hover {
 .sidebar.collapsed {
   width: 60px;
   overflow: hidden;
+  transition: all 0.3s ease-in-out;
 }
 
 .sidebar.collapsed .chat-list,
@@ -41,6 +42,16 @@ a:hover {
 .sidebar.collapsed .sidebar-section,
 .sidebar.collapsed .sidebar-footer span {
   display: none;
+}
+
+.sidebar-content {
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.sidebar.collapsed .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sidebar-logo {
