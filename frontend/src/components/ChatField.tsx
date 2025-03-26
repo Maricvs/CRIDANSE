@@ -1,129 +1,80 @@
-import React, { useState } from 'react';
-import { askGPT } from '../api/api';
-import { FaPaperPlane } from 'react-icons/fa';
-import ChatWelcomeMessage from './ChatWelcomeMessage';
-import '../styles/ChatField.css';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { FaPaperPlane } from 'react-icons/fa';
+import './ChatField.css';
 
-// ✅ Новое: принимаем chatId как необязательный проп
-interface ChatFieldProps {
-  chatId?: number;
-}
-
-const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
+const ChatField: React.FC = () => {
+  const { id } = useParams();
   const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [hasMessage, setHasMessage] = useState(false);
+  const chatId = id ? parseInt(id, 10) : null;
 
-  const { id: urlChatId } = useParams();
-  const effectiveChatId = propChatId ?? Number(urlChatId); // ✅ используем либо prop, либо URL
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
 
-  const user_id = localStorage.getItem('user_id');
-
-  const handleSendMessage = async () => {
-    const trimmed = inputValue.trim();
-    if (!trimmed || !user_id) return;
-
-    const userMessage = { text: trimmed, isUser: true };
+    const userMessage = { text: inputValue, isUser: true };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
-    setHasMessage(true);
 
-    try {
-      // ✅ Сохраняем сообщение пользователя
-      await fetch('/api/chats/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: Number(user_id),
-          chat_id: effectiveChatId,
-          role: 'user',
-          message: trimmed,
-        }),
+    fetch('/api/gpt/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: inputValue,
+        user_id: localStorage.getItem('user_id'),
+        chat_id: chatId,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const botMessage = { text: data.response || 'Ошибка', isUser: false };
+        setMessages((prev) => [...prev, botMessage]);
+      })
+      .catch(() => {
+        setMessages((prev) => [...prev, { text: 'Ошибка при запросе 😢', isUser: false }]);
       });
-
-      const res = await askGPT({
-        prompt: trimmed,
-        user_id: Number(user_id),
-        chat_id: effectiveChatId,
-      });
-      const botMessage = { text: res.response, isUser: false };
-      setMessages((prev) => [...prev, botMessage]);
-
-      // ✅ Сохраняем ответ бота
-      await fetch('/api/chats/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: Number(user_id),
-          chat_id: effectiveChatId,
-          role: 'assistant',
-          message: res.response,
-        }),
-      });
-    } catch (err) {
-      const errorMessage = { text: 'Ошибка при запросе 😢', isUser: false };
-      setMessages((prev) => [...prev, errorMessage]);
-    }
-    console.log("👉 GPT запрос:", {
-      prompt: trimmed,
-      user_id: Number(user_id),
-      chat_id: effectiveChatId,
-    });
   };
 
-    // Временно вставим это в верхнюю часть ChatField.tsx, до return:
-    const fakeChatData = [
-      { text: "Привет! Это тестовое сообщение.", isUser: true },
-      { text: "Привет! Я тебя слышу, это ответ бота.", isUser: false },
-      { text: "Супер, значит фронт работает.", isUser: true },
-    ];
-
-  // Используем временно: если chatData не пришёл — берём фейковый
-  const messagesToRender = messages.length > 0 ? messages : fakeChatData;
+  const hasMessage = messages.length > 0;
 
   return (
     <div className="chat-container-center">
-      {!hasMessage && <ChatWelcomeMessage />}
-{/*      <div className="chat-messages">
-//        {messages.map((message, index) => (
-//          <div key={index} className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}>
-//            {message.text}
-//          </div>
-//        ))}
-//      </div>*/}
-        <div className="flex flex-col gap-4 p-4">
-        {messagesToRender.map((message, index) => (
+      {!hasMessage && (
+        <div className="chat-welcome">
+          <h1>Добро пожаловать!</h1>
+          <p>/ на бета-версию UnlimAI \</p>
+        </div>
+      )}
+
+      <div className="chat-messages">
+        {messages.map((message, index) => (
           <div
             key={index}
-            className={`max-w-[85%] px-4 py-2 rounded-xl whitespace-pre-line ${
-              message.isUser
-                ? "bg-white text-black self-end"
-                : "bg-slate-900 text-white self-start"
-            }`}
+            className={`chat-bubble ${message.isUser ? 'user' : 'bot'}`}
           >
             {message.text}
           </div>
         ))}
-        </div>
+      </div>
+
       <div className="chat-input-container">
-          <textarea
-            value={inputValue}
-            onChange={(e) => {
-              setInputValue(e.target.value);
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder="Введите сообщение..."
-            className="chat-input"
-            rows={1}
-          />
+        <textarea
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
+          placeholder="Введите сообщение..."
+          className="chat-input"
+          rows={1}
+        />
         <button
           onClick={handleSendMessage}
           className={`send-button ${inputValue.trim() ? 'active' : ''}`}
