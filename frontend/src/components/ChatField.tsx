@@ -1,48 +1,77 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
 
 const ChatField: React.FC = () => {
   const { id } = useParams();
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
-  const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
   const chatId = id ? parseInt(id, 10) : null;
 
-  const handleSendMessage = () => {
+  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [creatingChat, setCreatingChat] = useState(false);
+
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const userMessage = { text: inputValue, isUser: true };
     setMessages((prev) => [...prev, userMessage]);
+    const userId = localStorage.getItem('user_id');
+    const prompt = inputValue;
     setInputValue('');
 
-    fetch('/api/gpt/ask', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: inputValue,
-        user_id: localStorage.getItem('user_id'),
-        chat_id: chatId,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const botMessage = { text: data.response || 'Ошибка', isUser: false };
-        setMessages((prev) => [...prev, botMessage]);
-      })
-      .catch(() => {
-        setMessages((prev) => [...prev, { text: 'Ошибка при запросе 😢', isUser: false }]);
-      });
-  };
+    try {
+      let currentChatId = chatId;
 
-  const hasMessage = messages.length > 0;
+      // Создаём новый чат, если его нет
+      if (!currentChatId && !creatingChat) {
+        setCreatingChat(true);
+        const chatResponse = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: parseInt(userId || '0', 10),
+            title: 'Новый чат',
+          }),
+        });
+
+        const newChat = await chatResponse.json();
+        currentChatId = newChat.id;
+        navigate(`/chat/${currentChatId}`);
+      }
+
+      // Отправляем сообщение в GPT
+      const response = await fetch('/api/gpt/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt,
+          user_id: userId,
+          chat_id: currentChatId,
+        }),
+      });
+
+      const data = await response.json();
+      const botMessage = { text: data.response || 'Ошибка', isUser: false };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (err) {
+      setMessages((prev) => [...prev, { text: 'Ошибка при запросе 😢', isUser: false }]);
+    }
+  };
 
   return (
     <div className="chat-container-center">
-      {!hasMessage && (
+      {messages.length === 0 && (
         <div className="chat-welcome">
-          <h1>Добро пожаловать!</h1>
-          <p>/ на бета-версию UnlimAI \</p>
+          {!chatId ? (
+            <>
+              <h1>Добро пожаловать!</h1>
+              <p>/ на бета-версию UnlimAI \</p>
+            </>
+          ) : (
+            <h2>Чат № {chatId}</h2>
+          )}
         </div>
       )}
 
