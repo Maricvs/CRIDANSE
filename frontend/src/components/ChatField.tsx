@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
-import './ChatField.css';
+import '../ChatField.css';
 
 const ChatField: React.FC = () => {
   const { id } = useParams();
