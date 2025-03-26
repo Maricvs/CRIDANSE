@@ -8,17 +8,30 @@ a:hover {
 }
 
 .sidebar {
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 260px;
-  min-width: 200px;
+  height: 100vh;
   background-color: #1e1e1e;
-  color: #fff;
+  color: white;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #333;
-  overflow-y: auto;
-  transition: all 0.3s ease-in-out;
   z-index: 999;
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sidebar.expanded {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .sidebar-section li,
@@ -32,13 +45,6 @@ a:hover {
   margin-right: 6px;
 }
 
-.sidebar.expanded {
-  display: flex;
-}
-
-.sidebar.collapsed {
-  display: none;
-}
 
 .sidebar.collapsed .chat-list,
 .sidebar.collapsed .chat-link-content,
