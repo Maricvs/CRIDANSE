@@ -18,7 +18,7 @@ const App: React.FC = () => {
         <Sidebar />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<ChatField />} />
+            <Route path="/" element={<ChatField chatId={1} />} />
             <Route path="/chat/:id" element={<Chat />} /> {/* ← Добавлено это */}
             <Route path="/libraries" element={<Libraries />} />
             <Route path="/auth" element={<Auth />} />
