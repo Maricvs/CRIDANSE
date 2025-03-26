@@ -80,27 +80,28 @@ const Sidebar: React.FC = () => {
               {!isCollapsed && (
                 <div className="chat-link-content">
                   <span>Чаты</span>
-                  {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
+                //  {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
+                <FaChevronDown />
                 </div>
               )}
             </div>
 
             {/* Выпадающий список чатов */}
-              {!isCollapsed && isChatListVisible && (
-                <ul className="chat-list">
-                  {chats.length === 0 && (
-                    <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-                  )}
-                  {Array.isArray(chats) && chats.map((chat) => (
-                    <li key={chat.id}>
-                      <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
-                    </li>
-                  ))}
-                  <li>
-                    <button onClick={createNewChat}>+ Новый чат</button>
+            {!isCollapsed && (
+              <ul className="chat-list">
+                {chats.length === 0 && (
+                  <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+                )}
+                {Array.isArray(chats) && chats.map((chat) => (
+                  <li key={chat.id}>
+                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
                   </li>
-                </ul>
-              )}
+                ))}
+                <li>
+                  <button onClick={createNewChat}>+ Новый чат</button>
+                </li>
+              </ul>
+            )}
           </li>
 
           {/* Остальные пункты меню */}
