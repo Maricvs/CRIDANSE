@@ -85,7 +85,7 @@ const ChatField: React.FC = () => {
     <div className="chat-container-center">
     {!hasMessage && !chatId && (
       <div className="chat-welcome">
-        <h1>Твой помощник в знаниях/h1>
+        <h1>Твой помощник в знаниях</h1>
         <p>Что мы сегодня изучим?</p>
       </div>
       )}
