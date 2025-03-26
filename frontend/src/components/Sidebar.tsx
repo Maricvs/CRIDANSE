@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaHome, FaComments, FaCreditCard, FaUser, FaFile,
-  FaBook, FaSignInAlt, FaChevronDown, FaBars
+  FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft
 } from 'react-icons/fa';
 import '../Sidebar.css';
 
@@ -67,15 +67,15 @@ const Sidebar: React.FC = () => {
       <nav className="sidebar-nav">
         <ul>
           <li>
-            <div onClick={() => {}} className="chat-link">
-              <FaHome className="icon" />
-              {!isCollapsed && (
-                <div className="chat-link-content">
-                  <span>Чаты</span>
-                  <FaChevronDown />
-                </div>
-              )}
-            </div>
+          <div onClick={() => {}} className="chat-link">
+            <FaHome className="icon" />
+            {!isCollapsed && (
+              <>
+                <span>Чаты</span>
+                <FaChevronDown />
+              </>
+            )}
+          </div>
 
             {!isCollapsed && (
               <ul className="chat-list">
