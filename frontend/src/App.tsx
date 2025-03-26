@@ -7,7 +7,6 @@ import ChatField from './components/ChatField';
 // import UserCollege from './components/UserCollege';
 // import Documents from './components/Documents';
 import Libraries from './components/Libraries';
-import Chat from './components/Chat';
 import Auth from './components/Auth';
 import './App.css';
 
