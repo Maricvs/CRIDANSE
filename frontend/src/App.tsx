@@ -19,7 +19,7 @@ const App: React.FC = () => {
         <div className="main-content">
           <Routes>
             <Route path="/" element={<ChatField />} />
-            <Route path="/chat/:id" element={<Chat />} /> {/* ← Добавлено это */}
+            <Route path="/chat/:id" element={<ChatField />} />
             <Route path="/libraries" element={<Libraries />} />
             <Route path="/auth" element={<Auth />} />
           </Routes>
