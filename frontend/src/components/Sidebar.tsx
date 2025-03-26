@@ -24,22 +24,22 @@ const Sidebar: React.FC = () => {
   const userName = localStorage.getItem('user_name');  // Имя пользователя
 
   // Загрузка чатов при монтировании компонента
-  useEffect(() => {
-    if (!userId) {
-      console.warn("⚠️ user_id не найден в localStorage");
-      return;
-    }
+  // useEffect(() => {
+//   if (!userId) {
+//     console.warn("⚠️ user_id не найден в localStorage");
+//     return;
+//   }
 
-    console.log("📡 Загружаем чаты для user_id =", userId);
+//   console.log("📡 Загружаем чаты для user_id =", userId);
 
-    fetch(`/api/chats/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("📥 Получены чаты:", data);
-        setChats(data);
-      })
-      .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
-  }, [userId]);
+//   fetch(`/api/chats/${userId}`)
+//     .then(res => res.json())
+//     .then(data => {
+//       console.log("📥 Получены чаты:", data);
+//       setChats(data);
+//     })
+//     .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
+// }, [userId]);
 
   // Создание нового чата
   const createNewChat = () => {
