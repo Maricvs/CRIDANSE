@@ -83,17 +83,11 @@ const ChatField: React.FC = () => {
 
   return (
     <div className="chat-container-center">
-      {!hasMessage && (
-        <div className="chat-welcome">
-          {!chatId ? (
-            <>
-              <h1>Добро пожаловать!</h1>
-              <p>/ на бета-версию UnlimAI \</p>
-            </>
-          ) : (
-            <h2>Чат № {chatId}</h2>
-          )}
-        </div>
+    {!hasMessage && !chatId && (
+      <div className="chat-welcome">
+        <h1>Твой помощник в знаниях/h1>
+        <p>Что мы сегодня изучим?</p>
+      </div>
       )}
 
       <div className="chat-messages">
@@ -121,7 +115,7 @@ const ChatField: React.FC = () => {
               handleSendMessage();
             }
           }}
-          placeholder="Введите сообщение..."
+          placeholder="Что хотите спросить?"
           className="chat-input"
           rows={1}
         />

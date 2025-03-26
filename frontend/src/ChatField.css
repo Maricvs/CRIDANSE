@@ -1,6 +1,6 @@
 /* Центрированный чат */
 .chat-container-center {
-  max-width: 768px;
+  min-width: 768px;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
@@ -15,6 +15,7 @@
   color: white;
   text-align: center;
   margin: 0.5rem 0;
+  margin-bottom: 1.5rem;
 }
 
 /* Список сообщений */
@@ -25,6 +26,14 @@
   flex-direction: column;
   gap: 12px;
   padding-bottom: 1rem;
+  width: 100%;
+}
+
+.chat-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Общее сообщение */
@@ -116,4 +125,10 @@
   font-size: 20px;
   color: #ccc;
   transition: color 0.3s, transform 0.3s;
+}
+
+@media (min-width: 768px) {
+  .chat-wrapper {
+    min-width: 600px;
+  }
 }
