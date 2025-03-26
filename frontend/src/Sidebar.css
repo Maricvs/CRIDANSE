@@ -120,9 +120,12 @@
   list-style: none;
   padding-left: 30px;
   margin: 0;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
+  max-height: none;
+  overflow: visible;
+  transition: none;
+  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
 .sidebar-nav ul li .chat-list.open {
