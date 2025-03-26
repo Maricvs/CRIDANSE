@@ -23,7 +23,10 @@ const Sidebar: React.FC = () => {
   const userName = localStorage.getItem('user_name');
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn("⚠️ user_id не найден в localStorage");
+      return;
+    }
 
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
@@ -39,13 +42,16 @@ const Sidebar: React.FC = () => {
     setIsChatListVisible(!isChatListVisible);
   };
 
+  const [chats, setChats] = useState([]);
+
   const createNewChat = () => {
     fetch('/api/chats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: parseInt(userId || '0'),
-        title: `Чат ${chats.length + 1}`,
+        title: `Чат ${chats.length === 0 && (
+          <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>)}`,
       }),
     })
       .then(res => res.json())
