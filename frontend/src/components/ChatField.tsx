@@ -22,7 +22,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ chatId: propChatId }) => {
 
   const handleSendMessage = async () => {
     const trimmed = inputValue.trim();
-    if (!trimmed || !effectiveChatId || !user_id) return;
+    if (!trimmed || !user_id) return;
 
     const userMessage = { text: trimmed, isUser: true };
     setMessages((prev) => [...prev, userMessage]);
