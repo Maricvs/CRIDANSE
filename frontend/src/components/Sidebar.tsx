@@ -42,16 +42,25 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-      <div className="sidebar-logo">
-        <Link to="/" className="logo-text">
-          {!isCollapsed && <span>Unlim Mind</span>}
-        </Link>
-      </div>
-
-      <button onClick={() => setIsCollapsed(!isCollapsed)} className="sidebar-toggle">
-        {isCollapsed ? <FaBars /> : <FaChevronLeft />}
+    {isCollapsed && (
+      <button onClick={() => setIsCollapsed(false)} className="sidebar-toggle-fixed">
+        <FaBars />
       </button>
+    )}
+
+    <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      {!isCollapsed && (
+        <>
+          <div className="sidebar-logo">
+            <Link to="/" className="logo-text">
+              <span>Unlim Mind</span>
+            </Link>
+            <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
+              <FaChevronLeft />
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Верхний блок с основными ссылками */}
       <div className="sidebar-section">

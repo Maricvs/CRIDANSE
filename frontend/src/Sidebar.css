@@ -71,6 +71,22 @@ a:hover {
   color: white;
 }
 
+.sidebar-toggle-fixed {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 20px;
+  z-index: 1000;
+}
+
+.sidebar-toggle-fixed:hover {
+  color: white;
+}
+
 .sidebar-section {
   padding: 12px 0;
   border-bottom: 1px solid #333;
