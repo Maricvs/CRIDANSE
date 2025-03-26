@@ -62,6 +62,9 @@ const Sidebar: React.FC = () => {
   // JSX компонента
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <div style={{ color: 'red', padding: '1em' }}>
+          [DEBUG] Sidebar загружен
+      </div>
       <div className="sidebar-logo">
         <Link to="/">
           {!isCollapsed && <span>Unlim Mind</span>}
