@@ -95,6 +95,9 @@ const Sidebar: React.FC = () => {
                 {chats.length === 0 && (
                   <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
                 )}
+                <li style={{ color: 'orange', paddingLeft: '1em' }}>
+                  [DEBUG] Список чатов активен
+                </li>
                 {Array.isArray(chats) && chats.map((chat) => (
                   <li key={chat.id}>
                     <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
