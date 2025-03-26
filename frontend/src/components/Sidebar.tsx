@@ -80,7 +80,7 @@ const Sidebar: React.FC = () => {
               {!isCollapsed && (
                 <div className="chat-link-content">
                   <span>Чаты</span>
-                //  {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />}
+                {/* {isChatListVisible ? <FaChevronUp /> : <FaChevronDown />} */}
                 <FaChevronDown />
                 </div>
               )}
