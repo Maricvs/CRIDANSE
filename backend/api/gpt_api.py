@@ -12,8 +12,6 @@ import os
 from sqlalchemy.orm import Session
 from models.models import Message
 
-print("OPENAI_API_KEY =", os.getenv("OPENAI_API_KEY"))
-
 router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 

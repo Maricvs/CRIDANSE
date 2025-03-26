@@ -1,47 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  FaHome,
-  FaComments,
-  FaCreditCard,
-  FaUser,
-  FaFile,
-  FaBook,
-  FaSignInAlt,
-  FaChevronDown,
-  FaChevronUp
+  FaHome, FaComments, FaCreditCard, FaUser, FaFile,
+  FaBook, FaSignInAlt, FaChevronDown, FaChevronUp
 } from 'react-icons/fa';
 import '../Sidebar.css';
-import { useNavigate } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
+  // Состояние: свернута ли панель
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isChatListVisible, setIsChatListVisible] = useState(true);
-  const [chats, setChats] = useState([]);
-  const navigate = useNavigate();
-  const userId = localStorage.getItem('user_id');
-  const userName = localStorage.getItem('user_name');
 
+  // Состояние: показывать ли список чатов
+  const [isChatListVisible, setIsChatListVisible] = useState(true);
+
+  // Список чатов, загружается с сервера
+  const [chats, setChats] = useState([]);
+
+  const navigate = useNavigate();
+  const userId = localStorage.getItem('user_id');      // ID пользователя
+  const userName = localStorage.getItem('user_name');  // Имя пользователя
+
+  // Загрузка чатов при монтировании компонента
   useEffect(() => {
     if (!userId) {
       console.warn("⚠️ user_id не найден в localStorage");
       return;
     }
 
+    console.log("📡 Загружаем чаты для user_id =", userId);
+
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
-      .then(data => setChats(data))
+      .then(data => {
+        console.log("📥 Получены чаты:", data);
+        setChats(data);
+      })
       .catch(err => console.error('❌ Ошибка при загрузке чатов:', err));
   }, [userId]);
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed);
-  };
-
-  const toggleChatList = () => {
-    setIsChatListVisible(!isChatListVisible);
-  };
-
+  // Создание нового чата
   const createNewChat = () => {
     fetch('/api/chats', {
       method: 'POST',
@@ -59,19 +56,22 @@ const Sidebar: React.FC = () => {
       .catch(err => console.error('❌ Ошибка при создании чата:', err));
   };
 
+  // JSX компонента
   return (
     <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
         <Link to="/">
           {!isCollapsed && <span>Unlim Mind</span>}
         </Link>
-        <button onClick={toggleSidebar} className="sidebar-toggle">
+        <button onClick={() => setIsCollapsed(!isCollapsed)} className="sidebar-toggle">
           {isCollapsed ? '>' : '<'}
         </button>
       </div>
+
       <nav className="sidebar-nav">
         <ul>
           <li>
+            {/* Кнопка "Чаты" */}
             <div onClick={toggleChatList} className="chat-link">
               <FaHome className="icon" />
               {!isCollapsed && (
@@ -82,56 +82,34 @@ const Sidebar: React.FC = () => {
               )}
             </div>
 
+            {/* Выпадающий список чатов */}
             {!isCollapsed && isChatListVisible && (
               <ul className="chat-list">
-              {chats.length === 0 && (
-                <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-              )}
-              {Array.isArray(chats) && chats.map((chat) => (
-                <li key={chat.id}>
-                  <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                {chats.length === 0 && (
+                  <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+                )}
+                {Array.isArray(chats) && chats.map((chat) => (
+                  <li key={chat.id}>
+                    <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                  </li>
+                ))}
+                <li>
+                  <button onClick={createNewChat}>+ Новый чат</button>
                 </li>
-              ))}
-              <li>
-                <button onClick={createNewChat}>
-                  + Новый чат
-                </button>
-              </li>
-            </ul>
+              </ul>
             )}
           </li>
-          <li>
-            <Link to="/support">
-              <FaComments className="icon" />
-              {!isCollapsed && <span>Поддержка</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="/subscriptions">
-              <FaCreditCard className="icon" />
-              {!isCollapsed && <span>Подписки</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="/profile">
-              <FaUser className="icon" />
-              {!isCollapsed && <span>Профиль</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="/documents">
-              <FaFile className="icon" />
-              {!isCollapsed && <span>Документы</span>}
-            </Link>
-          </li>
-          <li>
-            <Link to="/libraries">
-              <FaBook className="icon" />
-              {!isCollapsed && <span>Библиотеки</span>}
-            </Link>
-          </li>
+
+          {/* Остальные пункты меню */}
+          <li><Link to="/support"><FaComments className="icon" /> {!isCollapsed && <span>Поддержка</span>}</Link></li>
+          <li><Link to="/subscriptions"><FaCreditCard className="icon" /> {!isCollapsed && <span>Подписки</span>}</Link></li>
+          <li><Link to="/profile"><FaUser className="icon" /> {!isCollapsed && <span>Профиль</span>}</Link></li>
+          <li><Link to="/documents"><FaFile className="icon" /> {!isCollapsed && <span>Документы</span>}</Link></li>
+          <li><Link to="/libraries"><FaBook className="icon" /> {!isCollapsed && <span>Библиотеки</span>}</Link></li>
         </ul>
       </nav>
+
+      {/* Подвал с именем пользователя */}
       <div className="sidebar-footer">
         {userName ? (
           <div className="user-greeting">
