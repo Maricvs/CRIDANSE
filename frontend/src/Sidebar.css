@@ -1,10 +1,12 @@
 /* Стили для сайдбара */
 .sidebar {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   z-index: 1000;
   width: 250px;
   height: 100vh;
-  background-color: #1e453b;
+  background-color: #1e1e1e;
   color: white;
   transition: width 0.3s ease, padding 0.3s ease;
 }
@@ -28,7 +30,7 @@
   text-align: center;
   font-size: 24px;
   font-weight: bold;
-  background-color: #34495e;
+  background-color: #2c2c2c;
   position: relative;
   flex-shrink: 0;
   transition: padding 0.3s ease;
@@ -149,7 +151,7 @@
 .sidebar-footer {
   padding: 20px;
   text-align: center;
-  background-color: #34495e;
+  background-color: #2c2c2c;
   flex-shrink: 0;
 }
 
