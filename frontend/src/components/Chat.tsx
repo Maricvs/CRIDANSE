@@ -34,7 +34,7 @@ export default function Chat() {
     if (id) fetchMessages();
   }, [id]);
 
-  if (loading) return <p>Загрузка сообщений...</p>;
+
   if (error) return <p>{error}</p>;
 
   const isWideScreen = window.innerWidth >= 768;
@@ -47,6 +47,7 @@ export default function Chat() {
       </div>
     );
   }
+  if (loading) return <p>Загрузка сообщений...</p>;
 
   return (
     <div className={wrapperClass}>
