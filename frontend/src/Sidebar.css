@@ -132,6 +132,7 @@ a:hover {
 
 .sidebar-nav > ul > li {
   list-style: none;
+  padding: 0;
 }
 
 .sidebar-section ul {
