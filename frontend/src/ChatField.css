@@ -33,6 +33,23 @@
   transition: margin-left 0.3s ease;
 }
 
+.chat-messages,
+.chat-input-container {
+  max-width: 768px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.chat-input-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
 .chat-wrapper {
   display: flex;
   flex-direction: column;
@@ -174,8 +191,5 @@
     transition: padding-left 0.3s ease;
   }
 
-  .with-sidebar .chat-wrapper {
-    justify-content: flex-start;
-    padding-left: 120px; /* или calc(240px / 2) */
-  }
+
 }
