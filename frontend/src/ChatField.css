@@ -1,3 +1,17 @@
+/* Глобальный кастомный скроллбар */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* Центрированный чат */
 .chat-container-center {
   width: 100%;
