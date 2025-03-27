@@ -174,10 +174,3 @@
     margin-left: 240px; /* ширина сайдбара */
   }
 }
-
-@media (min-width: 768px) {
-  .with-sidebar .chat-messages,
-  .with-sidebar .chat-input-container {
-    margin-left: 240px; /* ширина сайдбара */
-  }
-}

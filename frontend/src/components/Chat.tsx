@@ -1,10 +1,8 @@
-
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
 
-// ✅ Интерфейс сообщения
 interface Message {
   id: number;
   role: string;
@@ -18,7 +16,6 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Загружаем сообщения при монтировании
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -52,17 +49,18 @@ export default function Chat() {
 
   return (
     <div className={wrapperClass}>
-      <h2>Чат № {id}</h2>
-      <ul>
-        {messages.map((msg) => (
-          <li key={msg.id}>
-            <strong>{msg.role === "user" ? "Вы" : "AI"}:</strong> {msg.message}
-            <br />
-            <small>{new Date(msg.created_at).toLocaleString()}</small>
-          </li>
-        ))}
-      </ul>
-      
+      <div className="chat-messages">
+        <ul>
+          {messages.map((msg) => (
+            <li key={msg.id}>
+              <strong>{msg.role === "user" ? "Вы" : "AI"}:</strong> {msg.message}
+              <br />
+              <small>{new Date(msg.created_at).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <ChatField />
     </div>
   );
