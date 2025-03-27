@@ -47,6 +47,7 @@ jobs:
           python3 tools/notifier-bot/telegram.py "✅ Деплой завершён успешно!"
 
   monitor:
+    needs: deploy  # 💡 ВАЖНО: запускается ТОЛЬКО после деплоя
     runs-on: ubuntu-latest
 
     steps:
