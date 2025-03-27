@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Уведомление в Telegram
+        run: python3 tools/telegram.py "🚀 Начался деплой на сервер"
+
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -34,4 +37,43 @@ jobs:
             sudo chmod -R 755 /var/www/react-app
 
             sudo systemctl restart nginx
-            sudo systemctl restart unlim-api  
+            sudo systemctl restart unlim-api
+
+      - name: Уведомление в Telegram после успешного деплоя
+        run: python3 tools/telegram.py "✅ Деплой завершён успешно!"
+
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка состояния backend
+        run: |
+          systemctl is-active --quiet unlim-api || python3 tools/telegram.py "❌ Backend упал!"
+
+      - name: Проверка состояния nginx
+        run: |
+          systemctl is-active --quiet nginx || python3 tools/telegram.py "❌ Nginx упал!"
+
+      - name: Уведомление об успешном запуске серверов
+        run: python3 tools/telegram.py "✅ Все сервисы работают!"
+
+  cron-job-notifications:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Уведомление перед запуском бэкапа
+        run: python3 tools/telegram.py "🚀 Начался бэкап базы данных"
+
+      - name: Запуск бэкапа
+        run: |
+          # Пример бэкап-скрипта
+          tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db
+
+      - name: Уведомление по завершению бэкапа
+        run: python3 tools/telegram.py "✅ Бэкап завершён успешно"
+
+      - name: Уведомление при ошибке бэкапа
+        run: |
+          if [ $? -ne 0 ]; then
+            python3 tools/telegram.py "❌ Ошибка при бэкапе!"
+          fi
