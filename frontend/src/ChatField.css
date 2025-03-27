@@ -79,6 +79,7 @@
 }
 
 .chat-input-container {
+  position: relative;
   max-width: 768px;
   margin: 0 auto;
   width: 100%;
@@ -172,5 +173,8 @@
   .with-sidebar .chat-messages,
   .with-sidebar .chat-input-container {
     margin-left: 240px; /* ширина сайдбара */
+  }
+  .with-sidebar .chat-input-wrapper {
+    margin-left: 240px;
   }
 }

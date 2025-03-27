@@ -47,7 +47,7 @@ export default function Chat() {
       </div>
     );
   }
-  if (loading) return <p>Загрузка сообщений...</p>;
+  if (loading) return <p>Загрузка сообщений...</p>;2
 
   return (
     <div className={wrapperClass}>
