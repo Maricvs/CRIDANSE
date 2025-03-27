@@ -38,7 +38,7 @@ const ChatField: React.FC = () => {
       }
 
       // Отправляем сообщение в GPT
-      const response = await fetch('/api/gpt/ask', {
+      await fetch('/api/gpt/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
