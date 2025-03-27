@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
@@ -48,7 +48,6 @@ const ChatField: React.FC = () => {
         }),
       });
 
-      const data = await response.json();
     } catch (err) {
     }
   };
