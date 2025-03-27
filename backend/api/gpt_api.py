@@ -123,12 +123,12 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
                 print("Ошибка генерации названия чата:", title_error)
 
         return {"response": reply}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     class TitleRequest(BaseModel):
-    message: str
+        message: str
 
     class TitleResponse(BaseModel):
         title: str
