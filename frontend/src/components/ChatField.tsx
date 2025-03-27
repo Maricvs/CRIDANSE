@@ -10,33 +10,9 @@ const ChatField: React.FC = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
-
-  // 📥 Загрузка сообщений при открытии чата
-  useEffect(() => {
-    if (!chatId) return;
-
-    const fetchMessages = async () => {
-      try {
-        const response = await fetch(`/api/chats/messages/by_chat/${chatId}`);
-        const data = await response.json();
-        if (data && Array.isArray(data)) {
-        const mapped = data.map((msg: any) => ({
-          text: msg.message,
-          isUser: msg.role === 'user',
-        }));
-      }
-      } catch (err) {
-        console.error('Ошибка при загрузке сообщений:', err);
-      }
-    };
-
-    fetchMessages();
-  }, [chatId]);
-
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const userMessage = { text: inputValue, isUser: true };
     const userId = localStorage.getItem('user_id');
     const prompt = inputValue;
     setInputValue('');
@@ -73,8 +49,7 @@ const ChatField: React.FC = () => {
       });
 
       const data = await response.json();
-      const botMessage = { text: data.response || 'Ошибка', isUser: false };
-    } catch (err) {      
+    } catch (err) {
     }
   };
 
