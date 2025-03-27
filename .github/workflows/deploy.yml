@@ -76,12 +76,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Уведомление перед запуском бэкапа
-        run: |
-          cd ${{ github.workspace }}
-          python3 tools/notifier-bot/telegram.py "🚀 Начался бэкап базы данных"
-
-      - name: Запуск бэкапа (на сервере)
+      - name: Выполнить бэкап и отправить уведомления (на сервере)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -89,9 +84,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            cd /var/www/unlim-mind-ai
+
+            python3 tools/notifier-bot/telegram.py "🚀 Начался бэкап базы данных"
+
             tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db
 
-      - name: Уведомление о завершении бэкапа
-        run: |
-          cd ${{ github.workspace }}
-          python3 tools/notifier-bot/telegram.py "✅ Бэкап завершён успешно"
+            if [ $? -eq 0 ]; then
+              python3 tools/notifier-bot/telegram.py "✅ Бэкап завершён успешно"
+            else
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при бэкапе!"
+            fi
