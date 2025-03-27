@@ -76,6 +76,7 @@
   justify-content: center;
   padding: 1rem;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .chat-input-container {
@@ -92,6 +93,7 @@
 /* Поле ввода */
 .chat-input {
   flex: 1;
+  width: 100%;
   padding: 10px 14px;
   font-size: 15px;
   line-height: 1.4;
@@ -169,12 +171,5 @@
 @media (min-width: 768px) {
   .chat-wrapper {
     min-width: 600px;
-  }
-  .with-sidebar .chat-messages,
-  .with-sidebar .chat-input-container {
-    margin-left: 240px; /* ширина сайдбара */
-  }
-  .with-sidebar .chat-input-wrapper {
-    margin-left: 240px;
   }
 }
