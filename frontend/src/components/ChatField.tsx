@@ -83,8 +83,6 @@ const ChatField: React.FC = () => {
     }
   };
 
-  const hasMessage = messages.length > 0;
-
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
