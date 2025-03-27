@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
-import ChatField from './components/ChatField';
 // import SuppChat from './components/SuppChat';
 // import SubscrPackage from './components/SubscrPackage';
 // import UserCollege from './components/UserCollege';
