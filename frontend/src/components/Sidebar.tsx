@@ -5,34 +5,30 @@ import {
   FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft
 } from 'react-icons/fa';
 import '../Sidebar.css';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 
 const Sidebar: React.FC = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [chats, setChats] = useState<{ id: number; title: string }[]>([]);
-  const navigate = useNavigate();
+  const [editingChatId, setEditingChatId] = useState<number | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
 
+  const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
   const { id: selectedChatId } = useParams();
   const userName = localStorage.getItem('user_name');
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth <= 767) {
-        setIsCollapsed(true);
-      } else {
-        setIsCollapsed(false);
-      }
+      setIsCollapsed(window.innerWidth <= 767);
     };
-
     window.addEventListener('resize', handleResize);
-    handleResize(); // вызвать сразу при загрузке
-
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
     if (!userId) return;
-
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
       .then(data => setChats(data))
@@ -56,6 +52,39 @@ const Sidebar: React.FC = () => {
       .catch(console.error);
   };
 
+  const deleteChat = async (chatId: number) => {
+    if (!window.confirm('Удалить этот чат?')) return;
+    const res = await fetch(`/api/chat/${chatId}`, { method: 'DELETE' });
+    if (res.ok) {
+      setChats(prev => prev.filter(c => c.id !== chatId));
+      if (parseInt(selectedChatId || '') === chatId) navigate('/');
+    }
+  };
+
+  const renameChat = async (chatId: number, title: string) => {
+    const res = await fetch(`/api/chat/title/${chatId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    });
+    if (!res.ok) alert("Не удалось переименовать чат");
+  };
+
+  const handleContextMenu = (e: React.MouseEvent, chatId: number) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, chatId });
+  };
+
+  const handleRename = (chatId: number) => {
+    setEditingChatId(chatId);
+    setContextMenu(null);
+  };
+
+  const handleBlur = (chatId: number, newTitle: string) => {
+    renameChat(chatId, newTitle);
+    setEditingChatId(null);
+  };
+
   return (
     <>
       {isCollapsed && (
@@ -77,7 +106,6 @@ const Sidebar: React.FC = () => {
                 </button>
               </div>
 
-              {/* Верхний блок с основными ссылками */}
               <div className="sidebar-section">
                 <ul>
                   <li><Link to="/support"><FaComments className="icon" /> <span>Поддержка</span></Link></li>
@@ -87,11 +115,10 @@ const Sidebar: React.FC = () => {
                 </ul>
               </div>
 
-              {/* Чаты */}
               <nav className="sidebar-nav">
                 <ul>
                   <li>
-                    <div onClick={() => {}} className="chat-link">
+                    <div className="chat-link">
                       <FaHome className="icon" />
                       <span>Чаты</span>
                       <FaChevronDown />
@@ -100,42 +127,44 @@ const Sidebar: React.FC = () => {
                       {chats.length === 0 && (
                         <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
                       )}
-                      {Array.isArray(chats) && chats.map((chat: any) => {
+                      {chats.map(chat => {
                         const isActive = chat.id === parseInt(selectedChatId || '', 10);
                         return (
-                          <li key={chat.id} className={isActive ? 'active' : ''}>
-                            <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                          <li key={chat.id} className={isActive ? 'active' : ''} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
+                            {editingChatId === chat.id ? (
+                              <input
+                                autoFocus
+                                defaultValue={chat.title}
+                                onBlur={(e) => handleBlur(chat.id, e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    (e.target as HTMLInputElement).blur();
+                                  }
+                                }}
+                              />
+                            ) : (
+                              <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                            )}
                           </li>
                         );
                       })}
-                      <li>
-                        <button onClick={createNewChat}>+ Новый чат</button>
-                      </li>
+                      <li><button onClick={createNewChat}>+ Новый чат</button></li>
                     </ul>
                   </li>
                 </ul>
               </nav>
 
-              {/* Низ — Подписка + Приветствие */}
               <div className="sidebar-footer">
                 <div className="subscription-link">
-                  <Link to="/subscriptions">
-                    <FaCreditCard className="icon" />
-                    <span>Подписка</span>
-                  </Link>
+                  <Link to="/subscriptions"><FaCreditCard className="icon" /><span>Подписка</span></Link>
                 </div>
-
                 <div className="user-greeting">
                   {userName ? (
                     <>
-                      <FaUser className="icon" />
-                      <span>Привет, {userName}</span>
+                      <FaUser className="icon" /><span>Привет, {userName}</span>
                     </>
                   ) : (
-                    <Link to="/auth">
-                      <FaSignInAlt className="icon" />
-                      <span>Войти</span>
-                    </Link>
+                    <Link to="/auth"><FaSignInAlt className="icon" /><span>Войти</span></Link>
                   )}
                 </div>
               </div>
@@ -143,6 +172,29 @@ const Sidebar: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Контекстное меню */}
+      {contextMenu && (
+        <div
+          style={{
+            position: 'fixed',
+            top: contextMenu.y,
+            left: contextMenu.x,
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            zIndex: 9999,
+          }}
+          onMouseLeave={() => setContextMenu(null)}
+        >
+          <div style={{ padding: '8px', cursor: 'pointer' }} onClick={() => handleRename(contextMenu.chatId)}>
+            <FaEdit style={{ marginRight: '6px' }} /> Переименовать
+          </div>
+          <div style={{ padding: '8px', cursor: 'pointer' }} onClick={() => deleteChat(contextMenu.chatId)}>
+            <FaTrash style={{ marginRight: '6px' }} /> Удалить
+          </div>
+        </div>
+      )}
     </>
   );
 };
