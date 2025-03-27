@@ -26,31 +26,49 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            set -e
-            cd /var/www/unlim-mind-ai
-            git pull origin main
+          cd /var/www/unlim-mind-ai || {
+            python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+            exit 1
+          }
 
-            cd frontend
+          git reset --hard HEAD
+          git clean -fd
+          git pull origin main
 
-            echo "📦 Устанавливаю зависимости"
-            if ! npm install; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install"
-              exit 1
-            fi
+          cd frontend
 
-            echo "🛠 Сборка фронтенда"
-            if ! npm run build 2>build_error.log; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при сборке:\n$(tail -n 10 build_error.log)"
-              exit 1
-            fi
+          if ! npm install; then
+            python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install"
+            exit 1
+          fi
 
-            sudo rm -rf /var/www/react-app/*
-            sudo cp -r dist/* /var/www/react-app/
-            sudo chown -R www-data:www-data /var/www/react-app
-            sudo chmod -R 755 /var/www/react-app
+          if ! npm run build 2>build_error.log; then
+            python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$(tail -n 10 build_error.log)"
+            exit 1
+          fi
 
-            sudo systemctl restart nginx
-            sudo systemctl restart unlim-api
+          sudo rm -rf /var/www/react-app/* || {
+            python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+            exit 1
+          }
+
+          sudo cp -r dist/* /var/www/react-app/ || {
+            python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
+            exit 1
+          }
+
+          sudo chown -R www-data:www-data /var/www/react-app
+          sudo chmod -R 755 /var/www/react-app
+
+          if ! sudo systemctl restart nginx; then
+            python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+            exit 1
+          fi
+
+          if ! sudo systemctl restart unlim-api; then
+            python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+            exit 1
+          fi
 
       - name: Уведомление об окончании деплоя
         run: |
