@@ -121,6 +121,7 @@ a:hover {
   font-size: 17px;
   font-weight: 500;
   color: #e1e6f2;
+  list-style: none;
 }
 
 .sidebar-section ul {
@@ -145,6 +146,7 @@ a:hover {
 .sidebar-nav {
   flex: 1;
   padding-top: 10px;
+  list-style: none;
 }
 
 .chat-link {
