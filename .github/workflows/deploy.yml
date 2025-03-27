@@ -88,9 +88,7 @@ jobs:
 
             python3 tools/notifier-bot/telegram.py "🚀 Начался бэкап базы данных"
 
-            tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db
-
-            if [ $? -eq 0 ]; then
+            if tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db; then
               python3 tools/notifier-bot/telegram.py "✅ Бэкап завершён успешно"
             else
               python3 tools/notifier-bot/telegram.py "❌ Ошибка при бэкапе!"
