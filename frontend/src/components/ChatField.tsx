@@ -20,9 +20,13 @@ const ChatField: React.FC = () => {
       try {
         const response = await fetch(`/api/chats/messages/by_chat/${chatId}`);
         const data = await response.json();
-        if (data && Array.isArray(data.messages)) {
-          setMessages(data.messages);
-        }
+        if (data && Array.isArray(data)) {
+        const mapped = data.map((msg: any) => ({
+          text: msg.message,
+          isUser: msg.role === 'user',
+        }));
+        setMessages(mapped);
+      }
       } catch (err) {
         console.error('Ошибка при загрузке сообщений:', err);
       }
