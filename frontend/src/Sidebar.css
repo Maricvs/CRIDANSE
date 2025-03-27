@@ -22,15 +22,20 @@ a:hover {
   transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
 }
 
-.sidebar.collapsed {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
+.sidebar.expanded {
+  width: 240px;
+  opacity: 1;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  pointer-events: auto;
+  flex-shrink: 0;
 }
 
-.sidebar.expanded {
-  transform: translateX(0);
-  opacity: 1;
+.sidebar.collapsed {
+  width: 0;
+  opacity: 0;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .sidebar-section li,
