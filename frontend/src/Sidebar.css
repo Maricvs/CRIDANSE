@@ -263,8 +263,8 @@ a:hover {
 
 .icon {
   display: inline-block;
-  vertical-align: middle;
-  font-size: 18px;
+  vertical-align: inherit;
+  font-size: 15px;
   color: #ccc;
 }
 
