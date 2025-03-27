@@ -101,7 +101,53 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
         db.add(bot_message)
 
         db.commit()
-        return {"response": reply}
+        # 🧠 Генерация названия чата, если это первое сообщение
+        from models.models import Chat  # можно наверх, если ещё не импортировано
+        chat = db.query(Chat).filter(Chat.id == request.chat_id).first()
+        if chat and chat.title == "Новый чат":
+            try:
+                title_prompt = (
+                    f"Придумай короткое и понятное название для чата по следующему сообщению: "
+                    f"\"{request.prompt}\". Оно должно быть не длиннее 5 слов."
+                )
+                title_response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Ты создаёшь краткие и понятные названия чатов."},
+                        {"role": "user", "content": title_prompt}
+                    ]
+                )
+                chat.title = title_response.choices[0].message.content.strip().strip('"')
+                db.commit()
+            except Exception as title_error:
+                print("Ошибка генерации названия чата:", title_error)
 
+        return {"response": reply}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    class TitleRequest(BaseModel):
+    message: str
+
+    class TitleResponse(BaseModel):
+        title: str
+
+    @router.post("/title", response_model=TitleResponse)
+    async def generate_title(req: TitleRequest):
+        try:
+            prompt = (
+                f"Придумай короткое и понятное название для чата по следующему сообщению: "
+                f"\"{req.message}\". Оно должно быть не длиннее 5 слов."
+            )
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "Ты создаёшь краткие и понятные названия чатов на основе первого сообщения пользователя."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            title = response.choices[0].message.content.strip().strip('"')
+            return {"title": title}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))

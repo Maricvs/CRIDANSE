@@ -114,3 +114,35 @@ def get_messages_by_chat(chat_id: int):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
+@router.put("/title/{chat_id}")
+def rename_chat(chat_id: int, body: dict):
+    db: Session = SessionLocal()
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        chat.title = body.get("title", chat.title)
+        db.commit()
+        return {"message": "Title updated"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@router.delete("/{chat_id}")
+def delete_chat(chat_id: int):
+    db: Session = SessionLocal()
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        db.delete(chat)
+        db.commit()
+        return {"message": "Chat deleted"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
