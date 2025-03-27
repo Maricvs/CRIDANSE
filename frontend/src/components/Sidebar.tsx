@@ -176,22 +176,15 @@ const Sidebar: React.FC = () => {
       {/* Контекстное меню */}
       {contextMenu && (
         <div
-          style={{
-            position: 'fixed',
-            top: contextMenu.y,
-            left: contextMenu.x,
-            backgroundColor: 'white',
-            border: '1px solid #ccc',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            zIndex: 9999,
-          }}
+          className="context-menu"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
           onMouseLeave={() => setContextMenu(null)}
         >
-          <div style={{ padding: '8px', cursor: 'pointer' }} onClick={() => handleRename(contextMenu.chatId)}>
-            <FaEdit style={{ marginRight: '6px' }} /> Переименовать
+          <div className="context-menu-item" onClick={() => handleRename(contextMenu.chatId)}>
+            <FaEdit /> Переименовать
           </div>
-          <div style={{ padding: '8px', cursor: 'pointer' }} onClick={() => deleteChat(contextMenu.chatId)}>
-            <FaTrash style={{ marginRight: '6px' }} /> Удалить
+          <div className="context-menu-item" onClick={() => deleteChat(contextMenu.chatId)}>
+            <FaTrash /> Удалить
           </div>
         </div>
       )}
