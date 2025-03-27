@@ -46,8 +46,19 @@ export default function Chat() {
     );
   }
 
+  const isWideScreen = window.innerWidth >= 768;
+  const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
+
+  if (!id) {
+    return (
+      <div className={wrapperClass}>
+        <WelcomeIntroBlock />
+      </div>
+    );
+  }
+
   return (
-    <div className="chat-wrapper">
+    <div className={wrapperClass}>
       <h2>Чат № {id}</h2>
       <ul>
         {messages.map((msg) => (
