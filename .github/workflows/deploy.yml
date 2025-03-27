@@ -43,7 +43,7 @@ jobs:
             fi
 
             if ! npm run build 2>build_error.log; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$(tail -n 10 build_error.log)"
+              python3 ../tools/notifier-bot/telegram.py $'❌ Сборка не удалась:\n'"$(tail -n 10 build_error.log)"
               exit 1
             fi
 

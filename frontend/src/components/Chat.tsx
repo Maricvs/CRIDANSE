@@ -2,6 +2,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
+import ChatField from './ChatField';
 
 // ✅ Интерфейс сообщения
 interface Message {
@@ -61,6 +62,7 @@ export default function Chat() {
           </li>
         ))}
       </ul>
+      
       <ChatField />
     </div>
   );
