@@ -170,6 +170,12 @@
 
 @media (min-width: 768px) {
   .chat-wrapper {
-    min-width: 600px;
+    width: 100%;
+    padding-left: 0;
+    transition: padding-left 0.3s ease;
+  }
+
+  .with-sidebar .chat-wrapper {
+    padding-left: 120px; /* половина ширины сайдбара */
   }
 }
