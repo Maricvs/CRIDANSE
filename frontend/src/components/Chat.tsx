@@ -38,14 +38,6 @@ export default function Chat() {
   if (loading) return <p>Загрузка сообщений...</p>;
   if (error) return <p>{error}</p>;
 
-  if (!id) {
-    return (
-      <div className="chat-wrapper">
-        <WelcomeIntroBlock />
-      </div>
-    );
-  }
-
   const isWideScreen = window.innerWidth >= 768;
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
 

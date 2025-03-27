@@ -8,7 +8,6 @@ const ChatField: React.FC = () => {
   const navigate = useNavigate();
   const chatId = id ? parseInt(id, 10) : null;
 
-  const [, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
 
@@ -25,7 +24,6 @@ const ChatField: React.FC = () => {
           text: msg.message,
           isUser: msg.role === 'user',
         }));
-        setMessages(mapped);
       }
       } catch (err) {
         console.error('Ошибка при загрузке сообщений:', err);
@@ -39,7 +37,6 @@ const ChatField: React.FC = () => {
     if (!inputValue.trim()) return;
 
     const userMessage = { text: inputValue, isUser: true };
-    setMessages((prev) => [...prev, userMessage]);
     const userId = localStorage.getItem('user_id');
     const prompt = inputValue;
     setInputValue('');
@@ -77,9 +74,7 @@ const ChatField: React.FC = () => {
 
       const data = await response.json();
       const botMessage = { text: data.response || 'Ошибка', isUser: false };
-      setMessages((prev) => [...prev, botMessage]);
-    } catch (err) {
-      setMessages((prev) => [...prev, { text: 'Ошибка при запросе 😢', isUser: false }]);
+    } catch (err) {      
     }
   };
 
