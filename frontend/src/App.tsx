@@ -13,7 +13,7 @@ import Chat from './components/Chat'; // Импортируем Chat
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="app-container">
+      <div className="app-layout">
         <Sidebar />
         <div className="main-content">
           <Routes>
