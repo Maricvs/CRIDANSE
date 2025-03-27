@@ -54,11 +54,17 @@ const Sidebar: React.FC = () => {
 
   const deleteChat = async (chatId: number) => {
     if (!window.confirm('Удалить этот чат?')) return;
-    const res = await fetch(`/api/chat/${chatId}`, { method: 'DELETE' });
-    if (res.ok) {
-      setChats(prev => prev.filter(c => c.id !== chatId));
-      if (parseInt(selectedChatId || '') === chatId) navigate('/');
-    }
+    setDeletingChatId(chatId);
+
+    // ждём завершения анимации
+    setTimeout(async () => {
+      const res = await fetch(`/api/chat/${chatId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setChats(prev => prev.filter(c => c.id !== chatId));
+        if (parseInt(selectedChatId || '') === chatId) navigate('/');
+      }
+      setDeletingChatId(null);
+    }, 300); // анимация длится 300ms
   };
 
   const renameChat = async (chatId: number, title: string) => {
@@ -79,6 +85,8 @@ const Sidebar: React.FC = () => {
     setEditingChatId(chatId);
     setContextMenu(null);
   };
+
+  const [deletingChatId, setDeletingChatId] = useState<number | null>(null);
 
   const handleBlur = (chatId: number, newTitle: string) => {
     renameChat(chatId, newTitle);
@@ -130,7 +138,7 @@ const Sidebar: React.FC = () => {
                       {chats.map(chat => {
                         const isActive = chat.id === parseInt(selectedChatId || '', 10);
                         return (
-                          <li key={chat.id} className={isActive ? 'active' : ''} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
+                          <li key={chat.id} className={`${isActive ? 'active' : ''} ${deletingChatId === chat.id ? 'deleting' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
                             {editingChatId === chat.id ? (
                               <input
                                 autoFocus

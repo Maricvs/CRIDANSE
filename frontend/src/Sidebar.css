@@ -204,6 +204,13 @@ a:hover {
   padding: 4px 8px;
 }
 
+.chat-list li.deleting {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
 /* Добавь в Sidebar.css или global css */
 .context-menu {
   position: fixed;
