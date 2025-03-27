@@ -51,17 +51,16 @@ export default function Chat() {
 
   return (
     <div className={wrapperClass}>
-      <div className="chat-messages">
-        <ul>
-          {messages.map((msg) => (
-            <li key={msg.id}>
-              <strong>{msg.role === "user" ? "Вы" : "AI"}:</strong> {msg.message}
-              <br />
-              <small>{new Date(msg.created_at).toLocaleString()}</small>
-            </li>
-          ))}
-        </ul>
+    <div className="chat-messages">
+    {messages.map((msg) => (
+      <div
+        key={msg.id}
+        className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+      >
+        {msg.message}
       </div>
+    ))}
+    </div>
 
       <ChatField />
     </div>

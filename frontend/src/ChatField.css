@@ -34,7 +34,6 @@
 }
 
 .chat-wrapper {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,6 +175,7 @@
   }
 
   .with-sidebar .chat-wrapper {
-    padding-left: 120px; /* половина ширины сайдбара */
+    justify-content: flex-start;
+    padding-left: 120px; /* или calc(240px / 2) */
   }
 }
