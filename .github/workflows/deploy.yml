@@ -13,10 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Уведомление в Telegram
-        run: python3 tools/notifier-bot/telegram.py "🚀 Начался деплой на сервер"
+      - name: Уведомление в Telegram о старте
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🚀 Начался деплой на сервер"
 
-      - name: Deploy to server
+      - name: Deploy to server по SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -39,16 +41,16 @@ jobs:
             sudo systemctl restart nginx
             sudo systemctl restart unlim-api
 
-      - name: Уведомление
+      - name: Уведомление об окончании деплоя
         run: |
           cd ${{ github.workspace }}
-          python3 tools/notifier-bot/telegram.py "🚀 Уведомление работает!"
+          python3 tools/notifier-bot/telegram.py "✅ Деплой завершён успешно!"
 
   monitor:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Проверка состояний сервисов на сервере
+      - name: Проверка сервисов на сервере
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -75,18 +77,21 @@ jobs:
 
     steps:
       - name: Уведомление перед запуском бэкапа
-        run: python3 tools/notifier-bot/telegram.py "🚀 Начался бэкап базы данных"
-
-      - name: Запуск бэкапа
         run: |
-          # Пример бэкап-скрипта
-          tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🚀 Начался бэкап базы данных"
 
-      - name: Уведомление по завершению бэкапа
-        run: python3 tools/notifier-bot/telegram.py "✅ Бэкап завершён успешно"
+      - name: Запуск бэкапа (на сервере)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            tar -czf /var/backups/db_backup_$(date +%F).tar.gz /var/www/unlim-mind-ai/db
 
-      - name: Уведомление при ошибке бэкапа
+      - name: Уведомление о завершении бэкапа
         run: |
-          if [ $? -ne 0 ]; then
-            python3 tools/notifier-bot/telegram.py "❌ Ошибка при бэкапе!"
-          fi
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "✅ Бэкап завершён успешно"
