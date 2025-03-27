@@ -107,7 +107,7 @@ const Sidebar: React.FC = () => {
             <>
               <div className="sidebar-logo">
                 <Link to="/" className="logo-text">
-                  <span>Unlim Mind</span>
+                  <span>CRIDANSE</span>
                 </Link>
                 <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
                   <FaChevronLeft />

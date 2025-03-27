@@ -1,6 +1,7 @@
 
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
+import WelcomeIntroBlock from './WelcomeIntroBlock';
 
 // ✅ Интерфейс сообщения
 interface Message {
@@ -37,10 +38,17 @@ export default function Chat() {
   if (loading) return <p>Загрузка сообщений...</p>;
   if (error) return <p>{error}</p>;
 
+  if (!id) {
+    return (
+      <div className="chat-wrapper">
+        <WelcomeIntroBlock />
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="chat-wrapper">
       <h2>Чат № {id}</h2>
-      {/* ✅ Выводим сообщения */}
       <ul>
         {messages.map((msg) => (
           <li key={msg.id}>

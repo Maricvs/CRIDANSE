@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
@@ -85,49 +85,32 @@ const ChatField: React.FC = () => {
 
   const hasMessage = messages.length > 0;
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   return (
-    <div className="chat-container-center">
-    {!hasMessage && !chatId && (
-      <div className="chat-welcome">
-        <h1>Твой помощник в знаниях</h1>
-        <p>Что мы сегодня изучим?</p>
-      </div>
-      )}
-
-      <div className="chat-messages">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`message ${message.isUser ? 'user-message' : 'bot-message'}`}
-          >
-            {message.text}
-          </div>
-        ))}
-      </div>
-
+    <div className="chat-input-wrapper">
       <div className="chat-input-container">
-        <textarea
-          value={inputValue}
-          onChange={(e) => {
-            setInputValue(e.target.value);
-            e.target.style.height = 'auto';
-            e.target.style.height = e.target.scrollHeight + 'px';
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
-            }
-          }}
-          placeholder="Что хотите спросить?"
-          className="chat-input"
-          rows={1}
+      <textarea
+        ref={textareaRef}
+        value={inputValue}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+          if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+          }
+        }}
+        placeholder="Что интересного будет сегодня?"
+        className="chat-input"
+        rows={1}
         />
-        <button
-          onClick={handleSendMessage}
-          className={`send-button ${inputValue.trim() ? 'active' : ''}`}
-          disabled={!inputValue.trim()}
-        >
+        <button className="send-button" onClick={handleSendMessage}>
           <FaPaperPlane />
         </button>
       </div>
