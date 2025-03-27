@@ -39,8 +39,10 @@ jobs:
             sudo systemctl restart nginx
             sudo systemctl restart unlim-api
 
-      - name: Уведомление в Telegram после успешного деплоя
-        run: python3 tools/notifier-bot/telegram.py "✅ Деплой завершён успешно!"
+      - name: Уведомление
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🚀 Уведомление работает!"
 
   monitor:
     runs-on: ubuntu-latest
