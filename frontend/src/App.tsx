@@ -9,6 +9,7 @@ import ChatField from './components/ChatField';
 import Libraries from './components/Libraries';
 import Auth from './components/Auth';
 import './App.css';
+import Chat from './components/Chat'; // Импортируем Chat
 
 const App: React.FC = () => {
   return (
@@ -17,8 +18,8 @@ const App: React.FC = () => {
         <Sidebar />
         <div className="main-content">
           <Routes>
-            <Route path="/" element={<ChatField />} />
-            <Route path="/chat/:id" element={<ChatField />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/" element={<Chat />} />
             <Route path="/libraries" element={<Libraries />} />
             <Route path="/auth" element={<Auth />} />
           </Routes>

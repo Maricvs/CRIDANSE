@@ -61,6 +61,7 @@ export default function Chat() {
           </li>
         ))}
       </ul>
+      <ChatField />
     </div>
   );
 }

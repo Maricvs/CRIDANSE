@@ -72,7 +72,7 @@ jobs:
       - name: Уведомление об окончании деплоя
         run: |
           cd ${{ github.workspace }}
-          python3 tools/notifier-bot/telegram.py "🙉 Деплой завершён успешно!"
+          python3 tools/notifier-bot/telegram.py "🍌 Деплой завершён успешно!"
 
   monitor:
     needs: deploy
