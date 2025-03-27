@@ -8,7 +8,7 @@ const ChatField: React.FC = () => {
   const navigate = useNavigate();
   const chatId = id ? parseInt(id, 10) : null;
 
-  const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
+  const [, setMessages] = useState<{ text: string; isUser: boolean }[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
 
