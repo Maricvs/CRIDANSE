@@ -11,6 +11,7 @@ interface Message {
 }
 
 export default function Chat() {
+  const { id } = useParams();
   console.log("ID из useParams:", id);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
