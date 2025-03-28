@@ -123,5 +123,5 @@ const ChatField: React.FC = () => {
       </div>
     </>
   );
-
+};
 export default ChatField;
