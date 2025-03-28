@@ -76,7 +76,7 @@ const ChatField: React.FC = () => {
         }),
       });
 
-      const gptData = await gptResponse.json();
+      
       // 👇 Вместо добавления вручную — просто загрузи сообщения из базы
       const res = await fetch(`/api/chats/messages/by_chat/${currentChatId}`);
       const data = await res.json();
