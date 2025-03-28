@@ -74,10 +74,6 @@ const ChatField: React.FC = () => {
   useEffect(() => {
     if (!chatId) return;
 
-
-    fetchMessages();
-  }, [chatId]);
-
   return (
     <>
 
