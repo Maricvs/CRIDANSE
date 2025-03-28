@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
+import { useEffect } from 'react';
 
 const ChatField: React.FC = () => {
   const { id } = useParams();
@@ -31,6 +32,18 @@ const ChatField: React.FC = () => {
       created_at: new Date().toISOString(),
     },
   ]);
+
+      useEffect(() => {
+      if (!chatId) return;
+
+      const fetchMessages = async () => {
+        const res = await fetch(`/api/chats/messages/by_chat/${chatId}`);
+        const data = await res.json();
+        setMessages(data);
+      };
+
+      fetchMessages();
+    }, [chatId]);
 
 
     try {
