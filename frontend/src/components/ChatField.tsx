@@ -78,7 +78,7 @@ const ChatField: React.FC = () => {
           message: prompt,
         }),
       });
-      await fetch('/api/gpt/ask', {
+      const gptResponse = await fetch('/api/gpt/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,6 +87,21 @@ const ChatField: React.FC = () => {
           chat_id: currentChatId,
         }),
       });
+
+      const gptData = await gptResponse.json();
+
+      // 👇 Добавляем ответ GPT в интерфейс
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          id: Date.now() + 1, // временный ID
+          chat_id: currentChatId,
+          user_id: 0, // бот
+          role: 'assistant',
+          content: gptData.response || '...',
+          created_at: new Date().toISOString(),
+        },
+      ]);
 
     } catch (err) {
     }
