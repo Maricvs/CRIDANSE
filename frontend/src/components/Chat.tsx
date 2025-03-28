@@ -34,7 +34,6 @@ export default function Chat() {
     if (id) fetchMessages();
   }, [id]);
 
-
   if (error) return <p>{error}</p>;
 
   const isWideScreen = window.innerWidth >= 768;
@@ -47,18 +46,11 @@ export default function Chat() {
       </div>
     );
   }
-  if (loading) return <p>Загрузка сообщений...</p>;2
+
+  if (loading) return <p>Загрузка сообщений...</p>;
 
   return (
     <div className={wrapperClass}>
-        key={msg.id}
-        className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-      >
-        {msg.message}
-      </div>
-    ))}
-    </div>
-
       <ChatField />
     </div>
   );
