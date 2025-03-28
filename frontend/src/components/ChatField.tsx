@@ -73,6 +73,7 @@ const ChatField: React.FC = () => {
 
   useEffect(() => {
     if (!chatId) return;
+  }, [chatId]);
 
   return (
     <>
