@@ -3,17 +3,10 @@ import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
 
-interface Message {
-  id: number;
-  role: string;
-  message: string;
-  created_at: string;
-}
-
 export default function Chat() {
   const { id } = useParams();
   console.log("ID из useParams:", id);
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,7 +16,8 @@ export default function Chat() {
         const res = await fetch(`/api/chats/messages/by_chat/${id}`);
         if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
         const data = await res.json();
-        setMessages(data);
+
+
       } catch (err) {
         setError("Не удалось загрузить сообщения");
       } finally {
