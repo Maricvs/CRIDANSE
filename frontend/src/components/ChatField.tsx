@@ -10,7 +10,6 @@ const ChatField: React.FC = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
-  const [messages, setMessages] = useState<any[]>([]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
