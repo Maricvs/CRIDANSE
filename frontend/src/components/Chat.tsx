@@ -15,9 +15,7 @@ export default function Chat() {
       try {
         const res = await fetch(`/api/chats/messages/by_chat/${id}`);
         if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
-        const data = await res.json();
-
-
+      
       } catch (err) {
         setError("Не удалось загрузить сообщения");
       } finally {
