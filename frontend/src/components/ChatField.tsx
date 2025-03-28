@@ -83,44 +83,45 @@ const ChatField: React.FC = () => {
 
   return (
     <>
-        <div className="chat-messages">
-       {messages.map((msg) => (
-         <div
-           key={msg.id}
-           className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}
-         >
-           {msg.content}
-         </div>
-       ))}
-     </div>
-      <div className="chat-input-container">
-      <textarea
-        ref={textareaRef}
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.target.value);
-          if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-          }
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSendMessage();
-          }
-        }}
-        placeholder="Что интересного будет сегодня?"
-        className="chat-input"
-        rows={1}
-        />
-        <button className="send-button" onClick={handleSendMessage}>
-          <FaPaperPlane />
-        </button>
+      <div className="chat-messages">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}
+          >
+            {msg.content}
+          </div>
+        ))}
       </div>
-    </div>
+
+      <div className="chat-input-wrapper">
+        <div className="chat-input-container">
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              if (textareaRef.current) {
+                textareaRef.current.style.height = 'auto';
+                textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
+            }}
+            placeholder="Что интересного будет сегодня?"
+            className="chat-input"
+            rows={1}
+          />
+          <button className="send-button" onClick={handleSendMessage}>
+            <FaPaperPlane />
+          </button>
+        </div>
+      </div>
     </>
   );
-};
 
 export default ChatField;
