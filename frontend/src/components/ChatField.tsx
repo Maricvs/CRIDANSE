@@ -17,6 +17,21 @@ const ChatField: React.FC = () => {
     const prompt = inputValue;
     setInputValue('');
 
+    const [messages, setMessages] = useState<any[]>([]);
+
+    setMessages((prevMessages) => [
+    ...prevMessages,
+    {
+      id: Date.now(), // временный ID
+      chat_id: chatId,
+      user_id: parseInt(userId || '0', 10),
+      role: 'user',
+      content: prompt,
+      created_at: new Date().toISOString(),
+    },
+  ]);
+
+
     try {
       let currentChatId = chatId;
 
