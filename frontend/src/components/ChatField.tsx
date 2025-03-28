@@ -33,18 +33,6 @@ const ChatField: React.FC = () => {
     },
   ]);
 
-      useEffect(() => {
-      if (!chatId) return;
-
-      const fetchMessages = async () => {
-        const res = await fetch(`/api/chats/messages/by_chat/${chatId}`);
-        const data = await res.json();
-        setMessages(data);
-      };
-
-      fetchMessages();
-    }, [chatId]);
-
 
     try {
       let currentChatId = chatId;
@@ -108,6 +96,18 @@ const ChatField: React.FC = () => {
   };
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+  if (!chatId) return;
+
+    const fetchMessages = async () => {
+      const res = await fetch(`/api/chats/messages/by_chat/${chatId}`);
+      const data = await res.json();
+      setMessages(data);
+    };
+
+    fetchMessages();
+  }, [chatId]);
 
   return (
     <>
