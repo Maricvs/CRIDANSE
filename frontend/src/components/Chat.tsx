@@ -51,17 +51,18 @@ export default function Chat() {
 
   return (
     <div className={wrapperClass}>
-    <div className="chat-messages">
-    {messages.map((msg) => (
-      <div
-        key={msg.id}
-        className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-      >
-        {msg.message}
+    {!props.hideMessages && (
+      <div className="chat-messages">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+          >
+            {msg.content}
+          </div>
+        ))}
       </div>
-    ))}
-    </div>
-
+    )}
       <ChatField />
     </div>
   );
