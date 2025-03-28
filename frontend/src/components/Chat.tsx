@@ -17,11 +17,11 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      try {
-        const res = await fetch(`/api/chats/messages/by_chat/${id}`);
-        if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
+
+  const fetchMessages = async () => {
+        try {
+      const res = await fetch(`/api/chats/messages/by_chat/${id}`);
+      if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
         const data = await res.json();
         setMessages(data);
       } catch (err) {
@@ -30,7 +30,7 @@ export default function Chat() {
         setLoading(false);
       }
     };
-
+ useEffect(() => {
     if (id) fetchMessages();
   }, [id]);
 
@@ -52,17 +52,17 @@ export default function Chat() {
   return (
     <div className={wrapperClass}>
     <div className="chat-messages">
-    {messages.map((msg) => (
-      <div
-        key={msg.id}
-        className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-      >
-        {msg.message}
-      </div>
-    ))}
+  {messages.map((msg) => (
+    <div
+      key={msg.id}
+      className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+    >
+      {msg.message}
     </div>
+  ))}
+  </div>
 
-      <ChatField />
+      <ChatField onMessageSent={fetchMessages} />
     </div>
   );
 }

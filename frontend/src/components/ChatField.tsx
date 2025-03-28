@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
 
-const ChatField: React.FC = () => {
+const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const chatId = id ? parseInt(id, 10) : null;
@@ -62,7 +62,7 @@ const ChatField: React.FC = () => {
         }),
       });
 
-
+      if (onMessageSent) onMessageSent();
 
     } catch (err) {
       console.error('Ошибка при отправке сообщения:', err);
