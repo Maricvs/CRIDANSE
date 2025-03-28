@@ -90,14 +90,13 @@ const ChatField: React.FC = () => {
   return (
     <>
       <div className="chat-messages">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}
-          >
+            {messages.map((msg) =>
+        msg.content ? (
+          <div key={msg.id} className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}>
             {msg.content}
           </div>
-        ))}
+        ) : null
+      )}
       </div>
 
       <div className="chat-input-wrapper">
