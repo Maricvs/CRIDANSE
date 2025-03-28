@@ -1,8 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa';
 import '../ChatField.css';
-import { useEffect } from 'react';
 
 const ChatField: React.FC = () => {
   const { id } = useParams();
@@ -12,6 +11,7 @@ const ChatField: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
   const [messages, setMessages] = useState<any[]>([]);
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -19,25 +19,23 @@ const ChatField: React.FC = () => {
     const prompt = inputValue;
     setInputValue('');
 
-
-
+    // 👇 Добавляем сообщение пользователя локально
     setMessages((prevMessages) => [
-    ...prevMessages,
-    {
-      id: Date.now(), // временный ID
-      chat_id: chatId,
-      user_id: parseInt(userId || '0', 10),
-      role: 'user',
-      content: prompt,
-      created_at: new Date().toISOString(),
-    },
-  ]);
-
+      ...prevMessages,
+      {
+        id: Date.now(), // временный ID
+        chat_id: chatId,
+        user_id: parseInt(userId || '0', 10),
+        role: 'user',
+        content: prompt,
+        created_at: new Date().toISOString(),
+      },
+    ]);
 
     try {
       let currentChatId = chatId;
 
-      // Создаём новый чат, если его нет
+      // 👇 Создаём чат, если его нет
       if (!currentChatId && !creatingChat) {
         setCreatingChat(true);
         const chatResponse = await fetch('/api/chats', {
@@ -54,8 +52,7 @@ const ChatField: React.FC = () => {
         navigate(`/chat/${currentChatId}`);
       }
 
-      // Отправляем сообщение в GPT
-      // Сохраняем сообщение в базе
+      // 👇 Сохраняем сообщение пользователя в БД
       await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,18 +63,8 @@ const ChatField: React.FC = () => {
           message: prompt,
         }),
       });
-      const gptResponse = await fetch('/api/gpt/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          user_id: userId,
-          chat_id: currentChatId,
-        }),
-      });
 
-
-      // 👇 Вместо добавления вручную — просто загрузи сообщения из базы
+      // 👇 Отправляем в GPT
       await fetch('/api/gpt/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -88,14 +75,20 @@ const ChatField: React.FC = () => {
         }),
       });
 
+      // 👇 Загружаем сообщения из БД, включая ответ GPT
+      const res = await fetch(`/api/chats/messages/by_chat/${currentChatId}`);
+      const data = await res.json();
+      setMessages(data);
+
     } catch (err) {
+      console.error('Ошибка при отправке сообщения:', err);
     }
   };
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-  if (!chatId) return;
+    if (!chatId) return;
 
     const fetchMessages = async () => {
       const res = await fetch(`/api/chats/messages/by_chat/${chatId}`);
@@ -149,4 +142,5 @@ const ChatField: React.FC = () => {
     </>
   );
 };
+
 export default ChatField;
