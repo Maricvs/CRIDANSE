@@ -3,10 +3,17 @@ import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
 
+interface Message {
+  id: number;
+  role: string;
+  message: string;
+  created_at: string;
+}
+
 export default function Chat() {
   const { id } = useParams();
   console.log("ID из useParams:", id);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -15,7 +22,8 @@ export default function Chat() {
       try {
         const res = await fetch(`/api/chats/messages/by_chat/${id}`);
         if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
-      
+        const data = await res.json();
+        setMessages(data);
       } catch (err) {
         setError("Не удалось загрузить сообщения");
       } finally {
@@ -25,6 +33,7 @@ export default function Chat() {
 
     if (id) fetchMessages();
   }, [id]);
+
 
   if (error) return <p>{error}</p>;
 
@@ -38,11 +47,21 @@ export default function Chat() {
       </div>
     );
   }
-
-  if (loading) return <p>Загрузка сообщений...</p>;
+  if (loading) return <p>Загрузка сообщений...</p>;2
 
   return (
     <div className={wrapperClass}>
+    <div className="chat-messages">
+    {messages.map((msg) => (
+      <div
+        key={msg.id}
+        className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+      >
+        {msg.message}
+      </div>
+    ))}
+    </div>
+
       <ChatField />
     </div>
   );
