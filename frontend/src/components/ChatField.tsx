@@ -64,8 +64,6 @@ const ChatField: React.FC = () => {
 
       // 👇 Загружаем сообщения из БД, включая ответ GPT
       const res = await fetch(`/api/chats/messages/by_chat/${currentChatId}`);
-      const data = await res.json();
-      setMessages(data);
 
     } catch (err) {
       console.error('Ошибка при отправке сообщения:', err);
@@ -79,8 +77,7 @@ const ChatField: React.FC = () => {
 
     const fetchMessages = async () => {
       const res = await fetch(`/api/chats/messages/by_chat/${chatId}`);
-      const data = await res.json();
-      setMessages(data);
+
     };
 
     fetchMessages();
