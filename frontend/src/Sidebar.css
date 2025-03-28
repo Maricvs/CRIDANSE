@@ -212,14 +212,14 @@ a:hover {
 .chat-list li a:hover {
   background-color: #333;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 4px 0px;
 }
 
 .chat-list li.active a {
   background-color: #444;
   font-weight: bold;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 4px 0px;
 }
 
 .chat-list li.deleting {

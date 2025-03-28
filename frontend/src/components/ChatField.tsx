@@ -38,6 +38,17 @@ const ChatField: React.FC = () => {
       }
 
       // Отправляем сообщение в GPT
+      // Сохраняем сообщение в базе
+      await fetch('/api/chats/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: parseInt(userId || '0', 10),
+          chat_id: currentChatId,
+          role: 'user',
+          message: prompt,
+        }),
+      });
       await fetch('/api/gpt/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
