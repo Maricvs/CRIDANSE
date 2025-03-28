@@ -10,6 +10,7 @@ const ChatField: React.FC = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
+  const [messages, setMessages] = useState<any[]>([]);
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -17,7 +18,7 @@ const ChatField: React.FC = () => {
     const prompt = inputValue;
     setInputValue('');
 
-    const [messages, setMessages] = useState<any[]>([]);
+
 
     setMessages((prevMessages) => [
     ...prevMessages,
