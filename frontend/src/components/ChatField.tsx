@@ -10,7 +10,7 @@ const ChatField: React.FC = () => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
-  const [setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -89,6 +89,15 @@ const ChatField: React.FC = () => {
 
   return (
     <>
+      <div className="chat-messages">
+            {messages.map((msg) =>
+        msg.content ? (
+          <div key={msg.id} className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}>
+            {msg.content}
+          </div>
+        ) : null
+      )}
+      </div>
 
       <div className="chat-input-wrapper">
         <div className="chat-input-container">
