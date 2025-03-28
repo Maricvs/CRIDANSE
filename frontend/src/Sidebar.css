@@ -230,7 +230,7 @@ a:hover {
 }
 
 .chat-scrollable {
-  max-height: 60vh; /* или другая фиксированная/адаптивная высота */
+  max-height: 50vh; /* или другая фиксированная/адаптивная высота */
   overflow-y: auto;
 }
 
