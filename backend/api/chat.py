@@ -115,25 +115,6 @@ def create_chat(chat: ChatCreate):
 
 from models.models import Message
 
-@router.get("/messages/by_chat/{chat_id}")
-def get_messages_by_chat(chat_id: int):
-    db: Session = SessionLocal()
-    try:
-        messages = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at).all()
-        return [
-            {
-                "id": msg.id,
-                "role": msg.role,
-                "message": msg.message,
-                "created_at": msg.created_at.isoformat()
-            }
-            for msg in messages
-        ]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
-
 @router.put("/title/{chat_id}")
 def rename_chat(chat_id: int, body: dict):
     db: Session = SessionLocal()
