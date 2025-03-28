@@ -124,42 +124,44 @@ const Sidebar: React.FC = () => {
               </div>
 
               <nav className="sidebar-nav">
-                <div className="chat-link">
-                  <FaHome className="icon" />
-                  <span>Чаты</span>
-                  <FaChevronDown />
-                </div>
+              {/* Заголовок блока */}
+              <div className="chat-link">
+                <FaHome className="icon" />
+                <span>Чаты</span>
+                <FaChevronDown />
+              </div>
 
-                <div className="chat-scrollable">
-                  <ul className="chat-list">
-                    {chats.length === 0 && (
-                      <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-                    )}
-                    {chats.map(chat => {
-                      const isActive = chat.id === parseInt(selectedChatId || '', 10);
-                      return (
-                        <li key={chat.id} className={`${isActive ? 'active' : ''} ${deletingChatId === chat.id ? 'deleting' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
-                          {editingChatId === chat.id ? (
-                            <input
-                              autoFocus
-                              defaultValue={chat.title}
-                              onBlur={(e) => handleBlur(chat.id, e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  (e.target as HTMLInputElement).blur();
-                                }
-                              }}
-                            />
-                          ) : (
-                            <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
-                          )}
-                        </li>
-                      );
-                    })}
-                    <li><button onClick={createNewChat}>+ Новый чат</button></li>
-                  </ul>
-                </div>
-              </nav>
+              {/* ✅ chat-scrollable — прямой потомок sidebar-nav */}
+              <div className="chat-scrollable">
+                <ul className="chat-list">
+                  {chats.length === 0 && (
+                    <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
+                  )}
+                  {chats.map(chat => {
+                    const isActive = chat.id === parseInt(selectedChatId || '', 10);
+                    return (
+                      <li key={chat.id} className={`${isActive ? 'active' : ''} ${deletingChatId === chat.id ? 'deleting' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
+                        {editingChatId === chat.id ? (
+                          <input
+                            autoFocus
+                            defaultValue={chat.title}
+                            onBlur={(e) => handleBlur(chat.id, e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                (e.target as HTMLInputElement).blur();
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                  <li><button onClick={createNewChat}>+ Новый чат</button></li>
+                </ul>
+              </div>
+            </nav>
 
               <div className="sidebar-footer">
                 <div className="subscription-link">
