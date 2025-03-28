@@ -77,19 +77,10 @@ const ChatField: React.FC = () => {
       });
 
       const gptData = await gptResponse.json();
-
-      // 👇 Добавляем ответ GPT в интерфейс
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: Date.now() + 1, // временный ID
-          chat_id: currentChatId,
-          user_id: 0, // бот
-          role: 'assistant',
-          content: gptData.response || '...',
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      // 👇 Вместо добавления вручную — просто загрузи сообщения из базы
+      const res = await fetch(`/api/chats/messages/by_chat/${currentChatId}`);
+      const data = await res.json();
+      setMessages(data);
 
     } catch (err) {
     }
