@@ -82,6 +82,7 @@ const ChatField: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   return (
+    <>
         <div className="chat-messages">
        {messages.map((msg) => (
          <div
@@ -102,7 +103,7 @@ const ChatField: React.FC = () => {
           {msg.content}
         </div>
       ))}
-      
+
       <div className="chat-input-container">
       <textarea
         ref={textareaRef}
@@ -129,6 +130,7 @@ const ChatField: React.FC = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 
