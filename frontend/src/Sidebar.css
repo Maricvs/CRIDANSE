@@ -229,6 +229,11 @@ a:hover {
   transition: all 0.3s ease;
 }
 
+.chat-scrollable {
+  max-height: 60vh; /* или другая фиксированная/адаптивная высота */
+  overflow-y: auto;
+}
+
 /* Добавь в Sidebar.css или global css */
 .context-menu {
   position: fixed;

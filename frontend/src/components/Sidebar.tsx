@@ -131,6 +131,8 @@ const Sidebar: React.FC = () => {
                       <span>Чаты</span>
                       <FaChevronDown />
                     </div>
+
+                    <div className="chat-scrollable">
                     <ul className="chat-list">
                       {chats.length === 0 && (
                         <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
@@ -158,6 +160,8 @@ const Sidebar: React.FC = () => {
                       })}
                       <li><button onClick={createNewChat}>+ Новый чат</button></li>
                     </ul>
+                    </div>
+
                   </li>
                 </ul>
               </nav>
