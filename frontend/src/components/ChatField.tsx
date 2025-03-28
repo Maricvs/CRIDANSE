@@ -82,6 +82,16 @@ const ChatField: React.FC = () => {
 
   return (
     <div className="chat-input-wrapper">
+    <div className="chat-messages">
+      {messages.map((msg) => (
+        <div
+          key={msg.id}
+          className={`message ${msg.role === 'user' ? 'user-message' : 'bot-message'}`}
+        >
+          {msg.content}
+        </div>
+      ))}
+      </div>
       <div className="chat-input-container">
       <textarea
         ref={textareaRef}
