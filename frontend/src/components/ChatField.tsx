@@ -11,6 +11,26 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
 
+  // Функция для автоматического переименования чата
+  const autoRenameChat = async (chatId: number, aiResponse: string) => {
+    try {
+      // Извлекаем первые 50 символов из ответа ИИ для названия
+      const suggestedTitle = aiResponse.split('\n')[0].slice(0, 50);
+      
+      const response = await fetch(`/api/chat/title/${chatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: suggestedTitle }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при переименовании чата');
+      }
+    } catch (err) {
+      console.error('Ошибка при автоматическом переименовании:', err);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -18,11 +38,11 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
     const prompt = inputValue;
     setInputValue('');
 
-
     try {
       let currentChatId = chatId;
+      let isNewChat = false;
 
-      // 👇 Создаём чат, если его нет
+      // Создаём чат, если его нет
       if (!currentChatId && !creatingChat) {
         setCreatingChat(true);
         const chatResponse = await fetch('/api/chats', {
@@ -36,10 +56,11 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
 
         const newChat = await chatResponse.json();
         currentChatId = newChat.id;
+        isNewChat = true;
         navigate(`/chat/${currentChatId}`);
       }
 
-      // 👇 Сохраняем сообщение пользователя в БД
+      // Сохраняем сообщение пользователя
       await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,8 +72,8 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         }),
       });
 
-      // 👇 Отправляем в GPT
-      await fetch('/api/gpt/ask', {
+      // Отправляем в GPT
+      const gptResponse = await fetch('/api/gpt/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,10 +83,20 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         }),
       });
 
+      if (gptResponse.ok) {
+        const aiResponse = await gptResponse.json();
+        // Если это новый чат, переименовываем его на основе ответа ИИ
+        if (isNewChat && currentChatId) {
+          await autoRenameChat(currentChatId, aiResponse.message);
+        }
+      }
+
       if (onMessageSent) onMessageSent();
+      setCreatingChat(false);
 
     } catch (err) {
       console.error('Ошибка при отправке сообщения:', err);
+      setCreatingChat(false);
     }
   };
 

@@ -245,7 +245,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                                   }}
                                 />
                               ) : (
-                                <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>
+                                <Link 
+                                  to={`/chat/${chat.id}`} 
+                                  onClick={handleLinkClick}
+                                  className={isActive ? 'active-chat' : ''}
+                                >
                                   {chat.title}
                                 </Link>
                               )}
