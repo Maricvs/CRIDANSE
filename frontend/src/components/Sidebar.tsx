@@ -49,12 +49,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`/api/chats/${userId}`)
-      .then(res => res.json())
-      .then(data => {
+    const fetchChats = async () => {
+      try {
+        const response = await fetch(`/api/chats/${userId}`);
+        if (!response.ok) throw new Error('Ошибка при загрузке чатов');
+        const data = await response.json();
         setChats(sortChats(data));
-      })
-      .catch(console.error);
+      } catch (err) {
+        console.error('Ошибка при загрузке чатов:', err);
+      }
+    };
+
+    fetchChats();
   }, [userId]);
 
   const createNewChat = async () => {
@@ -73,8 +79,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
 
       const newChat = await response.json();
-      // Добавляем новый чат и сортируем список
-      setChats(prev => sortChats([newChat, ...prev]));
+      // Добавляем новый чат в начало списка
+      setChats(prev => [newChat, ...prev]);
       navigate(`/chat/${newChat.id}`);
     } catch (err) {
       console.error('Ошибка при создании чата:', err);
@@ -122,9 +128,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
       
       const updatedChat = await response.json();
-      setChats(prev => prev.map(chat => 
-        chat.id === chatId ? { ...chat, title: updatedChat.title } : chat
-      ));
+      // Обновляем чат в списке и перемещаем его вверх
+      setChats(prev => {
+        const updatedChats = prev.map(chat => 
+          chat.id === chatId ? { ...chat, title: updatedChat.title, updated_at: new Date().toISOString() } : chat
+        );
+        return sortChats(updatedChats);
+      });
       
     } catch (err) {
       console.error('Ошибка при переименовании чата:', err);

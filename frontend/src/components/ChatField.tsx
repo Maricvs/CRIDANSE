@@ -26,6 +26,9 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       if (!response.ok) {
         throw new Error('Ошибка при переименовании чата');
       }
+
+      // Обновляем список чатов после переименования
+      await updateChatsList();
     } catch (err) {
       console.error('Ошибка при автоматическом переименовании:', err);
     }
@@ -44,7 +47,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       await response.json();
       // Вызываем колбэк для обновления списка чатов
       if (onMessageSent) {
-        setTimeout(() => onMessageSent(), 100); // Небольшая задержка для гарантии обновления на бэкенде
+        onMessageSent();
       }
     } catch (err) {
       console.error('Ошибка при обновлении списка чатов:', err);
@@ -83,7 +86,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         isNewChat = true;
         
         // Обновляем список чатов после создания нового
-        await updateChatsList();
+        if (onMessageSent) onMessageSent();
         
         navigate(`/chat/${currentChatId}`);
       }
@@ -124,8 +127,6 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       // Если это новый чат, переименовываем его на основе ответа ИИ
       if (isNewChat && currentChatId) {
         await autoRenameChat(currentChatId, aiResponse.message);
-        // Обновляем список чатов после переименования
-        await updateChatsList();
       }
 
       // Обновляем сообщения в чате
