@@ -24,6 +24,7 @@
   box-sizing: border-box;
   position: relative;
   -webkit-overflow-scrolling: touch; /* Для плавной прокрутки в Safari */
+  max-width: 100vw;
 }
 /* Приветствие */
 .chat-welcome h1,
@@ -228,6 +229,7 @@
     height: 100%;
     overflow: hidden;
     height: -webkit-fill-available;
+    max-width: 100vw;
   }
 
   .chat-input-container {
@@ -240,6 +242,7 @@
     background-color: #1e1e1e;
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom);
+    max-width: 100vw;
   }
 
   .chat-messages {
@@ -249,6 +252,7 @@
     height: calc(-webkit-fill-available - 120px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
   }
 
   .message {
@@ -261,6 +265,7 @@
     height: 100%;
     overflow: hidden;
     height: -webkit-fill-available;
+    max-width: 100vw;
   }
 
   .chat-input-wrapper {
@@ -269,6 +274,7 @@
     width: 100%;
     background-color: #1e1e1e;
     padding-bottom: env(safe-area-inset-bottom);
+    max-width: 100vw;
   }
 
   /* Специфичные стили для Safari */
