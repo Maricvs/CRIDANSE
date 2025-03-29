@@ -38,7 +38,10 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
 
     try {
       const response = await fetch(`/api/chats/${userId}`);
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error('Ошибка при обновлении списка чатов');
+      }
+      await response.json(); // Просто проверяем, что ответ валидный
       // Обновляем состояние в родительском компоненте
       if (onMessageSent) onMessageSent();
     } catch (err) {
