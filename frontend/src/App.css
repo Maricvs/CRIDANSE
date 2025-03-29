@@ -3,8 +3,6 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  width: 100%;
-  max-width: 100vw;
 }
 
 .app-container {
@@ -12,7 +10,6 @@ html, body, #root {
   height: 100vh;
   background-color: var(--bg-color);
   overflow-x: hidden;
-  width: 100%;
 }
 
 .app-layout {
@@ -94,14 +91,12 @@ html, body, #root {
   max-width: 768px;
   margin: 0 auto;
   width: 100%;
-  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
     overflow-x: hidden;
-    width: 100%;
   }
 
   .main-content {
@@ -116,18 +111,13 @@ html, body, #root {
     width: 100%;
     padding: 0;
     overflow-x: hidden;
-    margin: 0;
   }
 
   .auth-container {
     padding: 1rem;
-    width: 100%;
-    box-sizing: border-box;
   }
 
   .auth-content {
     padding: 1.5rem;
-    width: 100%;
-    box-sizing: border-box;
   }
 }
