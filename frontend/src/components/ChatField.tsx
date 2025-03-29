@@ -84,6 +84,9 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         const newChat = await chatResponse.json();
         currentChatId = newChat.id;
         isNewChat = true;
+
+        // Обновляем список чатов сразу после создания нового чата
+        await updateChatsList();
       }
 
       // Сохраняем сообщение пользователя
@@ -124,7 +127,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         await autoRenameChat(currentChatId, aiResponse.message);
       }
 
-      // Обновляем список чатов
+      // Обновляем список чатов после получения ответа от ИИ
       await updateChatsList();
 
       // Если это новый чат, делаем навигацию после всех операций
