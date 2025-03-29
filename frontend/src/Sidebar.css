@@ -20,6 +20,7 @@ a:hover {
   z-index: 999;
   transform: translateX(0);
   transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
+  overflow-x: hidden;
 }
 
 .sidebar.expanded {
@@ -293,4 +294,23 @@ a:hover {
   align-items: center;
   gap: 10px;
   font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .sidebar {
+    position: fixed;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.expanded {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar-toggle-fixed {
+    display: block;
+  }
 }

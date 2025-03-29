@@ -22,6 +22,7 @@
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 /* Приветствие */
 .chat-welcome h1,
@@ -45,6 +46,7 @@
   margin: 0 auto;
   box-sizing: border-box;
   transition: margin-left 0.3s ease;
+  overflow-x: hidden;
 }
 
 .chat-messages,
@@ -219,18 +221,22 @@
 
 @media (max-width: 767px) {
   .chat-wrapper {
-    padding-bottom: 4rem; /* отступ от нижнего края */
+    padding-bottom: 4rem;
     overflow-x: hidden;
-    overflow-y: auto;
+    width: 100%;
   }
 
   .chat-input-container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     max-width: 100%;
   }
 
   .chat-messages {
-    padding-bottom: 2rem;
+    padding: 0 0.5rem 1rem;
+  }
+
+  .message {
+    max-width: 90%;
   }
 }
