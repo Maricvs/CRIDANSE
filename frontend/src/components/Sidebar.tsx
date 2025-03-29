@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaComments, FaCreditCard, FaUser, FaFile,
@@ -25,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
@@ -41,6 +42,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, [onCollapse]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (window.innerWidth <= 767 && 
+          sidebarRef.current && 
+          !sidebarRef.current.contains(event.target as Node) && 
+          !isCollapsed) {
+        setIsCollapsed(true);
+        onCollapse?.(true);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCollapsed, onCollapse]);
 
   const sortChats = (chats: Chat[]) => {
     return [...chats].sort((a, b) => {
@@ -216,7 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         </button>
       )}
 
-      <div className={`sidebar ${isCollapsed ? 'collapsed' : 'expanded'}`}>
+      <div ref={sidebarRef} className={`sidebar ${isCollapsed ? 'collapsed' : 'expanded'}`}>
         <div className="sidebar-content">
           {!isCollapsed && (
             <>
@@ -232,7 +248,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
               <div className="sidebar-section">
                 <ul>
                   <li><Link to="/support" onClick={handleLinkClick}><FaComments className="icon" /> <span>Поддержка</span></Link></li>
-                  <li><Link to="/profile" onClick={handleLinkClick}><FaUser className="icon" /> <span>Профиль</span></Link></li>
                   <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
                   <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
                 </ul>
