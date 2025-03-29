@@ -362,6 +362,8 @@ a:hover {
     overflow-y: auto;
     overflow-x: hidden;
     background-color: #1e1e1e;
+    left: 0;
+    top: 0;
   }
 
   .sidebar.expanded {
