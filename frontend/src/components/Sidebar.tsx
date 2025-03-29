@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaHome, FaComments, FaCreditCard, FaUser, FaFile,
   FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft,
-  FaSignOutAlt
+  FaSignOutAlt, FaPlus, FaComment
 } from 'react-icons/fa';
 import '../Sidebar.css';
 import { FaTrash, FaEdit } from 'react-icons/fa';
@@ -15,7 +15,8 @@ interface SidebarProps {
 interface Chat {
   id: number;
   title: string;
-  last_message_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
@@ -47,33 +48,38 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
       .then(data => {
-        // Сортируем чаты по дате последнего сообщения
+        // Сортируем чаты по дате обновления (последние сверху)
         const sortedChats = data.sort((a: Chat, b: Chat) => {
-          const dateA = a.last_message_at ? new Date(a.last_message_at) : new Date(0);
-          const dateB = b.last_message_at ? new Date(b.last_message_at) : new Date(0);
-          return dateB.getTime() - dateA.getTime();
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
         });
         setChats(sortedChats);
       })
       .catch(console.error);
   }, [userId]);
 
-  const createNewChat = () => {
-    fetch('/api/chats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: parseInt(userId || '0'),
-        title: `Чат ${chats.length + 1}`,
-      }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        // Добавляем новый чат в начало списка
-        setChats(prev => [data, ...prev]);
-        navigate(`/chat/${data.id}`);
-      })
-      .catch(console.error);
+  const createNewChat = async () => {
+    try {
+      const response = await fetch('/api/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: parseInt(userId || '0'),
+          title: `Новый чат`,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при создании чата');
+      }
+
+      const newChat = await response.json();
+      // Добавляем новый чат в начало списка
+      setChats(prev => [newChat, ...prev]);
+      navigate(`/chat/${newChat.id}`);
+    } catch (err) {
+      console.error('Ошибка при создании чата:', err);
+      alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
+    }
   };
 
   const deleteChat = async (chatId: number) => {
@@ -105,7 +111,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!newTitle.trim()) return;
     
     try {
-      const response = await fetch(`/api/chats/${chatId}`, {
+      const response = await fetch(`/api/chat/title/${chatId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle.trim() }),
@@ -123,6 +129,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     } catch (err) {
       console.error('Ошибка при переименовании чата:', err);
       alert('Не удалось переименовать чат. Пожалуйста, попробуйте позже.');
+    } finally {
+      setIsRenamingInProgress(false);
+      setEditingChatId(null);
     }
   };
 
@@ -206,42 +215,47 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
               <nav className="sidebar-nav">
                 <ul>
                   <li>
+                    <button className="new-chat-button" onClick={createNewChat}>
+                      <FaPlus className="icon" /> Новый чат
+                    </button>
                     <div className="chat-link">
-                      <FaHome className="icon" />
+                      <FaComment className="icon" />
                       <span>Чаты</span>
-                      <FaChevronDown />
                     </div>
 
                     <div className="chat-scrollable">
-                    <ul className="chat-list">
-                      {chats.length === 0 && (
-                        <li style={{ paddingLeft: '1em', opacity: 0.6 }}>Нет чатов</li>
-                      )}
-                      {chats.map(chat => {
-                        const isActive = chat.id === parseInt(selectedChatId || '', 10);
-                        return (
-                          <li key={chat.id} className={`${isActive ? 'active' : ''} ${isRenamingInProgress && editingChatId === chat.id ? 'renaming' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
-                            {editingChatId === chat.id ? (
-                              <input
-                                autoFocus
-                                defaultValue={chat.title}
-                                onBlur={(e) => handleBlur(chat.id, e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    (e.target as HTMLInputElement).blur();
-                                  }
-                                }}
-                              />
-                            ) : (
-                              <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>
-                                {isRenamingInProgress && editingChatId === chat.id ? tempChatTitle : chat.title}
-                              </Link>
-                            )}
-                          </li>
-                        );
-                      })}
-                      <li><button onClick={createNewChat}>+ Новый чат</button></li>
-                    </ul>
+                      <ul className="chat-list">
+                        {chats.length === 0 && (
+                          <li className="no-chats">Нет чатов</li>
+                        )}
+                        {chats.map(chat => {
+                          const isActive = chat.id === parseInt(selectedChatId || '', 10);
+                          return (
+                            <li 
+                              key={chat.id} 
+                              className={`${isActive ? 'active' : ''} ${isRenamingInProgress && editingChatId === chat.id ? 'renaming' : ''}`}
+                              onContextMenu={(e) => handleContextMenu(e, chat.id)}
+                            >
+                              {editingChatId === chat.id ? (
+                                <input
+                                  autoFocus
+                                  defaultValue={chat.title}
+                                  onBlur={(e) => handleBlur(chat.id, e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      (e.target as HTMLInputElement).blur();
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>
+                                  {chat.title}
+                                </Link>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
                     </div>
                   </li>
                 </ul>
