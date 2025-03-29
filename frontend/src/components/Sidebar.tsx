@@ -3,10 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaComments, FaCreditCard, FaUser, FaFile,
   FaBook, FaSignInAlt, FaBars, FaChevronLeft,
-  FaSignOutAlt, FaPlus, FaComment
+  FaSignOutAlt, FaPlus, FaComment, FaTrash, FaEdit
 } from 'react-icons/fa';
 import '../Sidebar.css';
-import { FaTrash, FaEdit } from 'react-icons/fa';
 
 interface SidebarProps {
   onCollapse?: (collapsed: boolean) => void;
