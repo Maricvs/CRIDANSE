@@ -50,21 +50,34 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     });
   };
 
-  useEffect(() => {
+  const fetchChats = async () => {
     if (!userId) return;
-    const fetchChats = async () => {
-      try {
-        const response = await fetch(`/api/chats/${userId}`);
-        if (!response.ok) throw new Error('Ошибка при загрузке чатов');
-        const data = await response.json();
-        setChats(sortChats(data));
-      } catch (err) {
-        console.error('Ошибка при загрузке чатов:', err);
-      }
-    };
+    try {
+      const response = await fetch(`/api/chats/${userId}`);
+      if (!response.ok) throw new Error('Ошибка при загрузке чатов');
+      const data = await response.json();
+      setChats(sortChats(data));
+    } catch (err) {
+      console.error('Ошибка при загрузке чатов:', err);
+    }
+  };
 
+  useEffect(() => {
     fetchChats();
   }, [userId]);
+
+  useEffect(() => {
+    const handleMessageSent = () => {
+      fetchChats();
+    };
+
+    window.addEventListener('messageSent', handleMessageSent);
+    return () => window.removeEventListener('messageSent', handleMessageSent);
+  }, [userId]);
+
+  const handleNewChat = () => {
+    createNewChat();
+  };
 
   const createNewChat = async () => {
     try {
@@ -228,7 +241,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
               <nav className="sidebar-nav">
                 <ul>
                   <li>
-                    <button className="new-chat-button" onClick={createNewChat}>
+                    <button className="new-chat-button" onClick={handleNewChat}>
                       <FaPlus className="icon" /> Новый чат
                     </button>
                     <div className="chat-link">

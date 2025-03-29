@@ -44,13 +44,17 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       if (!response.ok) {
         throw new Error('Ошибка при обновлении списка чатов');
       }
-      await response.json();
+      const data = await response.json();
       // Вызываем колбэк для обновления списка чатов
       if (onMessageSent) {
         onMessageSent();
       }
+      // Отправляем событие для обновления списка чатов
+      window.dispatchEvent(new Event('messageSent'));
+      return data;
     } catch (err) {
       console.error('Ошибка при обновлении списка чатов:', err);
+      return null;
     }
   };
 
@@ -87,6 +91,9 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
 
         // Обновляем список чатов сразу после создания нового чата
         await updateChatsList();
+        
+        // Небольшая задержка для гарантии обновления UI
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       // Сохраняем сообщение пользователя
@@ -132,8 +139,8 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
 
       // Если это новый чат, делаем навигацию после всех операций
       if (isNewChat && currentChatId) {
-        // Небольшая задержка для гарантии сохранения всех данных
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Увеличенная задержка для гарантии сохранения всех данных и обновления UI
+        await new Promise(resolve => setTimeout(resolve, 1000));
         navigate(`/chat/${currentChatId}`);
       }
       
