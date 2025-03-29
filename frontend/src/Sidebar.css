@@ -19,6 +19,8 @@ a:hover {
   position: fixed;
   transition: transform 0.3s ease-in-out;
   overflow: hidden;
+  left: 0;
+  top: 0;
 }
 
 .sidebar.expanded {
@@ -366,6 +368,7 @@ a:hover {
     background-color: #1e1e1e;
     left: 0;
     top: 0;
+    z-index: 1000;
   }
 
   .sidebar.expanded {
@@ -386,12 +389,14 @@ a:hover {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    position: relative;
   }
 
   .chat-scrollable {
     max-height: calc(100vh - 300px);
     flex: 1;
     overflow-y: auto;
+    position: relative;
   }
 
   .sidebar-footer {
