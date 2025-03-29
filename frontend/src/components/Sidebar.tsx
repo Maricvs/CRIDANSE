@@ -53,7 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         setChats(sortedChats);
       })
       .catch(console.error);
-  }, [userId]);
+  }, [userId, selectedChatId]);
 
   const createNewChat = async () => {
     try {
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
 
       const newChat = await response.json();
-      // Добавляем новый чат в начало списка
+      // Добавляем новый чат в начало списка и обновляем весь список
       setChats(prev => [newChat, ...prev]);
       navigate(`/chat/${newChat.id}`);
     } catch (err) {

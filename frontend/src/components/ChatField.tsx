@@ -31,6 +31,21 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
     }
   };
 
+  // Функция для обновления списка чатов
+  const updateChatsList = async () => {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`/api/chats/${userId}`);
+      const data = await response.json();
+      // Обновляем состояние в родительском компоненте
+      if (onMessageSent) onMessageSent();
+    } catch (err) {
+      console.error('Ошибка при обновлении списка чатов:', err);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -54,14 +69,22 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
           }),
         });
 
+        if (!chatResponse.ok) {
+          throw new Error('Ошибка при создании чата');
+        }
+
         const newChat = await chatResponse.json();
         currentChatId = newChat.id;
         isNewChat = true;
+        
+        // Обновляем список чатов после создания нового
+        await updateChatsList();
+        
         navigate(`/chat/${currentChatId}`);
       }
 
       // Сохраняем сообщение пользователя
-      await fetch('/api/chats/message', {
+      const messageResponse = await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -71,6 +94,10 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
           message: prompt,
         }),
       });
+
+      if (!messageResponse.ok) {
+        throw new Error('Ошибка при сохранении сообщения');
+      }
 
       // Отправляем в GPT
       const gptResponse = await fetch('/api/gpt/ask', {
@@ -83,19 +110,26 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         }),
       });
 
-      if (gptResponse.ok) {
-        const aiResponse = await gptResponse.json();
-        // Если это новый чат, переименовываем его на основе ответа ИИ
-        if (isNewChat && currentChatId) {
-          await autoRenameChat(currentChatId, aiResponse.message);
-        }
+      if (!gptResponse.ok) {
+        throw new Error('Ошибка при получении ответа от ИИ');
       }
 
-      if (onMessageSent) onMessageSent();
-      setCreatingChat(false);
+      const aiResponse = await gptResponse.json();
+      
+      // Если это новый чат, переименовываем его на основе ответа ИИ
+      if (isNewChat && currentChatId) {
+        await autoRenameChat(currentChatId, aiResponse.message);
+        // Обновляем список чатов после переименования
+        await updateChatsList();
+      }
 
-    } catch (err) {
-      console.error('Ошибка при отправке сообщения:', err);
+      // Обновляем сообщения в чате
+      if (onMessageSent) onMessageSent();
+      
+    } catch (err: any) {
+      console.error('Ошибка:', err);
+      alert(err.message || 'Произошла неизвестная ошибка');
+    } finally {
       setCreatingChat(false);
     }
   };
