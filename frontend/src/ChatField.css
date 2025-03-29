@@ -239,4 +239,12 @@
   .message {
     max-width: 90%;
   }
+
+  .chat-container-center {
+    padding: 0.5rem;
+  }
+
+  .chat-input-wrapper {
+    padding: 0.5rem;
+  }
 }

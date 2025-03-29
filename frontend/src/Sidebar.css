@@ -300,6 +300,8 @@ a:hover {
   .sidebar {
     position: fixed;
     transform: translateX(-100%);
+    width: 100%;
+    max-width: 260px;
   }
 
   .sidebar.expanded {
@@ -312,5 +314,13 @@ a:hover {
 
   .sidebar-toggle-fixed {
     display: block;
+  }
+
+  .sidebar-content {
+    width: 100%;
+  }
+
+  .chat-scrollable {
+    max-height: 60vh;
   }
 }
