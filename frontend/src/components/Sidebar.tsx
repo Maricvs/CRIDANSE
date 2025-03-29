@@ -16,6 +16,7 @@ interface Chat {
   title: string;
   created_at: string;
   updated_at: string;
+  last_message_time?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
@@ -43,7 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
   const sortChats = (chats: Chat[]) => {
     return [...chats].sort((a, b) => {
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      const aTime = a.last_message_time || a.updated_at;
+      const bTime = b.last_message_time || b.updated_at;
+      return new Date(bTime).getTime() - new Date(aTime).getTime();
     });
   };
 
@@ -79,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
 
       const newChat = await response.json();
-      // Добавляем новый чат в начало списка
       setChats(prev => [newChat, ...prev]);
       navigate(`/chat/${newChat.id}`);
     } catch (err) {
@@ -128,10 +130,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
       
       const updatedChat = await response.json();
-      // Обновляем чат в списке и перемещаем его вверх
       setChats(prev => {
         const updatedChats = prev.map(chat => 
-          chat.id === chatId ? { ...chat, title: updatedChat.title, updated_at: new Date().toISOString() } : chat
+          chat.id === chatId ? { 
+            ...chat, 
+            title: updatedChat.title, 
+            updated_at: new Date().toISOString()
+          } : chat
         );
         return sortChats(updatedChats);
       });
@@ -160,7 +165,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     
     setIsRenamingInProgress(true);
     
-    // Имитируем задержку как в ChatGPT
     await new Promise(resolve => setTimeout(resolve, 500));
     
     try {
@@ -182,8 +186,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const handleLogout = () => {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
-    setChats([]); // Очищаем состояние чатов
-    navigate('/auth'); // Перенаправляем на страницу авторизации
+    setChats([]);
+    navigate('/auth');
   };
 
   const toggleCollapse = (collapsed: boolean) => {
@@ -298,7 +302,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         </div>
       </div>
 
-      {/* Контекстное меню */}
       {contextMenu && (
         <div
           className="context-menu"

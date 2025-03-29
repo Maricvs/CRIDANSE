@@ -56,15 +56,18 @@ from models.models import Chat
 def get_chats(user_id: int):
     db: Session = SessionLocal()
     try:
-        chats = db.query(Chat).filter(Chat.user_id == user_id).order_by(Chat.created_at).all()
-        return [
-            {
+        chats = db.query(Chat).filter(Chat.user_id == user_id).all()
+        result = []
+        for chat in chats:
+            last_message = db.query(Message).filter(Message.chat_id == chat.id).order_by(Message.created_at.desc()).first()
+            result.append({
                 "id": chat.id,
                 "title": chat.title,
-                "created_at": chat.created_at.isoformat()
-            }
-            for chat in chats
-        ]
+                "created_at": chat.created_at.isoformat(),
+                "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat(),
+                "last_message_time": last_message.created_at.isoformat() if last_message else None
+            })
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -143,6 +146,19 @@ def delete_chat(chat_id: int):
         return {"message": "Chat deleted"}
     except Exception as e:
         db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+@router.get("/{chat_id}/last-message")
+def get_last_message_time(chat_id: int):
+    db: Session = SessionLocal()
+    try:
+        last_message = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at.desc()).first()
+        if not last_message:
+            return {"created_at": None}
+        return {"created_at": last_message.created_at.isoformat()}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
