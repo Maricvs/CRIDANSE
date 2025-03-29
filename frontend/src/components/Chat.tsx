@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
 
@@ -16,24 +16,32 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const fetchMessages = async () => {
-        try {
+    try {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
       if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
-        const data = await res.json();
-        setMessages(data);
-      } catch (err) {
-        setError("Не удалось загрузить сообщения");
-      } finally {
-        setLoading(false);
-      }
-    };
- useEffect(() => {
+      const data = await res.json();
+      setMessages(data);
+    } catch (err) {
+      setError("Не удалось загрузить сообщения");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (id) fetchMessages();
   }, [id]);
-
 
   if (error) return <p>{error}</p>;
 
@@ -72,6 +80,7 @@ export default function Chat() {
       {msg.message}
     </div>
   ))}
+  <div ref={messagesEndRef} />
   </div>
 
       <ChatField onMessageSent={fetchMessages} />

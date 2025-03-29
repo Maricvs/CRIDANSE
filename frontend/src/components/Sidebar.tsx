@@ -12,10 +12,18 @@ interface SidebarProps {
   onCollapse?: (collapsed: boolean) => void;
 }
 
+interface Chat {
+  id: number;
+  title: string;
+  last_message_at?: string;
+}
+
 const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [chats, setChats] = useState<{ id: number; title: string }[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
+  const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
+  const [tempChatTitle, setTempChatTitle] = useState<string>('');
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
 
   const navigate = useNavigate();
@@ -38,7 +46,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!userId) return;
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
-      .then(data => setChats(data))
+      .then(data => {
+        // Сортируем чаты по дате последнего сообщения
+        const sortedChats = data.sort((a: Chat, b: Chat) => {
+          const dateA = a.last_message_at ? new Date(a.last_message_at) : new Date(0);
+          const dateB = b.last_message_at ? new Date(b.last_message_at) : new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        });
+        setChats(sortedChats);
+      })
       .catch(console.error);
   }, [userId]);
 
@@ -53,7 +69,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     })
       .then(res => res.json())
       .then(data => {
-        setChats([...chats, data]);
+        // Добавляем новый чат в начало списка
+        setChats(prev => [data, ...prev]);
         navigate(`/chat/${data.id}`);
       })
       .catch(console.error);
@@ -63,43 +80,49 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!window.confirm('Удалить этот чат?')) return;
     
     try {
-      const res = await fetch(`/api/chat/${chatId}`, { 
+      const response = await fetch(`/api/chats/${chatId}`, { 
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
       
-      if (res.ok) {
-        setChats(prev => prev.filter(c => c.id !== chatId));
-        if (parseInt(selectedChatId || '') === chatId) {
-          navigate('/');
-        }
-      } else {
-        alert("Не удалось удалить чат");
+      if (!response.ok) {
+        throw new Error('Ошибка при удалении чата');
+      }
+      
+      setChats(prev => prev.filter(c => c.id !== chatId));
+      setContextMenu(null);
+      
+      if (parseInt(selectedChatId || '') === chatId) {
+        navigate('/');
       }
     } catch (err) {
-      console.error(err);
-      alert("Ошибка при удалении чата");
+      console.error('Ошибка при удалении чата:', err);
+      alert('Не удалось удалить чат. Пожалуйста, попробуйте позже.');
     }
   };
 
-  const renameChat = async (chatId: number, title: string) => {
+  const renameChat = async (chatId: number, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    
     try {
-      const res = await fetch(`/api/chat/title/${chatId}`, {
+      const response = await fetch(`/api/chats/${chatId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ title: newTitle.trim() }),
       });
       
-      if (res.ok) {
-        setChats(prev => prev.map(chat => 
-          chat.id === chatId ? { ...chat, title } : chat
-        ));
-      } else {
-        alert("Не удалось переименовать чат");
+      if (!response.ok) {
+        throw new Error('Ошибка при переименовании чата');
       }
+      
+      const updatedChat = await response.json();
+      setChats(prev => prev.map(chat => 
+        chat.id === chatId ? { ...chat, title: updatedChat.title } : chat
+      ));
+      
     } catch (err) {
-      console.error(err);
-      alert("Ошибка при переименовании чата");
+      console.error('Ошибка при переименовании чата:', err);
+      alert('Не удалось переименовать чат. Пожалуйста, попробуйте позже.');
     }
   };
 
@@ -113,9 +136,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     setContextMenu(null);
   };
 
-  const handleBlur = (chatId: number, newTitle: string) => {
-    renameChat(chatId, newTitle);
-    setEditingChatId(null);
+  const handleBlur = async (chatId: number, newTitle: string) => {
+    if (newTitle.trim() === '') return;
+    
+    setIsRenamingInProgress(true);
+    setTempChatTitle(newTitle);
+    
+    // Имитируем задержку как в ChatGPT
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    try {
+      await renameChat(chatId, newTitle);
+    } catch (err) {
+      console.error('Ошибка при переименовании:', err);
+    } finally {
+      setIsRenamingInProgress(false);
+      setEditingChatId(null);
+    }
   };
 
   const handleLinkClick = () => {
@@ -183,7 +220,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                       {chats.map(chat => {
                         const isActive = chat.id === parseInt(selectedChatId || '', 10);
                         return (
-                          <li key={chat.id} className={`${isActive ? 'active' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
+                          <li key={chat.id} className={`${isActive ? 'active' : ''} ${isRenamingInProgress && editingChatId === chat.id ? 'renaming' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
                             {editingChatId === chat.id ? (
                               <input
                                 autoFocus
@@ -196,7 +233,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                                 }}
                               />
                             ) : (
-                              <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>{chat.title}</Link>
+                              <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>
+                                {isRenamingInProgress && editingChatId === chat.id ? tempChatTitle : chat.title}
+                              </Link>
                             )}
                           </li>
                         );
