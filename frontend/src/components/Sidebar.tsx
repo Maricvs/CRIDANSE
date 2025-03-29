@@ -150,38 +150,35 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   };
 
   const createNewChat = async () => {
-    const newChat = {
-      id: Date.now(),
-      title: 'Новый чат',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      isTemporary: !userId,
-    };
+    try {
+      const newChat = {
+        id: Date.now(),
+        title: 'Новый чат',
+        updated_at: new Date().toISOString(),
+        isTemporary: !userId
+      };
 
-    if (userId) {
-      try {
+      if (userId) {
         const response = await fetch('/api/chats', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: parseInt(userId),
-            title: newChat.title,
-          }),
+          body: JSON.stringify({ title: newChat.title, user_id: userId })
         });
 
         if (!response.ok) throw new Error('Ошибка при создании чата');
-        const savedChat = await response.json();
-        setChats(prev => [savedChat, ...prev]);
-        navigate(`/chat/${savedChat.id}`);
-      } catch (err) {
-        console.error('Ошибка при создании чата:', err);
-        alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
+        const data = await response.json();
+        newChat.id = data.id;
+      } else {
+        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+        localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
       }
-    } else {
-      const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-      localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
+
       setChats(prev => [newChat, ...prev]);
+      setIsCollapsed(false);
       navigate(`/chat/${newChat.id}`);
+    } catch (err) {
+      console.error('Ошибка при создании чата:', err);
+      alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
     }
   };
 

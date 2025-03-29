@@ -49,6 +49,8 @@
   transition: margin-left 0.3s ease;
   position: relative;
   -webkit-overflow-scrolling: touch;
+  justify-content: flex-end;
+  min-height: 100%;
 }
 
 .chat-messages,
@@ -246,6 +248,8 @@
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
+    justify-content: flex-end;
+    min-height: 100%;
   }
 
   .message {
