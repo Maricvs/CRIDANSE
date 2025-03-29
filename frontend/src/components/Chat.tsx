@@ -2,7 +2,6 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
-import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: number;
