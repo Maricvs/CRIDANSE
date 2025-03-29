@@ -227,6 +227,7 @@
     position: relative;
     height: 100%;
     overflow: hidden;
+    height: -webkit-fill-available;
   }
 
   .chat-input-container {
@@ -238,12 +239,14 @@
     width: 100%;
     background-color: #1e1e1e;
     z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .chat-messages {
     padding: 0 0.5rem 1rem;
     position: relative;
-    height: calc(100vh - 120px); /* Учитываем высоту поля ввода и навигации */
+    height: calc(100vh - 120px);
+    height: calc(-webkit-fill-available - 120px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -257,6 +260,7 @@
     position: relative;
     height: 100%;
     overflow: hidden;
+    height: -webkit-fill-available;
   }
 
   .chat-input-wrapper {
@@ -264,12 +268,14 @@
     position: relative;
     width: 100%;
     background-color: #1e1e1e;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Специфичные стили для Safari */
   @supports (-webkit-touch-callout: none) {
     .chat-messages {
-      height: calc(100vh - 140px); /* Дополнительный отступ для Safari */
+      height: calc(100vh - 140px);
+      height: calc(-webkit-fill-available - 140px);
     }
     
     .chat-input-container {
