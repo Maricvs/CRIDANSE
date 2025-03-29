@@ -113,8 +113,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     setContextMenu(null);
   };
 
-  const [deletingChatId, setDeletingChatId] = useState<number | null>(null);
-
   const handleBlur = (chatId: number, newTitle: string) => {
     renameChat(chatId, newTitle);
     setEditingChatId(null);
@@ -185,7 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                       {chats.map(chat => {
                         const isActive = chat.id === parseInt(selectedChatId || '', 10);
                         return (
-                          <li key={chat.id} className={`${isActive ? 'active' : ''} ${deletingChatId === chat.id ? 'deleting' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
+                          <li key={chat.id} className={`${isActive ? 'active' : ''}`} onContextMenu={(e) => handleContextMenu(e, chat.id)}>
                             {editingChatId === chat.id ? (
                               <input
                                 autoFocus
