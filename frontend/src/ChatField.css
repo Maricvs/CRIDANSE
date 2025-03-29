@@ -64,7 +64,6 @@
   width: 100%;
   padding: 1rem;
   box-sizing: border-box;
-  background-color: var(--bg-color);
 }
 
 .chat-wrapper {
@@ -124,29 +123,28 @@
 
 /* Поле ввода */
 .chat-input {
+  flex: 1;
   width: 100%;
-  padding: 1rem;
-  padding-right: 3.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--input-bg);
-  color: var(--text-color);
-  font-size: 16px;
-  line-height: 1.5;
-  resize: none;
-  min-height: 56px;
-  max-height: 200px;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
-}
-
-.chat-input:focus {
+  padding: 10px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  border: 1px solid #444;
+  border-radius: 6px;
   outline: none;
-  border-color: var(--accent-color);
+  background-color: #2a2a2a;
+  color: white;
+  resize: none;
+  min-height: 50px;
+  max-height: 160px;
+  overflow-y: auto;
+  font-family: 'Figtree', sans-serif;
+  box-sizing: border-box;
 }
 
 .chat-input::placeholder {
-  color: var(--text-secondary);
+  color: #aaa;
+  font-family: 'Figtree', sans-serif;
+  font-size: 15px;
 }
 
 .chat-textarea {
@@ -167,26 +165,30 @@
 /* Кнопка отправки */
 .send-button {
   position: absolute;
-  right: 1.5rem;
+  right: 2rem;
   bottom: 1rem;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
   padding: 0.5rem;
+  font-size: 1rem;
+  background: #1b1a1a;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease;
+  cursor: pointer;
+  z-index: 101;
 }
 
 .send-button:hover {
-  color: var(--accent-color);
+  background: #4d4b4b;
 }
 
 .send-button:disabled {
-  color: var(--text-tertiary);
   cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .send-button.active .send-icon {
@@ -241,10 +243,9 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: var(--bg-color);
+    background-color: #1e1e1e;
     z-index: 100;
     padding: 0.5rem;
-    border-top: 1px solid var(--border-color);
   }
 
   .chat-input {
