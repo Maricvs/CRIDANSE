@@ -61,9 +61,9 @@ html, body, #root {
   background-color: var(--bg-color);
   width: calc(100% - 260px);
   margin-left: 260px;
-  flex: 1;
   flex-direction: column;
   transition: margin-left 0.3s ease, width 0.3s ease;
+  height: 100vh;
 }
 
 .main-content.sidebar-collapsed {
@@ -102,6 +102,7 @@ html, body, #root {
     margin-left: 0;
     overflow-x: hidden;
     position: relative;
+    height: 100vh;
   }
 
   .chat-wrapper {
@@ -109,6 +110,7 @@ html, body, #root {
     padding: 0;
     overflow-x: hidden;
     margin: 0;
+    height: 100%;
   }
 
   .auth-container {

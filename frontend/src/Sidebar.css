@@ -18,6 +18,7 @@ a:hover {
   z-index: 999;
   position: fixed;
   transition: transform 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 .sidebar.expanded {
@@ -241,6 +242,7 @@ a:hover {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+  height: calc(100vh - 300px);
 }
 
 /* Добавь в Sidebar.css или global css */
