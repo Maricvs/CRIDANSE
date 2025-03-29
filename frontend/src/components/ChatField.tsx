@@ -84,11 +84,6 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         const newChat = await chatResponse.json();
         currentChatId = newChat.id;
         isNewChat = true;
-        
-        // Обновляем список чатов после создания нового
-        if (onMessageSent) onMessageSent();
-        
-        navigate(`/chat/${currentChatId}`);
       }
 
       // Сохраняем сообщение пользователя
@@ -129,8 +124,15 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         await autoRenameChat(currentChatId, aiResponse.message);
       }
 
-      // Обновляем сообщения в чате
-      if (onMessageSent) onMessageSent();
+      // Обновляем список чатов
+      await updateChatsList();
+
+      // Если это новый чат, делаем навигацию после всех операций
+      if (isNewChat && currentChatId) {
+        // Небольшая задержка для гарантии сохранения всех данных
+        await new Promise(resolve => setTimeout(resolve, 500));
+        navigate(`/chat/${currentChatId}`);
+      }
       
     } catch (err: any) {
       console.error('Ошибка:', err);
