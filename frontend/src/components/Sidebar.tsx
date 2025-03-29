@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  FaHome, FaComments, FaCreditCard, FaUser, FaFile,
-  FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft,
+  FaComments, FaCreditCard, FaUser, FaFile,
+  FaBook, FaSignInAlt, FaBars, FaChevronLeft,
   FaSignOutAlt, FaPlus, FaComment
 } from 'react-icons/fa';
 import '../Sidebar.css';
@@ -24,7 +24,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
-  const [tempChatTitle, setTempChatTitle] = useState<string>('');
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
 
   const navigate = useNavigate();
@@ -149,7 +148,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (newTitle.trim() === '') return;
     
     setIsRenamingInProgress(true);
-    setTempChatTitle(newTitle);
     
     // Имитируем задержку как в ChatGPT
     await new Promise(resolve => setTimeout(resolve, 500));
