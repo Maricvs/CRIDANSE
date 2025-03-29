@@ -41,9 +41,11 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       if (!response.ok) {
         throw new Error('Ошибка при обновлении списка чатов');
       }
-      await response.json(); // Просто проверяем, что ответ валидный
-      // Обновляем состояние в родительском компоненте
-      if (onMessageSent) onMessageSent();
+      await response.json();
+      // Вызываем колбэк для обновления списка чатов
+      if (onMessageSent) {
+        setTimeout(() => onMessageSent(), 100); // Небольшая задержка для гарантии обновления на бэкенде
+      }
     } catch (err) {
       console.error('Ошибка при обновлении списка чатов:', err);
     }

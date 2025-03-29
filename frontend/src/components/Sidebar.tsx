@@ -41,19 +41,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [onCollapse]);
 
+  const sortChats = (chats: Chat[]) => {
+    return [...chats].sort((a, b) => {
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
+  };
+
   useEffect(() => {
     if (!userId) return;
     fetch(`/api/chats/${userId}`)
       .then(res => res.json())
       .then(data => {
-        // Сортируем чаты по дате обновления (последние сверху)
-        const sortedChats = data.sort((a: Chat, b: Chat) => {
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        });
-        setChats(sortedChats);
+        setChats(sortChats(data));
       })
       .catch(console.error);
-  }, [userId, selectedChatId]);
+  }, [userId]);
 
   const createNewChat = async () => {
     try {
@@ -71,8 +73,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
 
       const newChat = await response.json();
-      // Добавляем новый чат в начало списка и обновляем весь список
-      setChats(prev => [newChat, ...prev]);
+      // Добавляем новый чат и сортируем список
+      setChats(prev => sortChats([newChat, ...prev]));
       navigate(`/chat/${newChat.id}`);
     } catch (err) {
       console.error('Ошибка при создании чата:', err);
