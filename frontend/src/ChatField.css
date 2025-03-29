@@ -216,3 +216,21 @@
 
 
 }
+
+@media (max-width: 767px) {
+  .chat-wrapper {
+    padding-bottom: 4rem; /* отступ от нижнего края */
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .chat-input-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 100%;
+  }
+
+  .chat-messages {
+    padding-bottom: 2rem;
+  }
+}
