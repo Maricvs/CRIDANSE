@@ -17,6 +17,7 @@ interface Chat {
   created_at: string;
   updated_at: string;
   last_message_time?: string;
+  isTemporary?: boolean;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
@@ -57,6 +59,58 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isCollapsed, onCollapse]);
+
+  useEffect(() => {
+    const loadTemporaryChats = () => {
+      const tempChats = localStorage.getItem('temporary_chats');
+      if (tempChats) {
+        return JSON.parse(tempChats);
+      }
+      return [];
+    };
+
+    if (!userId) {
+      setChats(loadTemporaryChats());
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      const tempChats = localStorage.getItem('temporary_chats');
+      if (tempChats && JSON.parse(tempChats).length > 0) {
+        setShowMigrationPrompt(true);
+      }
+    }
+  }, [userId]);
+
+  const migrateTemporaryChats = async () => {
+    const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+    if (!tempChats.length) return;
+
+    try {
+      for (const chat of tempChats) {
+        const response = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: parseInt(userId || '0'),
+            title: chat.title,
+            created_at: chat.created_at,
+            updated_at: chat.updated_at,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Ошибка при миграции чата');
+      }
+
+      localStorage.removeItem('temporary_chats');
+      fetchChats();
+      setShowMigrationPrompt(false);
+    } catch (err) {
+      console.error('Ошибка при миграции чатов:', err);
+      alert('Не удалось перенести временные чаты. Пожалуйста, попробуйте позже.');
+    }
+  };
 
   const sortChats = (chats: Chat[]) => {
     return [...chats].sort((a, b) => {
@@ -96,26 +150,38 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   };
 
   const createNewChat = async () => {
-    try {
-      const response = await fetch('/api/chats', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: parseInt(userId || '0'),
-          title: `Новый чат`,
-        }),
-      });
+    const newChat = {
+      id: Date.now(),
+      title: 'Новый чат',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      isTemporary: !userId,
+    };
 
-      if (!response.ok) {
-        throw new Error('Ошибка при создании чата');
+    if (userId) {
+      try {
+        const response = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: parseInt(userId),
+            title: newChat.title,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Ошибка при создании чата');
+        const savedChat = await response.json();
+        setChats(prev => [savedChat, ...prev]);
+        navigate(`/chat/${savedChat.id}`);
+      } catch (err) {
+        console.error('Ошибка при создании чата:', err);
+        alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
       }
-
-      const newChat = await response.json();
+    } else {
+      const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+      localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
       setChats(prev => [newChat, ...prev]);
       navigate(`/chat/${newChat.id}`);
-    } catch (err) {
-      console.error('Ошибка при создании чата:', err);
-      alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
     }
   };
 
@@ -123,16 +189,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!window.confirm('Удалить этот чат?')) return;
     
     try {
-      const response = await fetch(`/api/chats/${chatId}`, { 
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при удалении чата');
+      if (userId) {
+        const response = await fetch(`/api/chats/${chatId}`, { 
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) throw new Error('Ошибка при удалении чата');
+        
+        setChats(prev => prev.filter((c: Chat) => c.id !== chatId));
+      } else {
+        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+        localStorage.setItem('temporary_chats', JSON.stringify(tempChats.filter((c: Chat) => c.id !== chatId)));
+        setChats(prev => prev.filter((c: Chat) => c.id !== chatId));
       }
       
-      setChats(prev => prev.filter(c => c.id !== chatId));
       setContextMenu(null);
       
       if (parseInt(selectedChatId || '') === chatId) {
@@ -148,28 +219,50 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!newTitle.trim()) return;
     
     try {
-      const response = await fetch(`/api/chat/title/${chatId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle.trim() }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Ошибка при переименовании чата');
-      }
-      
-      const updatedChat = await response.json();
-      setChats(prev => {
-        const updatedChats = prev.map(chat => 
+      if (userId) {
+        const response = await fetch(`/api/chat/title/${chatId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: newTitle.trim() }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Ошибка при переименовании чата');
+        }
+        
+        const updatedChat = await response.json();
+        setChats(prev => {
+          const updatedChats = prev.map(chat => 
+            chat.id === chatId ? { 
+              ...chat, 
+              title: updatedChat.title, 
+              updated_at: new Date().toISOString()
+            } : chat
+          );
+          return sortChats(updatedChats);
+        });
+      } else {
+        // Обновляем временный чат
+        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+        const updatedChats = tempChats.map((chat: Chat) => 
           chat.id === chatId ? { 
             ...chat, 
-            title: updatedChat.title, 
+            title: newTitle.trim(),
             updated_at: new Date().toISOString()
           } : chat
         );
-        return sortChats(updatedChats);
-      });
-      
+        localStorage.setItem('temporary_chats', JSON.stringify(updatedChats));
+        setChats(prev => {
+          const updatedChats = prev.map(chat => 
+            chat.id === chatId ? { 
+              ...chat, 
+              title: newTitle.trim(),
+              updated_at: new Date().toISOString()
+            } : chat
+          );
+          return sortChats(updatedChats);
+        });
+      }
     } catch (err) {
       console.error('Ошибка при переименовании чата:', err);
       alert('Не удалось переименовать чат. Пожалуйста, попробуйте позже.');
@@ -328,6 +421,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                   )}
                 </div>
               </div>
+
+              {showMigrationPrompt && (
+                <div className="migration-prompt">
+                  <p>У вас есть временные чаты. Хотите перенести их в аккаунт?</p>
+                  <button onClick={migrateTemporaryChats}>Перенести</button>
+                  <button onClick={() => {
+                    localStorage.removeItem('temporary_chats');
+                    setShowMigrationPrompt(false);
+                  }}>Отменить</button>
+                </div>
+              )}
             </>
           )}
         </div>
