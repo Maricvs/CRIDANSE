@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaHome, FaComments, FaCreditCard, FaUser, FaFile,
-  FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft
+  FaBook, FaSignInAlt, FaChevronDown, FaBars, FaChevronLeft,
+  FaSignOutAlt
 } from 'react-icons/fa';
 import '../Sidebar.css';
 import { FaTrash, FaEdit } from 'react-icons/fa';
@@ -93,6 +94,12 @@ const Sidebar: React.FC = () => {
     setEditingChatId(null);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_name');
+    navigate('/auth');
+  };
+
   return (
     <>
       {isCollapsed && (
@@ -173,7 +180,12 @@ const Sidebar: React.FC = () => {
                 <div className="user-greeting">
                   {userName ? (
                     <>
-                      <FaUser className="icon" /><span>Привет, {userName}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <FaUser className="icon" /><span>Привет, {userName}</span>
+                      </div>
+                      <button className="logout-button" onClick={handleLogout}>
+                        <FaSignOutAlt /> Выйти
+                      </button>
                     </>
                   ) : (
                     <Link to="/auth"><FaSignInAlt className="icon" /><span>Войти</span></Link>
