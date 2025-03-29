@@ -213,6 +213,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   };
 
   const handleLogout = () => {
+    if (window.innerWidth <= 767) {
+      setIsCollapsed(true);
+    }
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
     setChats([]);
