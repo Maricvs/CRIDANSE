@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
+import { useNavigate } from 'react-router-dom';
 
 interface Message {
   id: number;
@@ -41,12 +42,24 @@ export default function Chat() {
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
 
   if (!id || id === 'undefined' || id === null || id === '') {
-    return (
-      <div className={wrapperClass}>
-        <WelcomeIntroBlock />
+  return (
+    <div
+      className={wrapperClass}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <WelcomeIntroBlock />
+      <div style={{ marginTop: '2rem', width: '100%', maxWidth: '768px' }}>
+        <ChatField />
       </div>
-    );
-  }
+    </div>
+  );
+}
   if (loading) return <p>Загрузка сообщений...</p>;
 
   return (
