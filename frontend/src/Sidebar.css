@@ -22,6 +22,7 @@ a:hover {
   transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
   overflow-x: hidden;
   position: fixed;
+  touch-action: none;
 }
 
 .sidebar.expanded {
@@ -209,22 +210,20 @@ a:hover {
 
 .chat-list li a {
   display: block;
-  padding: 4px 0;
+  padding: 8px 12px;
   color: #e1e6f2;
   transition: background-color 0.2s;
+  border-radius: 6px;
+  margin: 0 4px;
 }
 
 .chat-list li a:hover {
   background-color: #333;
-  border-radius: 6px;
-  padding: 4px 0px;
 }
 
 .chat-list li.active a {
   background-color: #444;
   font-weight: bold;
-  border-radius: 6px;
-  padding: 4px 0px;
 }
 
 .chat-list li.deleting {
@@ -288,6 +287,9 @@ a:hover {
   flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
 }
 
 .subscription-link {
@@ -329,6 +331,7 @@ a:hover {
     width: 100%;
     max-width: 260px;
     height: 100vh;
+    touch-action: none;
   }
 
   .sidebar.expanded {
@@ -353,5 +356,14 @@ a:hover {
   .chat-scrollable {
     max-height: none;
     flex: 1;
+  }
+
+  .sidebar-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    background-color: #2c2c2c;
+    z-index: 1000;
   }
 }

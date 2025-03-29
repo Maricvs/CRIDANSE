@@ -1,3 +1,4 @@
+import React from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from 'react-router-dom' // ✅ добавлен для навигации
@@ -43,14 +44,23 @@ const Auth = () => {
 
   return (
     <div className="auth-container">
-      <h2>Вход через Google</h2>
-      <div className="auth-button">
-        <GoogleLogin
-          onSuccess={handleSuccess}
-          onError={() => {
-            console.log('❌ Google Login Failed')
-          }}
-        />
+      <div className="auth-content">
+        <h2>Добро пожаловать в CRIDANSE</h2>
+        <p style={{ color: '#aaa', marginBottom: '2rem' }}>
+          Войдите через Google, чтобы продолжить
+        </p>
+        <div className="auth-button">
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={() => {
+              console.log('Ошибка входа через Google')
+            }}
+            theme="filled_black"
+            size="large"
+            width="100%"
+            max-width="300px"
+          />
+        </div>
       </div>
     </div>
   )

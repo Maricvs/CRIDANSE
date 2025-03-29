@@ -94,10 +94,16 @@ const Sidebar: React.FC = () => {
     setEditingChatId(null);
   };
 
+  const handleLinkClick = () => {
+    if (window.innerWidth <= 767) {
+      setIsCollapsed(true);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
-    navigate('/auth');
+    navigate('/');
   };
 
   return (
@@ -113,7 +119,7 @@ const Sidebar: React.FC = () => {
           {!isCollapsed && (
             <>
               <div className="sidebar-logo">
-                <Link to="/" className="logo-text">
+                <Link to="/" className="logo-text" onClick={handleLinkClick}>
                   <span>CRIDANSE</span>
                 </Link>
                 <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
@@ -123,10 +129,10 @@ const Sidebar: React.FC = () => {
 
               <div className="sidebar-section">
                 <ul>
-                  <li><Link to="/support"><FaComments className="icon" /> <span>Поддержка</span></Link></li>
-                  <li><Link to="/profile"><FaUser className="icon" /> <span>Профиль</span></Link></li>
-                  <li><Link to="/documents"><FaFile className="icon" /> <span>Документы</span></Link></li>
-                  <li><Link to="/libraries"><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
+                  <li><Link to="/support" onClick={handleLinkClick}><FaComments className="icon" /> <span>Поддержка</span></Link></li>
+                  <li><Link to="/profile" onClick={handleLinkClick}><FaUser className="icon" /> <span>Профиль</span></Link></li>
+                  <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
+                  <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
                 </ul>
               </div>
 
@@ -160,7 +166,7 @@ const Sidebar: React.FC = () => {
                                 }}
                               />
                             ) : (
-                              <Link to={`/chat/${chat.id}`}>{chat.title}</Link>
+                              <Link to={`/chat/${chat.id}`} onClick={handleLinkClick}>{chat.title}</Link>
                             )}
                           </li>
                         );
@@ -168,14 +174,13 @@ const Sidebar: React.FC = () => {
                       <li><button onClick={createNewChat}>+ Новый чат</button></li>
                     </ul>
                     </div>
-
                   </li>
                 </ul>
               </nav>
 
               <div className="sidebar-footer">
                 <div className="subscription-link">
-                  <Link to="/subscriptions"><FaCreditCard className="icon" /><span>Подписка</span></Link>
+                  <Link to="/subscriptions" onClick={handleLinkClick}><FaCreditCard className="icon" /><span>Подписка</span></Link>
                 </div>
                 <div className="user-greeting">
                   {userName ? (
@@ -188,7 +193,7 @@ const Sidebar: React.FC = () => {
                       </button>
                     </>
                   ) : (
-                    <Link to="/auth"><FaSignInAlt className="icon" /><span>Войти</span></Link>
+                    <Link to="/auth" onClick={handleLinkClick}><FaSignInAlt className="icon" /><span>Войти</span></Link>
                   )}
                 </div>
               </div>
