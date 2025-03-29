@@ -8,7 +8,11 @@ import {
 import '../Sidebar.css';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onCollapse?: (collapsed: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [chats, setChats] = useState<{ id: number; title: string }[]>([]);
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
@@ -21,12 +25,14 @@ const Sidebar: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsCollapsed(window.innerWidth <= 767);
+      const shouldCollapse = window.innerWidth <= 767;
+      setIsCollapsed(shouldCollapse);
+      onCollapse?.(shouldCollapse);
     };
     window.addEventListener('resize', handleResize);
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [onCollapse]);
 
   useEffect(() => {
     if (!userId) return;
@@ -55,26 +61,46 @@ const Sidebar: React.FC = () => {
 
   const deleteChat = async (chatId: number) => {
     if (!window.confirm('Удалить этот чат?')) return;
-    setDeletingChatId(chatId);
-
-    // ждём завершения анимации
-    setTimeout(async () => {
-      const res = await fetch(`/api/chat/${chatId}`, { method: 'DELETE' });
+    
+    try {
+      const res = await fetch(`/api/chat/${chatId}`, { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
       if (res.ok) {
         setChats(prev => prev.filter(c => c.id !== chatId));
-        if (parseInt(selectedChatId || '') === chatId) navigate('/');
+        if (parseInt(selectedChatId || '') === chatId) {
+          navigate('/');
+        }
+      } else {
+        alert("Не удалось удалить чат");
       }
-      setDeletingChatId(null);
-    }, 300); // анимация длится 300ms
+    } catch (err) {
+      console.error(err);
+      alert("Ошибка при удалении чата");
+    }
   };
 
   const renameChat = async (chatId: number, title: string) => {
-    const res = await fetch(`/api/chat/title/${chatId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title }),
-    });
-    if (!res.ok) alert("Не удалось переименовать чат");
+    try {
+      const res = await fetch(`/api/chat/title/${chatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title }),
+      });
+      
+      if (res.ok) {
+        setChats(prev => prev.map(chat => 
+          chat.id === chatId ? { ...chat, title } : chat
+        ));
+      } else {
+        alert("Не удалось переименовать чат");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Ошибка при переименовании чата");
+    }
   };
 
   const handleContextMenu = (e: React.MouseEvent, chatId: number) => {
@@ -103,13 +129,19 @@ const Sidebar: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
-    navigate('/');
+    setChats([]); // Очищаем состояние чатов
+    navigate('/auth'); // Перенаправляем на страницу авторизации
+  };
+
+  const toggleCollapse = (collapsed: boolean) => {
+    setIsCollapsed(collapsed);
+    onCollapse?.(collapsed);
   };
 
   return (
     <>
       {isCollapsed && (
-        <button onClick={() => setIsCollapsed(false)} className="sidebar-toggle-fixed">
+        <button onClick={() => toggleCollapse(false)} className="sidebar-toggle-fixed">
           <FaBars />
         </button>
       )}
@@ -122,7 +154,7 @@ const Sidebar: React.FC = () => {
                 <Link to="/" className="logo-text" onClick={handleLinkClick}>
                   <span>CRIDANSE</span>
                 </Link>
-                <button onClick={() => setIsCollapsed(true)} className="sidebar-toggle">
+                <button onClick={() => toggleCollapse(true)} className="sidebar-toggle">
                   <FaChevronLeft />
                 </button>
               </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 // import SuppChat from './components/SuppChat';
@@ -11,11 +11,13 @@ import './App.css';
 import Chat from './components/Chat'; // Импортируем Chat
 
 const App: React.FC = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   return (
     <Router>
       <div className="app-layout">
-        <Sidebar />
-        <div className="main-content">
+        <Sidebar onCollapse={setIsSidebarCollapsed} />
+        <div className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <Routes>
             <Route path="/chat/:id" element={<Chat />} />
             <Route path="/" element={<Chat />} />
