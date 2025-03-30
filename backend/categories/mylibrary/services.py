@@ -1,9 +1,10 @@
 import asyncio
 from sqlalchemy.orm import Session
-from . import models
+from . import mydocuments
 import os
 from typing import List
 import mimetypes
+from datetime import datetime
 
 async def process_document(document_id: int, db: Session):
     """
@@ -13,17 +14,24 @@ async def process_document(document_id: int, db: Session):
     3. Анализ содержимого
     4. Назначение тегов
     """
-    document = db.query(models.Document).filter(models.Document.id == document_id).first()
+    document = db.query(mydocuments.MyDocument).filter(mydocuments.MyDocument.id == document_id).first()
     if not document:
         return
     
     try:
+        # Обновляем статус обработки
+        document.processing_status = 'processing'
+        document.processing_started_at = datetime.utcnow()
+        db.commit()
+        
         # Определяем тип файла
         mime_type, _ = mimetypes.guess_type(document.file_path)
         
         # Извлекаем текст в зависимости от типа файла
         content = await extract_text(document.file_path, mime_type)
         document.content = content
+        document.content_length = len(content) if content else 0
+        document.word_count = len(content.split()) if content else 0
         
         # Определяем язык
         language = await detect_language(content)
@@ -34,13 +42,13 @@ async def process_document(document_id: int, db: Session):
         
         # Добавляем теги к документу
         for tag_data in tags:
-            tag = db.query(models.Tag).filter(
-                models.Tag.name == tag_data['name'],
-                models.Tag.category == tag_data['category']
+            tag = db.query(mydocuments.Tag).filter(
+                mydocuments.Tag.name == tag_data['name'],
+                mydocuments.Tag.category == tag_data['category']
             ).first()
             
             if not tag:
-                tag = models.Tag(
+                tag = mydocuments.Tag(
                     name=tag_data['name'],
                     category=tag_data['category']
                 )
@@ -49,11 +57,18 @@ async def process_document(document_id: int, db: Session):
             
             document.tags.append(tag)
         
+        # Обновляем статус обработки
+        document.processing_status = 'completed'
+        document.processing_completed_at = datetime.utcnow()
         db.commit()
         
     except Exception as e:
+        # Обновляем статус обработки в случае ошибки
+        document.processing_status = 'failed'
+        document.processing_error = str(e)
+        document.processing_completed_at = datetime.utcnow()
+        db.commit()
         print(f"Ошибка при обработке документа {document_id}: {str(e)}")
-        # TODO: Добавить логирование ошибок
 
 async def extract_text(file_path: str, mime_type: str) -> str:
     """
