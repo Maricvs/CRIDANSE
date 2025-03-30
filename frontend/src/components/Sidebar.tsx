@@ -154,6 +154,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       const newChat = {
         id: Date.now(),
         title: 'Новый чат',
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         isTemporary: !userId
       };
