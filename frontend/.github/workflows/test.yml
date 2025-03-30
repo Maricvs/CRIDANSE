@@ -1,0 +1,51 @@
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm install
+      - name: Run all tests
+        id: tests
+        continue-on-error: true
+        run: |
+          npm run test:all
+          echo "::set-output name=status::$?"
+          echo "::set-output name=test_output::$(npm run test:all 2>&1)"
+      - name: Send success notification
+        if: steps.tests.outputs.status == 0
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode=html \
+          -d text="✅ <b>Все тесты пройдены успешно!</b>%0A%0AРепозиторий: ${{ github.repository }}%0AВетка: ${{ github.ref_name }}"
+      - name: Send failure notification
+        if: steps.tests.outputs.status != 0
+        run: |
+          FAILED_TESTS=$(echo "${{ steps.tests.outputs.test_output }}" | awk '/FAIL/ {
+            printf "\n🔴 Компонент: %s\n", $2;
+            getline;
+            while(getline && $0 !~ /^$/) {
+              if($0 ~ /✕/) {
+                gsub(/^[ ]+✕ /, "  • ");
+                print;
+              }
+            }
+          }')
+          
+          SUMMARY=$(echo "${{ steps.tests.outputs.test_output }}" | grep "Test Suites:" || echo "Детали недоступны")
+          
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d parse_mode=html \
+          -d text="❌ <b>Обнаружены ошибки в тестах!</b>%0A%0A\
+          Репозиторий: ${{ github.repository }}%0A\
+          Ветка: ${{ github.ref_name }}%0A\
+          Коммит: ${{ github.sha }}%0A\
+          Автор: ${{ github.actor }}%0A%0A\
+          <b>Проблемные тесты:</b>%0A<pre>${FAILED_TESTS}</pre>%0A%0A\
+          <b>Итого:</b>%0A<pre>${SUMMARY}</pre>%0A%0A\
+          <a href='https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}'>Подробный отчёт</a>" 
