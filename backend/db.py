@@ -2,7 +2,7 @@
 
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
 # Загружаем переменные окружения
@@ -17,6 +17,9 @@ if not DATABASE_URL:
 # Создание движка SQLAlchemy
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Создаем базовый класс для моделей
+Base = declarative_base()
 
 from sqlalchemy.orm import Session
 

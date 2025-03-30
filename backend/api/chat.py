@@ -112,6 +112,7 @@ def create_chat(chat: ChatCreate):
         })
     except Exception as e:
         db.rollback()
+        print(f"Error creating chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()

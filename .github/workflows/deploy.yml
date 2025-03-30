@@ -45,23 +45,23 @@ jobs:
             # Запуск тестов фронтенда
             if ! npm run test:all >frontend_tests.log 2>&1; then
               test_output=$(tail -n 20 frontend_tests.log)
-              python3 tools/notifier-bot/telegram.py "❌ Тесты фронтенда не пройдены:<br><pre>$test_output</pre>"
+              python3 ../tools/notifier-bot/telegram.py "❌ Тесты фронтенда не пройдены:<br><pre>$test_output</pre>"
               exit 1
             fi
 
             if ! npm run build >build_output.log 2>&1; then
               error_log=$(tail -n 10 build_output.log)
-              python3 tools/notifier-bot/telegram.py "❌ Сборка не удалась:<br>$error_log"
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:<br>$error_log"
               exit 1
             fi
 
             sudo rm -rf /var/www/react-app/* || {
-              python3 tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
               exit 1
             }
 
             sudo cp -r dist/* /var/www/react-app/ || {
-              python3 tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
               exit 1
             }
 
@@ -74,26 +74,26 @@ jobs:
             # Запуск тестов бэкенда
             if ! SERVER_ENV=production python3 -m pytest tests/test_api.py -v >backend_tests.log 2>&1; then
               test_output=$(tail -n 20 backend_tests.log)
-              python3 tools/notifier-bot/telegram.py "❌ Тесты бэкенда не пройдены:<br><pre>$test_output</pre>"
+              python3 ../tools/notifier-bot/telegram.py "❌ Тесты бэкенда не пройдены:<br><pre>$test_output</pre>"
               exit 1
             fi
 
             # Запуск тестов подключения к БД
             if ! python3 test_db.py >db_tests.log 2>&1; then
               test_output=$(tail -n 20 db_tests.log)
-              python3 tools/notifier-bot/telegram.py "❌ Тесты подключения к БД не пройдены:<br><pre>$test_output</pre>"
+              python3 ../tools/notifier-bot/telegram.py "❌ Тесты подключения к БД не пройдены:<br><pre>$test_output</pre>"
               exit 1
             fi
 
             deactivate
 
             if ! sudo systemctl restart nginx; then
-              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
               exit 1
             fi
 
             if ! sudo systemctl restart unlim-api; then
-              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
               exit 1
             fi
 
