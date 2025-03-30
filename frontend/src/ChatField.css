@@ -117,6 +117,8 @@
   box-sizing: border-box;
   padding: 0 1rem;
   background-color: #1e1e1e;
+  display: flex;
+  align-items: flex-end;
 }
 
 .chat-input {
@@ -137,6 +139,7 @@
   overflow-y: auto;
   font-family: 'Figtree', sans-serif;
   transition: border-color 0.2s ease, background-color 0.2s ease;
+  transform-origin: bottom;
 }
 
 .chat-input:focus {
@@ -237,6 +240,8 @@
     z-index: 100;
     box-sizing: border-box;
     padding-bottom: env(safe-area-inset-bottom);
+    display: flex;
+    align-items: flex-end;
   }
 
   .chat-messages {
