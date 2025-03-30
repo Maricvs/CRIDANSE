@@ -70,6 +70,11 @@ jobs:
               python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
               exit 1
             fi
+
+            if ! npm run test:unit; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Тесты не прошли!"
+              exit 1
+            fi
       - name: Уведомление об окончании деплоя
         run: |
           cd ${{ github.workspace }}

@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 // import Documents from './components/Documents';
 import Libraries from './components/Libraries';
 import Auth from './components/Auth';
+import MyLibrary from './components/mylibrary/MyLibrary';
 import './App.css';
 import Chat from './components/Chat'; // Импортируем Chat
 
@@ -22,6 +23,7 @@ const App: React.FC = () => {
             <Route path="/chat/:id" element={<Chat />} />
             <Route path="/" element={<Chat />} />
             <Route path="/libraries" element={<Libraries />} />
+            <Route path="/mylibrary" element={<MyLibrary />} />
             <Route path="/auth" element={<Auth />} />
           </Routes>
         </div>

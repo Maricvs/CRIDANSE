@@ -344,6 +344,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                   <li><Link to="/support" onClick={handleLinkClick}><FaComments className="icon" /> <span>Поддержка</span></Link></li>
                   <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
                   <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
+                  <li><Link to="/mylibrary" onClick={handleLinkClick}><FaFile className="icon" /> <span>Моя Библиотека</span></Link></li>
                 </ul>
               </div>
 
