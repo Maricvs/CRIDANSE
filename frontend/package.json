@@ -14,7 +14,8 @@
     "test:integration": "jest --testPathPattern=src/tests/integration",
     "test:e2e": "cypress run",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepare": "husky install"
   },
   "dependencies": {
     "react": "^19.0.0",
