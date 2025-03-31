@@ -1,12 +1,11 @@
 # backend/models/models.py
 
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import TIMESTAMP
 from sqlalchemy.sql import func
-
-Base = declarative_base()
+from db import Base
 
 # Таблица users.profiles
 class Profile(Base):
