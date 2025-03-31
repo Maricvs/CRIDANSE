@@ -188,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     
     try {
       if (userId) {
-        const response = await fetch(`/api/chats/${chatId}`, { 
+        const response = await fetch(`/api/chats/delete/${chatId}`, { 
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' }
         });
