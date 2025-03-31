@@ -24,7 +24,7 @@ const DocumentList: React.FC = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await fetch(`/api/documents/user/${userId}`);
+        const response = await fetch(`/api/documents/list/user/${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch documents');
         }
