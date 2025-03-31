@@ -106,6 +106,7 @@ async def upload_document(
 
 @router.get("/list/user/{user_id}", response_model=list[DocumentResponse])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
+    print(f"📥 [DEBUG] get_user_documents triggered for user_id={user_id}")
     """
     Получить все документы пользователя
     """
@@ -142,4 +143,4 @@ async def delete_document(document_id: int, db: Session = Depends(get_db)):
         
         return {"message": "Document deleted successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
