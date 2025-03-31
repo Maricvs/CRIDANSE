@@ -93,19 +93,18 @@
 }
 
 .upload-button {
-  background-color: var(--accent-color);
-  color: var(--text-color);
+  background-color: #4CAF50;
+  color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   transition: background-color 0.2s;
-  width: 100%;
 }
 
 .upload-button:hover {
-  background-color: #5a9ed9;
+  background-color: #45a049;
 }
 
 .upload-button:disabled {
@@ -147,6 +146,7 @@
   top: 0;
   left: 0;
   z-index: 1000;
+  gap: 10px;
 }
 
 .back-button {
@@ -162,4 +162,18 @@
 
 .back-button:hover {
   background-color: #5a9ed9;
+}
+
+.documents-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.documents-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
 } 
