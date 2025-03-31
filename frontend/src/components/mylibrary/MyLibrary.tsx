@@ -46,33 +46,56 @@ const MyLibrary: React.FC = () => {
     navigate(`/document/${documentId}`);
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return (
+      <div>
+        <div className="nav-bar">
+          <button className="back-button" onClick={handleBack}>Назад</button>
+        </div>
+        <div className="loading">Загрузка...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return (
+      <div>
+        <div className="nav-bar">
+          <button className="back-button" onClick={handleBack}>Назад</button>
+        </div>
+        <div className="error">{error}</div>
+      </div>
+    );
   }
 
   return (
-    <div className="my-library">
-      <h1>Моя Библиотека</h1>
-      <div className="documents-grid">
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className="document-card"
-            onClick={() => handleDocumentClick(doc.id)}
-          >
-            <h3>{doc.title}</h3>
-            <p>{doc.description}</p>
-            <div className="document-meta">
-              <span>Тип: {doc.file_type}</span>
-              <span>Размер: {(doc.file_size / 1024 / 1024).toFixed(2)} MB</span>
-              <span>Создан: {new Date(doc.created_at).toLocaleDateString()}</span>
+    <div>
+      <div className="nav-bar">
+        <button className="back-button" onClick={handleBack}>Назад</button>
+      </div>
+      <div className="my-library">
+        <h1>Моя Библиотека</h1>
+        <div className="documents-grid">
+          {documents.map((doc) => (
+            <div
+              key={doc.id}
+              className="document-card"
+              onClick={() => handleDocumentClick(doc.id)}
+            >
+              <h3>{doc.title}</h3>
+              <p>{doc.description}</p>
+              <div className="document-meta">
+                <span>Тип: {doc.file_type}</span>
+                <span>Размер: {(doc.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                <span>Создан: {new Date(doc.created_at).toLocaleDateString()}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
