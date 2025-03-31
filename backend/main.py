@@ -5,7 +5,7 @@ from api import gpt_api, auth, chat
 from app.components.mylibrary import documents
 from models.models import Profile
 
-
+_ = Profile
 
 app = FastAPI()
 
