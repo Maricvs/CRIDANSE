@@ -115,7 +115,7 @@ def rename_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.delete("/{chat_id}")
+@router.delete("/delete/{chat_id}")
 def delete_chat(chat_id: int, db: Session = Depends(get_db)):
     try:
         chat = db.query(Chat).filter(Chat.id == chat_id).first()
@@ -128,7 +128,7 @@ def delete_chat(chat_id: int, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/{chat_id}/last-message")
+@router.get("/last-message/{chat_id}")
 def get_last_message_time(chat_id: int, db: Session = Depends(get_db)):
     try:
         last_message = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at.desc()).first()
