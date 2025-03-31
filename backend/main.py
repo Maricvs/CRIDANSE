@@ -3,7 +3,7 @@ from db import Base, engine
 from fastapi import FastAPI
 from api import gpt_api, auth, chat
 from app.components.mylibrary import documents
-
+from models.models import Profile
 
 
 
