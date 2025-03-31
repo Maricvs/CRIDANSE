@@ -16,7 +16,7 @@ const MyLibrary: React.FC = () => {
   return (
     <div>
       <div className="nav-bar">
-        <button className="back-button" onClick={handleBack}>Назад</button>
+        {!isRoot && <button className="back-button" onClick={handleBack}>Назад</button>}
       </div>
       <div className="my-library">
         <h1>Моя Библиотека</h1>
