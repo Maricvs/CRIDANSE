@@ -112,7 +112,7 @@ async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     documents = db.query(Document).filter(Document.user_id == user_id).all()
     return documents
 
-@router.get("/{document_id}", response_model=DocumentResponse)
+@router.get("/document/{document_id}", response_model=DocumentResponse)
 async def get_document(document_id: int, db: Session = Depends(get_db)):
     """
     Получить конкретный документ по ID
@@ -122,7 +122,7 @@ async def get_document(document_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Document not found")
     return document
 
-@router.delete("/{document_id}")
+@router.delete("/document/{document_id}")
 async def delete_document(document_id: int, db: Session = Depends(get_db)):
     """
     Удалить документ
