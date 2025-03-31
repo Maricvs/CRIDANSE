@@ -1,7 +1,9 @@
 .my-library {
+  margin-top: 80px;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  font-size: 1.2rem;
 }
 
 .my-library h1 {
@@ -67,17 +69,20 @@
 .nav-bar {
   width: 100%;
   height: 60px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background-color: var(--secondary-color);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   padding: 0 20px;
-  margin-bottom: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 }
 
 .back-button {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-color);
+  color: var(--text-color);
   border: none;
   padding: 8px 16px;
   border-radius: 4px;
@@ -87,5 +92,5 @@
 }
 
 .back-button:hover {
-  background-color: #0056b3;
+  background-color: #5a9ed9;
 } 
