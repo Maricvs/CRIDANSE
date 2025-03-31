@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 import re
-from app.database import get_db
+from db import Base
 from app.models.document import Document
 from app.schemas.document import DocumentResponse
 
