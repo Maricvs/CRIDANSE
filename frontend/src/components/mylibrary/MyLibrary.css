@@ -52,8 +52,14 @@
 
 .upload-container {
   max-width: 600px;
-  margin: 0 auto;
+  margin: 80px auto 0;
   padding: 20px;
+}
+
+.upload-container h2 {
+  color: var(--text-color);
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .upload-form {
@@ -61,6 +67,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
@@ -69,46 +76,72 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
   color: var(--text-color);
+  font-weight: 500;
 }
 
 .form-group input[type="text"],
 .form-group textarea {
   width: 100%;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   background-color: var(--bg-color);
   color: var(--text-color);
+  font-size: 14px;
 }
 
 .form-group input[type="file"] {
   width: 100%;
-  padding: 8px;
-  border: 1px dashed var(--border-color);
+  padding: 10px;
+  border: 2px dashed var(--border-color);
   border-radius: 4px;
   background-color: var(--bg-color);
   color: var(--text-color);
+  cursor: pointer;
 }
 
-.upload-button {
-  background-color: #4CAF50;
+.form-group input[type="file"]:hover {
+  border-color: var(--accent-color);
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.success-message {
+  color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--accent-color);
   color: white;
   border: none;
-  padding: 8px 16px;
   border-radius: 4px;
+  font-size: 16px;
   cursor: pointer;
-  font-size: 14px;
   transition: background-color 0.2s;
 }
 
-.upload-button:hover {
-  background-color: #45a049;
+.submit-button:hover {
+  background-color: #5a9ed9;
 }
 
-.upload-button:disabled {
-  background-color: #666;
+.submit-button:disabled {
+  background-color: #ccc;
   cursor: not-allowed;
 }
 

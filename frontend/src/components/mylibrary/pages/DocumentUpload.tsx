@@ -112,10 +112,10 @@ const DocumentUpload: React.FC = () => {
           />
         </div>
 
-        {error && <div className="error">{error}</div>}
-        {success && <div className="success">Документ успешно загружен!</div>}
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">Документ успешно загружен!</div>}
 
-        <button type="submit" disabled={loading} className="upload-button">
+        <button type="submit" className="submit-button" disabled={loading}>
           {loading ? 'Загрузка...' : 'Загрузить'}
         </button>
       </form>
