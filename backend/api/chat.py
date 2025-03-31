@@ -46,7 +46,7 @@ def get_user_messages(user_id: int, db: Session = Depends(get_db)):
 from models.models import Chat
 
 # Получить все чаты пользователя
-@router.get("/{user_id}")
+@router.get("/user/{user_id}")
 def get_chats(user_id: int, db: Session = Depends(get_db)):
     try:
         chats = db.query(Chat).filter(Chat.user_id == user_id).all()
