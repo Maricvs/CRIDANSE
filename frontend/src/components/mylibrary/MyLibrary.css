@@ -135,7 +135,6 @@
 }
 
 .nav-bar {
-  width: 100%;
   height: 60px;
   background-color: var(--secondary-color);
   border-bottom: 1px solid var(--border-color);
@@ -144,9 +143,20 @@
   padding: 0 20px;
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   z-index: 1000;
   gap: 10px;
+  transition: left 0.3s ease;
+}
+
+/* Когда сайдбар открыт */
+.sidebar-collapsed .nav-bar {
+  left: 60px; /* Ширина свернутого сайдбара */
+}
+
+/* Когда сайдбар закрыт */
+.nav-bar {
+  left: 240px; /* Ширина развернутого сайдбара */
 }
 
 .back-button {

@@ -7,14 +7,14 @@ import './MyLibrary.css';
 const MyLibrary: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isRoot = location.pathname === '/mylibrary/';
+  const isRoot = location.pathname === '/mylibrary' || location.pathname === '/mylibrary/';
 
   const handleBack = () => {
     navigate(-1);
   };
 
   const handleUpload = () => {
-    navigate('/mylibrary/upload');
+    navigate('upload');
   };
 
   return (
@@ -32,8 +32,8 @@ const MyLibrary: React.FC = () => {
         )}
       </div>
       <Routes>
-        <Route path="/mylibrary" element={<DocumentList />} />
-        <Route path="/mylibrary/upload" element={<DocumentUpload />} />
+        <Route index element={<DocumentList />} />
+        <Route path="upload" element={<DocumentUpload />} />
       </Routes>
     </div>
   );
