@@ -42,7 +42,7 @@ jobs:
               exit 1
             fi
 
-            if ! npm run build >build_output.log 2>&1; then
+            if ! npm run build:prod >build_output.log 2>&1; then
               error_log=$(tail -n 10 build_output.log)
               python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:<br>$error_log"
               exit 1
