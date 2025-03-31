@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import datetime
 from typing import Optional
+import re
 from app.database import get_db
 from app.models.document import Document
 from app.schemas.document import DocumentResponse
@@ -16,15 +17,16 @@ UPLOAD_DIR = Path("/var/www/unlim-mind-ai/uploads/documents")
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 ALLOWED_FILE_TYPES = {'pdf', 'doc', 'docx', 'txt', 'rtf'}
 
+def sanitize_filename(filename: str) -> str:
+    """Санитизация имени файла"""
+    # Удаляем все небезопасные символы
+    filename = re.sub(r'[^a-zA-Z0-9.-]', '_', filename)
+    # Удаляем множественные подчеркивания
+    filename = re.sub(r'_+', '_', filename)
+    return filename
+
 def validate_file(file: UploadFile) -> bool:
     """Проверка файла на соответствие требованиям"""
-    # Проверка размера
-    if file.size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE/1024/1024}MB"
-        )
-    
     # Проверка типа файла
     file_extension = os.path.splitext(file.filename)[1].lower().lstrip('.')
     if file_extension not in ALLOWED_FILE_TYPES:
@@ -58,14 +60,22 @@ async def upload_document(
         year_dir.mkdir(exist_ok=True)
         month_dir.mkdir(exist_ok=True)
         
-        # Генерируем уникальное имя файла
-        file_extension = os.path.splitext(file.filename)[1]
-        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        # Читаем содержимое файла для проверки размера
+        content = await file.read()
+        if len(content) > MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE/1024/1024}MB"
+            )
+        
+        # Генерируем безопасное имя файла
+        original_filename = sanitize_filename(file.filename)
+        file_extension = os.path.splitext(original_filename)[1]
+        unique_filename = f"{uuid.uuid4()}_{int(datetime.now().timestamp())}{file_extension}"
         file_path = month_dir / unique_filename
         
         # Сохраняем файл
         with open(file_path, "wb") as buffer:
-            content = await file.read()
             buffer.write(content)
         
         # Создаем запись в БД
@@ -73,9 +83,9 @@ async def upload_document(
             title=title,
             description=description,
             file_path=str(file_path),
-            file_name=file.filename,
+            file_name=original_filename,
             file_type=file.content_type,
-            file_size=os.path.getsize(file_path),
+            file_size=len(content),
             user_id=user_id
         )
         
