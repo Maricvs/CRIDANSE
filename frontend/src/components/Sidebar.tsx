@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
     try {
       for (const chat of tempChats) {
-        const response = await fetch('/api/chats', {
+        const response = await fetch('/api/chats/user/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const fetchChats = async () => {
     if (!userId) return;
     try {
-      const response = await fetch(`/api/chats/${userId}`);
+      const response = await fetch(`/api/chats/user/${userId}`);
       if (!response.ok) throw new Error('Ошибка при загрузке чатов');
       const data = await response.json();
       setChats(sortChats(data));
@@ -160,7 +160,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       };
 
       if (userId) {
-        const response = await fetch('/api/chats', {
+        const response = await fetch('/api/chats/user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: newChat.title, user_id: userId })

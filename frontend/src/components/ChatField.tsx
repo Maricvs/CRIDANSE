@@ -40,7 +40,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
     if (!userId) return;
 
     try {
-      const response = await fetch(`/api/chats/${userId}`);
+      const response = await fetch(`/api/chats/user/${userId}`);
       if (!response.ok) {
         throw new Error('Ошибка при обновлении списка чатов');
       }
@@ -72,7 +72,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       // Создаём чат, если его нет
       if (!currentChatId && !creatingChat) {
         setCreatingChat(true);
-        const chatResponse = await fetch('/api/chats', {
+        const chatResponse = await fetch('/api/chats/user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
