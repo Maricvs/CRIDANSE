@@ -104,7 +104,7 @@ async def upload_document(
                 pass
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/user/{user_id}", response_model=list[DocumentResponse])
+@router.get("/list/user/{user_id}", response_model=list[DocumentResponse])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     """
     Получить все документы пользователя
