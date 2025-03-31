@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from db import SessionLocal
+from db import get_db
 from typing import List
-from models.models import Message
+from models.models import Message, Chat
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
@@ -16,8 +16,7 @@ class MessageCreate(BaseModel):
 
 
 @router.post("/message")
-def save_message(msg: MessageCreate):
-    db: Session = SessionLocal()
+def save_message(msg: MessageCreate, db: Session = Depends(get_db)):
     try:
         new_msg = Message(**msg.dict())
         db.add(new_msg)
@@ -27,12 +26,9 @@ def save_message(msg: MessageCreate):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 @router.get("/messages/{user_id}")
-def get_user_messages(user_id: int):
-    db: Session = SessionLocal()
+def get_user_messages(user_id: int, db: Session = Depends(get_db)):
     try:
         messages = db.query(Message).filter(Message.user_id == user_id).order_by(Message.created_at).all()
         return [
@@ -46,15 +42,12 @@ def get_user_messages(user_id: int):
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 from models.models import Chat
 
 # Получить все чаты пользователя
 @router.get("/{user_id}")
-def get_chats(user_id: int):
-    db: Session = SessionLocal()
+def get_chats(user_id: int, db: Session = Depends(get_db)):
     try:
         chats = db.query(Chat).filter(Chat.user_id == user_id).all()
         result = []
@@ -70,12 +63,9 @@ def get_chats(user_id: int):
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 @router.get("/messages/by_chat/{chat_id}")
-def get_messages_by_chat(chat_id: int):
-    db: Session = SessionLocal()
+def get_messages_by_chat(chat_id: int, db: Session = Depends(get_db)):
     try:
         messages = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at).all()
         return [
@@ -89,8 +79,6 @@ def get_messages_by_chat(chat_id: int):
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 # Создать новый чат
 class ChatCreate(BaseModel):
@@ -98,8 +86,7 @@ class ChatCreate(BaseModel):
     title: str = "Новый чат"
 
 @router.post("/")
-def create_chat(chat: ChatCreate):
-    db: Session = SessionLocal()
+def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
         new_chat = Chat(user_id=chat.user_id, title=chat.title)
         db.add(new_chat)
@@ -114,14 +101,9 @@ def create_chat(chat: ChatCreate):
         db.rollback()
         print(f"Error creating chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
-
-from models.models import Message
 
 @router.put("/title/{chat_id}")
-def rename_chat(chat_id: int, body: dict):
-    db: Session = SessionLocal()
+def rename_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
     try:
         chat = db.query(Chat).filter(Chat.id == chat_id).first()
         if not chat:
@@ -132,12 +114,9 @@ def rename_chat(chat_id: int, body: dict):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 @router.delete("/{chat_id}")
-def delete_chat(chat_id: int):
-    db: Session = SessionLocal()
+def delete_chat(chat_id: int, db: Session = Depends(get_db)):
     try:
         chat = db.query(Chat).filter(Chat.id == chat_id).first()
         if not chat:
@@ -148,12 +127,9 @@ def delete_chat(chat_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
 
 @router.get("/{chat_id}/last-message")
-def get_last_message_time(chat_id: int):
-    db: Session = SessionLocal()
+def get_last_message_time(chat_id: int, db: Session = Depends(get_db)):
     try:
         last_message = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at.desc()).first()
         if not last_message:
@@ -161,5 +137,3 @@ def get_last_message_time(chat_id: int):
         return {"created_at": last_message.created_at.isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()

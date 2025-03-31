@@ -1,9 +1,9 @@
 # backend/api/auth.py
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from db import SessionLocal
+from db import get_db
 from models.models import Profile
 
 router = APIRouter()
@@ -16,8 +16,7 @@ class OAuthProfile(BaseModel):
     avatar_url: str | None = None
 
 @router.post("/oauth")
-def save_oauth_profile(profile: OAuthProfile):
-    db: Session = SessionLocal()
+def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
     try:
         existing = db.query(Profile).filter_by(provider_user_id=profile.provider_user_id).first()
         if existing:
@@ -38,5 +37,3 @@ def save_oauth_profile(profile: OAuthProfile):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        db.close()
