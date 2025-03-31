@@ -1,5 +1,5 @@
 # backend/main.py
-
+from db import Base, engine
 from fastapi import FastAPI
 from api import gpt_api, auth, chat
 from app.components.mylibrary import documents
@@ -8,6 +8,8 @@ from app.components.mylibrary import documents
 
 
 app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
 
 # Затем подключаем остальные роутеры
 app.include_router(gpt_api.router, prefix="/api/gpt")
