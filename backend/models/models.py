@@ -6,6 +6,8 @@ from datetime import datetime
 from sqlalchemy import TIMESTAMP
 from sqlalchemy.sql import func
 from db import Base
+from models.models import Profile
+_ = Profile
 
 # Таблица users.profiles
 class Profile(Base):
