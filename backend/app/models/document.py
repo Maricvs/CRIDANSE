@@ -3,6 +3,7 @@ from db import Base
 
 class Document(Base):
     __tablename__ = "documents"
+    __table_args__ = {"schema": "documents"}
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
