@@ -85,7 +85,7 @@ class ChatCreate(BaseModel):
     user_id: int
     title: str = "Новый чат"
 
-@router.post("/")
+@router.post("/user")
 def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
         new_chat = Chat(user_id=chat.user_id, title=chat.title)
@@ -102,6 +102,11 @@ def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
         print(f"Error creating chat: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Оставляем старый маршрут для обратной совместимости
+@router.post("/")
+def create_chat_legacy(chat: ChatCreate, db: Session = Depends(get_db)):
+    return create_chat(chat, db)
+
 @router.put("/title/{chat_id}")
 def rename_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
     try:
@@ -114,6 +119,11 @@ def rename_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+# Дублируем маршрут для обеспечения обратной совместимости
+@router.put("/title/{chat_id}")
+def rename_chat_compat(chat_id: int, body: dict, db: Session = Depends(get_db)):
+    return rename_chat(chat_id, body, db)
 
 @router.delete("/{chat_id}")
 def delete_chat(chat_id: int, db: Session = Depends(get_db)):
