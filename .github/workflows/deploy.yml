@@ -99,5 +99,5 @@ jobs:
             fi
 
             if systemctl is-active --quiet unlim-api && systemctl is-active --quiet nginx; then
-              python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
+              python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают! <br> _______________"
             fi
