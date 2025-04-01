@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Grid,
-  Paper,
-  Typography,
   Box,
+  Grid,
+  Typography,
   IconButton,
   Tooltip,
   Card,

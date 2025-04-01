@@ -36,6 +36,7 @@ import {
   ChatBubble as ChatIcon,
   Download as DownloadIcon,
 } from '@mui/icons-material';
+import { SelectChangeEvent } from '@mui/material/Select';
 
 // Интерфейс для чата
 interface Chat {
@@ -207,7 +208,7 @@ const ChatsList: React.FC = () => {
     setSearchText(event.target.value);
   };
 
-  const handleStatusFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
     setStatusFilter(event.target.value);
   };
 

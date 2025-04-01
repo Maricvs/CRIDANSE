@@ -11,6 +11,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  Avatar,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -144,20 +145,13 @@ const UsersList: React.FC = () => {
 
   const columns: GridColDef[] = [
     {
-      field: 'avatar_url',
+      field: 'avatar',
       headerName: '',
       width: 60,
-      renderCell: () => (
-        <Box
-          component="img"
+      renderCell: (params: GridRenderCellParams<User>) => (
+        <Avatar
           src={params.row.avatar_url || '/default-avatar.png'}
-          alt="Аватар"
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            objectFit: 'cover',
-          }}
+          alt={params.row.full_name}
         />
       ),
     },
@@ -213,16 +207,12 @@ const UsersList: React.FC = () => {
       width: 120,
       renderCell: (params: GridRenderCellParams<User>) => (
         <Box>
-          <Tooltip title="Редактировать">
-            <IconButton size="small" color="primary">
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Удалить">
-            <IconButton size="small" color="error">
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+          <IconButton onClick={() => handleEdit(params.row)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon />
+          </IconButton>
         </Box>
       ),
     },

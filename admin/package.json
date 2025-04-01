@@ -1,7 +1,7 @@
 {
   "name": "unlim-mind-admin",
-  "version": "0.1.0",
   "private": true,
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,15 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.14.18",
-    "@mui/material": "^5.14.18",
-    "@mui/x-data-grid": "^6.18.1",
+    "@mui/icons-material": "^5.15.10",
+    "@mui/material": "^5.15.10",
+    "@mui/x-data-grid": "^6.19.4",
     "axios": "^1.6.2",
-    "chart.js": "^4.4.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "chart.js": "^4.4.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-router-dom": "^7.3.0",
     "web-vitals": "^2.1.4"
@@ -27,15 +27,16 @@
     "@eslint/js": "^9.21.0",
     "@testing-library/react": "^16.2.0",
     "@types/node": "^20.11.30",
-    "@types/react": "^18.2.67",
-    "@types/react-dom": "^18.2.22",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.21.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.3"
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.3"
   },
   "eslintConfig": {
     "extends": [
