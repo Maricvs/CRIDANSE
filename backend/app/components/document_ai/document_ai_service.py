@@ -47,7 +47,7 @@ async def ask_with_documents(
                 doc_content = get_document_content_internal(doc_id, request.user_id, db)
                 
                 # Добавляем в список
-                documents_content.append(f"--- ДОКУМЕНТ: {doc_content['title']} ---\n{doc_content['content']}")
+                documents_content.append(f"--- DOCUMENT: {doc_content.title} ---\n{doc_content.content}")
                 
                 # Добавляем метаданные документа для ответа
                 used_documents.append({
