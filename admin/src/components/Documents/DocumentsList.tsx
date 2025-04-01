@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SelectChangeEvent } from '@mui/material/Select';
 import {
   Box,
   Typography,
@@ -166,7 +167,7 @@ const DocumentsList: React.FC = () => {
     setSearchText(event.target.value);
   };
 
-  const handleFileTypeFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileTypeFilterChange = (event: SelectChangeEvent<string>) => {
     setFileTypeFilter(event.target.value);
   };
 

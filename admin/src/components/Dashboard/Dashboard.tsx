@@ -17,7 +17,6 @@ import {
   Chat as ChatIcon,
   Description as DocumentIcon,
   ErrorOutline as ErrorIcon,
-  Speed as SpeedIcon,
   Memory as CPUIcon,
   Storage as StorageIcon,
 } from '@mui/icons-material';

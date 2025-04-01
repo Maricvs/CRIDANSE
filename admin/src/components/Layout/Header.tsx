@@ -17,7 +17,6 @@ import {
   Brightness4 as DarkModeIcon,
   Brightness7 as LightModeIcon,
   Notifications as NotificationsIcon,
-  AccountCircle,
   Settings,
   Logout,
 } from '@mui/icons-material';

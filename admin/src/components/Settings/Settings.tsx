@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Radio from '@mui/material/Radio';
 import {
   Box,
   Typography,
@@ -33,7 +34,6 @@ import {
   Delete as DeleteIcon,
   Language as LanguageIcon,
   Translate as TranslateIcon,
-  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 
 interface TabPanelProps {

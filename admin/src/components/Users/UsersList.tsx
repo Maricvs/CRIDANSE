@@ -147,7 +147,7 @@ const UsersList: React.FC = () => {
       field: 'avatar_url',
       headerName: '',
       width: 60,
-      renderCell: (params: GridRenderCellParams<User>) => (
+      renderCell: () => (
         <Box
           component="img"
           src={params.row.avatar_url || '/default-avatar.png'}
