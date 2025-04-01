@@ -57,8 +57,7 @@ async def upload_document(
         year_dir = UPLOAD_DIR / str(current_date.year)
         month_dir = year_dir / f"{current_date.month:02d}"
         
-        year_dir.mkdir(exist_ok=True)
-        month_dir.mkdir(exist_ok=True)
+        month_dir.mkdir(parents=True, exist_ok=True)
         
         # Читаем содержимое файла для проверки размера
         content = await file.read()
