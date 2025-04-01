@@ -1,0 +1,174 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Уведомление в Telegram о старте
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
+
+      - name: Deploy to server по SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/unlim-mind-ai || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+              exit 1
+            }
+
+            git reset --hard HEAD
+            git clean -fd
+            git pull origin main
+
+            # Деплой фронтенда
+            cd frontend
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install для фронтенда"
+              exit 1
+            fi
+
+            if ! npm run build 2>build_error.log; then
+              error_log=$(tail -n 10 build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка фронтенда не удалась:\n$error_log"
+              exit 1
+            fi
+
+            sudo rm -rf /var/www/react-app/* || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя фронтенда"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/react-app/ || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда фронтенда"
+              exit 1
+            }
+
+            sudo chown -R www-data:www-data /var/www/react-app
+            sudo chmod -R 755 /var/www/react-app
+
+            # Деплой админ-панели
+            cd ../admin
+            python3 ../tools/notifier-bot/telegram.py "🔄 Начинаем деплой админ-панели"
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install для админ-панели"
+              exit 1
+            fi
+
+            if ! npm run build 2>build_error.log; then
+              error_log=$(tail -n 10 build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка админ-панели не удалась:\n$error_log"
+              exit 1
+            fi
+
+            sudo rm -rf /var/www/admin-panel/* || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя админ-панели"
+              exit 1
+            }
+
+            # Создаем директорию, если она не существует
+            sudo mkdir -p /var/www/admin-panel/
+
+            sudo cp -r build/* /var/www/admin-panel/ || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда админ-панели"
+              exit 1
+            }
+
+            sudo chown -R www-data:www-data /var/www/admin-panel
+            sudo chmod -R 755 /var/www/admin-panel
+
+            # Перезапуск сервисов
+            cd ..
+            python3 tools/notifier-bot/telegram.py "🔄 Перезапуск сервисов"
+
+            if ! sudo systemctl restart nginx; then
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              exit 1
+            fi
+
+            if ! sudo systemctl restart unlim-api; then
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              exit 1
+            fi
+
+            python3 tools/notifier-bot/telegram.py "✅ Развертывание фронтенда и админ-панели успешно выполнено"
+      
+      - name: Уведомление об окончании деплоя
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🍌 Деплой завершён успешно!"
+
+  monitor:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка сервисов на сервере
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/unlim-mind-ai
+
+            # Проверка работоспособности сервисов
+            services_status="✅ Статус сервисов:\n"
+            
+            if ! systemctl is-active --quiet unlim-api; then
+              services_status+="❌ Backend (unlim-api) не работает!\n"
+              backend_failed=true
+            else
+              services_status+="✅ Backend (unlim-api) работает\n"
+            fi
+
+            if ! systemctl is-active --quiet nginx; then
+              services_status+="❌ Nginx не работает!\n"
+              nginx_failed=true
+            else
+              services_status+="✅ Nginx работает\n"
+            fi
+            
+            # Проверка доступности фронтенда
+            if curl -s --head "https://unlim-mind.ai" | grep -q "200 OK"; then
+              services_status+="✅ Фронтенд доступен\n"
+            else
+              services_status+="❌ Фронтенд недоступен!\n"
+              frontend_failed=true
+            fi
+            
+            # Проверка доступности админ-панели
+            if curl -s --head "https://admin.unlim-mind.ai" | grep -q "200 OK"; then
+              services_status+="✅ Админ-панель доступна\n"
+            else
+              services_status+="❌ Админ-панель недоступна!\n"
+              admin_failed=true
+            fi
+            
+            # Отправляем итоговый статус
+            python3 tools/notifier-bot/telegram.py "$services_status"
+            
+            # Проверяем, были ли ошибки
+            if [ -n "$backend_failed" ] || [ -n "$nginx_failed" ] || [ -n "$frontend_failed" ] || [ -n "$admin_failed" ]; then
+              python3 tools/notifier-bot/telegram.py "❗️ Обнаружены проблемы! Требуется вмешательство."
+              exit 1
+            else
+              python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают корректно!"
+            fi
