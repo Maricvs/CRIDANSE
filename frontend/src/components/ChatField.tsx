@@ -20,7 +20,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
       // Извлекаем первые 50 символов из ответа ИИ для названия
       const suggestedTitle = aiResponse.split('\n')[0].slice(0, 50);
       
-      const response = await fetch(`/api/chat/title/${chatId}`, {
+      const response = await fetch(`/api/chats/title/${chatId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: suggestedTitle }),
