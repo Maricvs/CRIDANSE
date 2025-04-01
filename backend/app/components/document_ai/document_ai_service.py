@@ -6,7 +6,7 @@ import os
 from openai import OpenAI
 from db import get_db
 from app.models.document import Document
-from .document_processor import get_document_content, check_document_access
+from .document_processor import get_document_content, check_document_access, get_document_content_internal
 
 # Инициализация клиента OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -44,7 +44,7 @@ async def ask_with_documents(
                 document = check_document_access(doc_id, request.user_id, db)
                 
                 # Получаем содержимое документа
-                doc_content = await get_document_content(doc_id, request.user_id, db)
+                doc_content = get_document_content_internal(doc_id, request.user_id, db)
                 
                 # Добавляем в список
                 documents_content.append(f"--- ДОКУМЕНТ: {doc_content['title']} ---\n{doc_content['content']}")

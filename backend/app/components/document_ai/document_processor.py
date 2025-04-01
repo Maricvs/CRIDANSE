@@ -73,6 +73,18 @@ def extract_text_from_txt(file_path: str) -> str:
     """Извлекает текст из TXT файла"""
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
         return file.read()
+    
+# Функция для внутреннего получения содержимого документа
+def get_document_content_internal(document_id: int, user_id: int, db: Session) -> DocumentContent:
+    document = check_document_access(document_id, user_id, db)
+    content = extract_text_from_file(document.file_path, document.file_type)
+    return DocumentContent(
+        id=document.id,
+        title=document.title,
+        content=content,
+        file_type=document.file_type
+    )
+
 
 @router.get("/content/{document_id}", response_model=DocumentContent)
 async def get_document_content(document_id: int, user_id: int, db: Session = Depends(get_db)):
