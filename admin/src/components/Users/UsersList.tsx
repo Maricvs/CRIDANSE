@@ -135,7 +135,7 @@ const UsersList: React.FC = () => {
     console.log('Edit user:', user);
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async (userId: number) => {
     try {
       // TODO: Реализовать удаление пользователя через API
       console.log('Delete user:', userId);
@@ -234,7 +234,7 @@ const UsersList: React.FC = () => {
           <IconButton onClick={() => handleEdit(params.row)}>
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => handleDelete(params.row.id.toString())}>
+          <IconButton onClick={() => handleDelete(params.row.id)}>
             <DeleteIcon />
           </IconButton>
         </Box>
