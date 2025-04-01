@@ -12,6 +12,15 @@
 - Настройка мультиязычности
 - Мониторинг системных ресурсов
 
+## Технический стек
+
+- React 19
+- TypeScript
+- Vite
+- React Router 7
+- Material UI
+- Chart.js
+
 ## Запуск проекта
 
 ### Установка зависимостей
@@ -24,7 +33,7 @@ npm install
 ### Запуск в режиме разработки
 
 ```bash
-npm start
+npm run dev
 ```
 
 Приложение будет доступно по адресу [http://localhost:3000](http://localhost:3000).
@@ -33,6 +42,14 @@ npm start
 
 ```bash
 npm run build
+```
+
+Готовый билд будет находиться в директории `build/`.
+
+### Просмотр собранной версии
+
+```bash
+npm run preview
 ```
 
 ## Авторизация
@@ -73,7 +90,10 @@ admin/
 │   │   ├── Layout/    # Компоненты макета
 │   │   └── Settings/  # Настройки
 │   ├── App.tsx        # Основной компонент
-│   └── index.tsx      # Точка входа
+│   └── main.tsx       # Точка входа
+├── index.html         # HTML-шаблон
+├── vite.config.ts     # Конфигурация Vite
+├── tsconfig.json      # Конфигурация TypeScript
 └── package.json       # Зависимости и скрипты
 ```
 

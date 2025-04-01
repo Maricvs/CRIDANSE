@@ -2,6 +2,13 @@
   "name": "unlim-mind-admin",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -10,24 +17,25 @@
     "@mui/x-data-grid": "^6.18.1",
     "axios": "^1.6.2",
     "chart.js": "^4.4.0",
-    "react": "^18.2.0",
+    "react": "^19.0.0",
     "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.18.0",
-    "react-scripts": "5.0.1",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.3.0",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^16.18.60",
-    "@types/react": "^18.2.35",
-    "@types/react-dom": "^18.2.14",
-    "typescript": "^4.9.5"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.3"
   },
   "eslintConfig": {
     "extends": [

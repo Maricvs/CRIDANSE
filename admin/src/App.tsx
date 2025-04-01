@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Route, Routes, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
@@ -51,36 +51,11 @@ const darkTheme = createTheme({
   },
 });
 
-const App: React.FC = () => {
-  // Состояние для аутентификации
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  // Состояние для выбора темы
+// Компонент Layout для всех админ-страниц
+const Layout = () => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
-  // Состояние для открытия/закрытия боковой панели
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-
-  // Функция для проверки авторизации
-  const handleLogin = (username: string, password: string): boolean => {
-    // В реальном приложении здесь будет запрос к API
-    if (username === 'admin' && password === 'admin123') {
-      setIsAuthenticated(true);
-      localStorage.setItem('admin_authenticated', 'true');
-      return true;
-    }
-    return false;
-  };
-
-  // Функция для выхода
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('admin_authenticated');
-  };
-
-  // Проверяем наличие авторизации при загрузке компонента
-  React.useEffect(() => {
-    const isAuth = localStorage.getItem('admin_authenticated') === 'true';
-    setIsAuthenticated(isAuth);
-  }, []);
+  const navigate = useNavigate();
 
   // Переключатель темы
   const toggleTheme = () => {
@@ -92,46 +67,79 @@ const App: React.FC = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Функция для выхода
+  const handleLogout = () => {
+    localStorage.removeItem('admin_authenticated');
+    navigate('/login');
+  };
+
   return (
     <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
-      {isAuthenticated ? (
-        <Box sx={{ display: 'flex' }}>
-          <Sidebar open={sidebarOpen} />
-          <Box
-            component="main"
-            sx={{ 
-              flexGrow: 1, 
-              p: 3, 
-              width: { sm: `calc(100% - ${sidebarOpen ? 240 : 60}px)` },
-              ml: { sm: `${sidebarOpen ? 240 : 60}px` },
-              transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
-            }}
-          >
-            <Header 
-              onToggleSidebar={toggleSidebar} 
-              onToggleTheme={toggleTheme} 
-              darkMode={darkMode}
-              onLogout={handleLogout}
-            />
-            <Box sx={{ mt: 8 }}>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/users" element={<UsersList />} />
-                <Route path="/chats" element={<ChatsList />} />
-                <Route path="/documents" element={<DocumentsList />} />
-                <Route path="/logs" element={<SystemLogs />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Box>
+      <Box sx={{ display: 'flex' }}>
+        <Sidebar open={sidebarOpen} />
+        <Box
+          component="main"
+          sx={{ 
+            flexGrow: 1, 
+            p: 3, 
+            width: { sm: `calc(100% - ${sidebarOpen ? 240 : 60}px)` },
+            ml: { sm: `${sidebarOpen ? 240 : 60}px` },
+            transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
+          }}
+        >
+          <Header 
+            onToggleSidebar={toggleSidebar} 
+            onToggleTheme={toggleTheme} 
+            darkMode={darkMode}
+            onLogout={handleLogout}
+          />
+          <Box sx={{ mt: 8 }}>
+            <Outlet />
           </Box>
         </Box>
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
+      </Box>
     </ThemeProvider>
   );
+};
+
+// Защищенный маршрут
+const ProtectedRoute = () => {
+  const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return <Layout />;
+};
+
+const App = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login onLogin={handleLogin} />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/users" element={<UsersList />} />
+        <Route path="/chats" element={<ChatsList />} />
+        <Route path="/documents" element={<DocumentsList />} />
+        <Route path="/logs" element={<SystemLogs />} />
+        <Route path="/settings" element={<Settings />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+// Функция для проверки авторизации
+const handleLogin = (username: string, password: string): boolean => {
+  // В реальном приложении здесь будет запрос к API
+  if (username === 'admin' && password === 'admin123') {
+    localStorage.setItem('admin_authenticated', 'true');
+    return true;
+  }
+  return false;
 };
 
 export default App; 
