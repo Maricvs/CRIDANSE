@@ -37,8 +37,10 @@ interface User {
 const UsersList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
-  const [searchText, setSearchText] = useState('');
-  const [showOnlyAdmins, setShowOnlyAdmins] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchUsers();
@@ -117,20 +119,42 @@ const UsersList: React.FC = () => {
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
+    setSearchQuery(event.target.value);
   };
 
   const handleToggleAdminFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setShowOnlyAdmins(event.target.checked);
+    setRoleFilter(event.target.checked ? 'admin' : 'all');
+  };
+
+  const handleToggleStatusFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStatusFilter(event.target.checked ? 'active' : 'all');
+  };
+
+  const handleEdit = (user: User) => {
+    // TODO: Реализовать редактирование пользователя
+    console.log('Edit user:', user);
+  };
+
+  const handleDelete = async (userId: string) => {
+    try {
+      // TODO: Реализовать удаление пользователя через API
+      console.log('Delete user:', userId);
+      // После успешного удаления обновляем список
+      setUsers(users.filter(user => user.id !== userId));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      // TODO: Показать уведомление об ошибке
+    }
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchText.toLowerCase());
+    const matchesSearch = user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesAdminFilter = showOnlyAdmins ? user.is_admin : true;
+    const matchesRoleFilter = roleFilter === 'all' || (roleFilter === 'admin' ? user.is_admin : true);
+    const matchesStatusFilter = statusFilter === 'all' || (statusFilter === 'active' ? user.status === 'active' : true);
     
-    return matchesSearch && matchesAdminFilter;
+    return matchesSearch && matchesRoleFilter && matchesStatusFilter;
   });
 
   const formatDate = (dateString: string) => {
@@ -210,7 +234,7 @@ const UsersList: React.FC = () => {
           <IconButton onClick={() => handleEdit(params.row)}>
             <EditIcon />
           </IconButton>
-          <IconButton onClick={() => handleDelete(params.row.id)}>
+          <IconButton onClick={() => handleDelete(params.row.id.toString())}>
             <DeleteIcon />
           </IconButton>
         </Box>
@@ -244,7 +268,7 @@ const UsersList: React.FC = () => {
             placeholder="Поиск пользователей..."
             variant="outlined"
             size="small"
-            value={searchText}
+            value={searchQuery}
             onChange={handleSearchChange}
             InputProps={{
               startAdornment: (
@@ -259,12 +283,23 @@ const UsersList: React.FC = () => {
           <FormControlLabel
             control={
               <Switch
-                checked={showOnlyAdmins}
+                checked={roleFilter === 'admin'}
                 onChange={handleToggleAdminFilter}
                 color="primary"
               />
             }
             label="Только администраторы"
+          />
+          
+          <FormControlLabel
+            control={
+              <Switch
+                checked={statusFilter === 'active'}
+                onChange={handleToggleStatusFilter}
+                color="primary"
+              />
+            }
+            label="Только активные пользователи"
           />
         </Box>
       </Paper>
