@@ -96,13 +96,18 @@ async def upload_document(
         return document
         
     except Exception as e:
-        # В случае ошибки удаляем загруженный файл
-        if 'file_path' in locals():
+        import traceback
+        print("❌ Ошибка при загрузке документа:", e)
+        traceback.print_exc()
+
+        # Безопасно удалить файл, если он уже был создан
+        if 'file_path' in locals() and os.path.exists(file_path):
             try:
                 os.remove(file_path)
-            except:
-                pass
-        raise HTTPException(status_code=500, detail=str(e))
+            except Exception as remove_err:
+                print("⚠️ Не удалось удалить файл при ошибке:", remove_err)
+
+        raise HTTPException(status_code=500, detail="Internal Server Error (check logs)")
 
 @router.get("/list/user/{user_id}", response_model=list[DocumentResponse])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
