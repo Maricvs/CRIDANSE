@@ -2,65 +2,102 @@ name: Deploy to Server
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install Frontend Dependencies
+      - name: Уведомление в Telegram о старте
         run: |
-          cd frontend
-          npm install
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
 
-      - name: Build Frontend
-        run: |
-          cd frontend
-          npm run build
-
-      - name: Install Backend Dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Deploy to server по SSH
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/unlim-mind-ai || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+              exit 1
+            }
+
+            git reset --hard HEAD
+            git clean -fd
+            git pull origin main
+
+            cd frontend
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install"
+              exit 1
+            fi
+
+            if ! npm run build 2>build_error.log; then
+              error_log=$(tail -n 10 build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$error_log"
+              exit 1
+            fi
+
+            sudo rm -rf /var/www/react-app/* || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/react-app/ || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
+              exit 1
+            }
+
+            sudo chown -R www-data:www-data /var/www/react-app
+            sudo chmod -R 755 /var/www/react-app
+
+            if ! sudo systemctl restart nginx; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              exit 1
+            fi
+
+            if ! sudo systemctl restart unlim-api; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              exit 1
+            fi
+      - name: Уведомление об окончании деплоя
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🍌 Деплой завершён успешно!"
+
+  monitor:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка сервисов на сервере
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             cd /var/www/unlim-mind-ai
-            git pull origin main
-            cd frontend
-            npm install
-            npm run build
-            cd ../backend
-            pip install -r requirements.txt
-            sudo systemctl restart unlim-mind-ai
-            sudo systemctl restart nginx
 
-      - name: Send Telegram Notification
-        uses: appleboy/telegram-action@v1.0.0
-        with:
-          to: ${{ secrets.TELEGRAM_TO }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: |
-            🚀 Деплой успешно завершен!
-            Время: $(date '+%Y-%m-%d %H:%M:%S')
-            Ветка: ${{ github.ref_name }}
-            Коммит: ${{ github.sha }}
+            if ! systemctl is-active --quiet unlim-api; then
+              python3 tools/notifier-bot/telegram.py "❌ Backend (unlim-api) упал!"
+            fi
+
+            if ! systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "❌ Nginx не работает!"
+            fi
+
+            if systemctl is-active --quiet unlim-api && systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
+            fi
