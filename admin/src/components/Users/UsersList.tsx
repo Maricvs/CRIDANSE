@@ -198,7 +198,7 @@ const UsersList: React.FC = () => {
       field: 'created_at',
       headerName: 'Дата регистрации',
       width: 200,
-      valueFormatter: (params) => formatDate(params.value as string),
+      valueFormatter: (params: any) => formatDate(params.value as string),
     },
     {
       field: 'status',
