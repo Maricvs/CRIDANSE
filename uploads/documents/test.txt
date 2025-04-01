@@ -1,0 +1,3 @@
+message TEXT NOT NULL,
+    is_user BOOLEAN NOT NULL,  -- true для сообщений от пользователя, false для ответов от бота
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
