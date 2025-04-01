@@ -1,0 +1,71 @@
+.document-selector {
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+
+.document-selector h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.document-selector-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 4px;
+}
+
+.document-selector-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eaeaea;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.document-selector-item:hover {
+  background-color: #f0f0f0;
+}
+
+.document-selector-item.selected {
+  background-color: #e6f7ff;
+}
+
+.document-selector-checkbox {
+  margin-right: 10px;
+}
+
+.document-selector-details {
+  flex: 1;
+}
+
+.document-selector-title {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.document-selector-info {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.document-selector-loading,
+.document-selector-error,
+.document-selector-empty {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+}
+
+.document-selector-error {
+  color: #ff4d4f;
+}
+
+.document-selector-empty {
+  font-style: italic;
+} 

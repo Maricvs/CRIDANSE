@@ -48,3 +48,5 @@ npm install @react-oauth/google
 
 // декодирование для OAuth
 npm install jwt-decode
+
+pip install PyPDF2 python-docx

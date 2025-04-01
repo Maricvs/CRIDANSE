@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaPaperPlane, FaFileAlt } from 'react-icons/fa';
 import '../ChatField.css';
+import DocumentSelector from './DocumentSelector';
 
 const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) => {
   const { id } = useParams();
@@ -10,6 +11,8 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
+  const [showDocumentSelector, setShowDocumentSelector] = useState(false);
+  const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
   // Функция для автоматического переименования чата
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
@@ -112,26 +115,41 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         throw new Error('Ошибка при сохранении сообщения');
       }
 
-      // Отправляем в GPT
-      const gptResponse = await fetch('/api/gpt/ask', {
+      // Определяем, куда отправлять запрос в зависимости от выбора документов
+      const apiEndpoint = selectedDocuments.length > 0 
+        ? '/api/document_ai/service/ask_with_documents'
+        : '/api/gpt/ask';
+      
+      // Формируем данные запроса
+      const requestData = selectedDocuments.length > 0
+        ? {
+            prompt,
+            user_id: userId,
+            chat_id: currentChatId,
+            document_ids: selectedDocuments
+          }
+        : {
+            prompt,
+            user_id: userId,
+            chat_id: currentChatId
+          };
+
+      // Отправляем запрос
+      const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          user_id: userId,
-          chat_id: currentChatId,
-        }),
+        body: JSON.stringify(requestData),
       });
 
-      if (!gptResponse.ok) {
+      if (!aiResponseFetch.ok) {
         throw new Error('Ошибка при получении ответа от ИИ');
       }
 
-      const aiResponse = await gptResponse.json();
+      const aiResponse = await aiResponseFetch.json();
       
       // Если это новый чат, переименовываем его на основе ответа ИИ
       if (isNewChat && currentChatId) {
-        await autoRenameChat(currentChatId, aiResponse.message);
+        await autoRenameChat(currentChatId, aiResponse.response || aiResponse.message);
       }
 
       // Обновляем список чатов после получения ответа от ИИ
@@ -158,11 +176,39 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
     if (!chatId) return;
   }, [chatId]);
 
+  // Обработчик для переключения видимости селектора документов
+  const toggleDocumentSelector = () => {
+    setShowDocumentSelector(!showDocumentSelector);
+  };
+
+  // Обработчик для обновления выбранных документов
+  const handleDocumentsSelected = (documentIds: number[]) => {
+    setSelectedDocuments(documentIds);
+  };
+
   return (
     <>
+      {showDocumentSelector && (
+        <DocumentSelector 
+          onDocumentsSelected={handleDocumentsSelected}
+          selectedDocuments={selectedDocuments}
+        />
+      )}
 
       <div className="chat-input-wrapper">
         <div className="chat-input-container">
+          <div className="chat-input-tools">
+            <button 
+              className={`document-button ${selectedDocuments.length > 0 ? 'active' : ''}`}
+              onClick={toggleDocumentSelector}
+              title="Выбрать документы для запроса"
+            >
+              <FaFileAlt />
+              {selectedDocuments.length > 0 && (
+                <span className="document-count">{selectedDocuments.length}</span>
+              )}
+            </button>
+          </div>
           <textarea
             ref={textareaRef}
             value={inputValue}
@@ -179,7 +225,9 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
                 handleSendMessage();
               }
             }}
-            placeholder="Что интересного будет сегодня?"
+            placeholder={selectedDocuments.length > 0 
+              ? "Задайте вопрос по выбранным документам..." 
+              : "Что интересного будет сегодня?"}
             className="chat-input"
             rows={1}
           />

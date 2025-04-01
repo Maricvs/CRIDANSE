@@ -121,11 +121,64 @@
   align-items: flex-end;
 }
 
+/* Инструменты ввода чата */
+.chat-input-tools {
+  position: absolute;
+  left: 2rem;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+/* Кнопка документов */
+.document-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.document-button:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.document-button.active {
+  color: #4caf50;
+}
+
+.document-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
 .chat-input {
   flex: 1;
   width: 100%;
   padding: 12px 16px;
   padding-right: 48px;
+  padding-left: 48px;
   font-size: 15px;
   line-height: 1.5;
   border: 1px solid #444;
@@ -284,6 +337,7 @@
   .chat-input {
     padding: 12px 16px;
     padding-right: 44px;
+    padding-left: 44px;
     font-size: 16px;
     min-height: 24px;
     max-height: 120px;
@@ -315,5 +369,9 @@
     .chat-container-center {
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
+  }
+
+  .chat-input-tools {
+    left: 1rem;
   }
 }
