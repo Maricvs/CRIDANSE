@@ -18,7 +18,7 @@ import Header from './components/Layout/Header';
 import UsersList from './components/Users/UsersList';
 import ChatsList from './components/Chats/ChatsList';
 import DocumentsList from './components/Documents/DocumentsList';
-import SystemLogs from './components/Logs/SystemLogs';
+//import SystemLogs from './components/Logs/SystemLogs';
 import Settings from './components/Settings/Settings';
 import Login from './components/Auth/Login';
 
@@ -131,7 +131,7 @@ const App = () => {
         <Route path="/users" element={<UsersList />} />
         <Route path="/chats" element={<ChatsList />} />
         <Route path="/documents" element={<DocumentsList />} />
-        <Route path="/logs" element={<SystemLogs />} />
+       
         <Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
