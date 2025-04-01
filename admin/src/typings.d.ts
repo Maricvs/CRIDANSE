@@ -3,6 +3,7 @@ declare module '@mui/material';
 declare module '@mui/material/styles';
 declare module '@mui/material/CssBaseline';
 declare module '@mui/icons-material';
+declare module '@mui/x-data-grid';
 
 // Объявления типов для @mui/x-data-grid
 declare module '@mui/x-data-grid' {
