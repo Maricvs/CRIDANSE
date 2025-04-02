@@ -13,6 +13,11 @@ router = APIRouter()
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
 
+print("🔧 SMTP_USER =", SMTP_USER)
+if not SMTP_USER or not SMTP_PASS:
+    print("❌ SMTP_USER или SMTP_PASS не указаны")
+    return {"status": "error", "detail": "SMTP не настроен"}
+
 # Настройки
 EMAIL_FILE_PATH = "/var/www/unlim-mind-ai/uploads/notified_emails.txt"
 ADMIN_EMAIL = "maricvs@gmail.com" 
