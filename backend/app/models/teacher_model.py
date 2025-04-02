@@ -8,7 +8,7 @@ class TeacherSession(Base):
     __tablename__ = "teacher_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("profiles.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=True)
     topic = Column(String(255))
     level = Column(String(50))  # beginner, intermediate, advanced
     created_at = Column(DateTime, default=datetime.utcnow)
