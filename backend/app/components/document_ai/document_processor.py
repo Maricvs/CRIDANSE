@@ -6,7 +6,7 @@ import shutil
 from typing import List, Optional
 from pydantic import BaseModel
 from db import get_db
-from app.models.document import Document
+from app.models.document_model import Document
 
 # Для извлечения текста из документов
 try:

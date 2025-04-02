@@ -13,6 +13,3 @@ const WelcomeIntroBlock: React.FC = () => {
 };
 
 export default WelcomeIntroBlock;
-
-
-  // 👇 Отправляем в GPT <img src="/logo192.png" alt="Logo" className="welcome-logo" />
