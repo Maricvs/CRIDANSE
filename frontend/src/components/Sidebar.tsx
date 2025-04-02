@@ -145,6 +145,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     return () => window.removeEventListener('messageSent', handleMessageSent);
   }, [userId]);
 
+  useEffect(() => {
+    fetchChats();
+  }, []);
+
   const handleNewChat = () => {
     createNewChat();
   };
