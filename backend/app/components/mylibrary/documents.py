@@ -100,11 +100,11 @@ async def upload_document(
         traceback.print_exc()
 
         # Безопасно удалить файл, если он уже был создан
-        if 'file_path' in locals() and os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except Exception as remove_err:
-                print("⚠️ Не удалось удалить файл при ошибке:", remove_err)
+        #if 'file_path' in locals() and os.path.exists(file_path):
+        #    try:
+        #        os.remove(file_path)
+        #    except Exception as remove_err:
+        #        print("⚠️ Не удалось удалить файл при ошибке:", remove_err)
 
         raise HTTPException(status_code=500, detail="Internal Server Error (check logs)")
 
