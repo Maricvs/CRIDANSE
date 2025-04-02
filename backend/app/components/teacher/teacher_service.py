@@ -4,6 +4,7 @@ from db import get_db
 from app.models.teacher_model import TeacherSession, TeacherMessage
 from app.schemas.teacher_schema import TeacherSessionCreate, TeacherMessageCreate, TeacherSession as TeacherSessionSchema
 from typing import List
+from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
 import openai
 
 router = APIRouter()
@@ -54,7 +55,7 @@ def get_session(session_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Session not found")
     return session
 
-@router.post("/sessions/{session_id}/messages/", response_model=TeacherMessage)
+@router.post("/sessions/{session_id}/messages/", response_model=TeacherMessageSchema)
 async def create_message(session_id: int, message: TeacherMessageCreate, db: Session = Depends(get_db)):
     # Сохраняем сообщение ученика
     db_message = TeacherMessage(**message.dict())
