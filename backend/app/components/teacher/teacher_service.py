@@ -5,7 +5,6 @@ from app.models.teacher_model import TeacherSession, TeacherMessage
 from app.schemas.teacher_schema import TeacherSessionCreate, TeacherMessageCreate, TeacherSession as TeacherSessionSchema
 from typing import List
 import openai
-from config import settings
 
 router = APIRouter()
 
@@ -24,7 +23,7 @@ def get_teacher_prompt(topic: str, level: str) -> str:
     """
 
 def get_teacher_response(messages: List[dict], topic: str, level: str) -> str:
-    client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+    client = openai.OpenAI()
     
     system_prompt = get_teacher_prompt(topic, level)
     
