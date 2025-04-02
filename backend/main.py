@@ -9,6 +9,7 @@ from models.models import Profile
 from app.models.document_model import Document
 from api import notify_form
 
+
 _ = Profile
 _ = Document
 

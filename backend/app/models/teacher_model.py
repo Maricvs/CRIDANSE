@@ -1,13 +1,14 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from app.models.user_model import User
 from db import Base
 
 class TeacherSession(Base):
     __tablename__ = "teacher_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     topic = Column(String(255))
     level = Column(String(50))  # beginner, intermediate, advanced
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -24,4 +25,4 @@ class TeacherMessage(Base):
     content = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    session = relationship("TeacherSession", back_populates="messages") 
+    session = relationship("TeacherSession", back_populates="messages")
