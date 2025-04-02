@@ -3,7 +3,8 @@ import uuid
 from typing import List, Optional, Dict, Any
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
-from models.models import Document, DocumentChunk, Profile
+from app.models.document_model import Document, DocumentChunk
+from models.models import Profile
 from app.schemas.document_schema import DocumentCreate, DocumentChunkCreate, SearchQuery
 import PyPDF2
 import docx
