@@ -13,7 +13,7 @@ from app.schemas.document_schema import DocumentResponse
 router = APIRouter()
 
 # Конфигурация
-UPLOAD_DIR = Path("/var/www/unlim-mind-ai/uploads/documents")
+UPLOAD_DIR = Path("/var/www/uploads/documents")
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 ALLOWED_FILE_TYPES = {'pdf', 'doc', 'docx', 'txt', 'rtf'}
 

@@ -16,7 +16,7 @@ SMTP_PASS = os.getenv("SMTP_PASS")
 
 
 # Настройки
-EMAIL_FILE_PATH = "/var/www/unlim-mind-ai/uploads/notified_emails.txt"
+EMAIL_FILE_PATH = "/var/www/uploads/notified_emails.txt"
 ADMIN_EMAIL = "maricvs@gmail.com" 
 PUBLIC_FILE_URL = "https://unlimcode.com/uploads/notified_emails.txt"
 
