@@ -55,7 +55,7 @@ const DevBanner: React.FC = () => {
             placeholder="Ваш email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: "8px", width: "250px", borderRadius: "4px", background: #b3b2b2; border: "1px solid #ccc" }}
+            style={{ padding: "8px", width: "250px", borderRadius: "4px", background: #b3b2b2, border: "1px solid #ccc" }}
           />
           <button type="submit" style={{
             padding: "8px 16px",
