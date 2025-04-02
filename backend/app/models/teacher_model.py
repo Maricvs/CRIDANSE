@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from app.models.user_model import User
+from models.models import Profile
 from db import Base
 
 class TeacherSession(Base):
