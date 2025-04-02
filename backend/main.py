@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from api import gpt_api, auth, chat
 from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
+from app.components.teacher import teacher_service
 from models.models import Profile
 from app.models.document_model import Document
 from api import notify_form
@@ -22,4 +23,5 @@ app.include_router(chat.router, prefix="/api/chats")
 app.include_router(library_documents.router, prefix="/api/documents")
 app.include_router(document_processor_router, prefix="/api/document_ai/processor")
 app.include_router(document_ai_service_router, prefix="/api/document_ai/service")
+app.include_router(teacher_service.router, prefix="/api/teacher")
 app.include_router(notify_form.router)
