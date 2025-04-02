@@ -13,10 +13,7 @@ router = APIRouter()
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
 
-print("🔧 SMTP_USER =", SMTP_USER)
-if not SMTP_USER or not SMTP_PASS:
-    print("❌ SMTP_USER или SMTP_PASS не указаны")
-    return {"status": "error", "detail": "SMTP не настроен"}
+
 
 # Настройки
 EMAIL_FILE_PATH = "/var/www/unlim-mind-ai/uploads/notified_emails.txt"
@@ -28,6 +25,10 @@ class NotifyRequest(BaseModel):
 
 @router.post("/api/notify")
 async def notify_user(req: NotifyRequest):
+    print("🔧 SMTP_USER =", SMTP_USER)
+    if not SMTP_USER or not SMTP_PASS:
+        print("❌ SMTP_USER или SMTP_PASS не указаны")
+        return {"status": "error", "detail": "SMTP не настроен"}
     # 1. Добавляем в файл
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     os.makedirs(os.path.dirname(EMAIL_FILE_PATH), exist_ok=True)
