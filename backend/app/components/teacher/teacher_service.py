@@ -6,6 +6,8 @@ from app.schemas.teacher_schema import TeacherSessionCreate, TeacherMessageCreat
 from typing import List
 from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
 import openai
+from models.models import Profile
+
 
 router = APIRouter()
 
@@ -81,4 +83,29 @@ async def create_message(session_id: int, message: TeacherMessageCreate, db: Ses
     
     db.commit()
     db.refresh(db_teacher_message)
-    return db_teacher_message 
+    return db_teacher_message
+
+async def create_teacher_session(
+    db: Session,
+    user: Profile,
+    session_data: TeacherSessionCreate
+) -> TeacherSession:
+    # Implementation of create_teacher_session method
+    pass
+
+async def get_teacher_session(
+    db: Session,
+    user: Profile,
+    session_id: int
+) -> TeacherSession:
+    # Implementation of get_teacher_session method
+    pass
+
+async def send_teacher_message(
+    db: Session,
+    user: Profile,
+    session_id: int,
+    message: str
+) -> TeacherMessage:
+    # Implementation of send_teacher_message method
+    pass 
