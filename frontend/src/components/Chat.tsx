@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from "react";
-import WelcomeIntroBlock from './WelcomeIntroBlock';
 import ChatField from './ChatField';
 
 interface Message {
@@ -48,39 +47,24 @@ export default function Chat() {
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
 
   if (!id || id === 'undefined' || id === null || id === '') {
-  return (
-    <div
-      className={wrapperClass}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-      }}
-    >
-      <WelcomeIntroBlock />
-      <div style={{ marginTop: '2rem', width: '100%', maxWidth: '768px' }}>
-        <ChatField />
-      </div>
-    </div>
-  );
-}
+    return null;
+  }
+
   if (loading) return <p>Загрузка сообщений...</p>;
 
   return (
     <div className={wrapperClass}>
-    <div className="chat-messages">
-  {messages.map((msg) => (
-    <div
-      key={msg.id}
-      className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-    >
-      {msg.message}
-    </div>
-  ))}
-  <div ref={messagesEndRef} />
-  </div>
+      <div className="chat-messages">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+          >
+            {msg.message}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
 
       <ChatField onMessageSent={fetchMessages} />
     </div>
