@@ -34,7 +34,7 @@ const DevBanner: React.FC = () => {
 
   return (
     <div style={{
-      backgroundColor: "#fff3cd",
+      backgroundColor: "#393834",
       color: "#ffffff",
       padding: "20px",
       borderRadius: "10px",
