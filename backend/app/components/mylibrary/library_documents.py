@@ -14,7 +14,7 @@ router = APIRouter()
 
 # Конфигурация
 UPLOAD_DIR = Path("/var/www/uploads/documents")
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_FILE_SIZE = 25 * 1024 * 1024  # 10MB
 ALLOWED_FILE_TYPES = {'pdf', 'doc', 'docx', 'txt', 'rtf'}
 
 def sanitize_filename(filename: str) -> str:
