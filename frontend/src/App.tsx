@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 // import SubscrPackage from './components/SubscrPackage';
 // import UserCollege from './components/UserCollege';
 // import Documents from './components/Documents';
+import Home from "./components/Home";
 import Libraries from './components/Libraries';
 import Auth from './components/Auth';
 import MyLibrary from './components/mylibrary/MyLibrary';
@@ -21,7 +22,7 @@ const App: React.FC = () => {
         <div className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
           <Routes>
             <Route path="/chat/:id" element={<Chat />} />
-            <Route path="/" element={<Chat />} />
+            <Route path="/" element={<Home />} />
             <Route path="/libraries" element={<Libraries />} />
             <Route path="/mylibrary" element={<MyLibrary />} />
             <Route path="/auth" element={<Auth />} />
