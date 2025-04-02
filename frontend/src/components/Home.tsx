@@ -6,9 +6,9 @@ import ChatField from "./ChatField";
 const Home: React.FC = () => {
   return (
     <main>
+        <DevBanner />
       <WelcomeIntroBlock />
       <ChatField />
-      <DevBanner />
     </main>
   );
 };

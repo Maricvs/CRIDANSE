@@ -35,12 +35,12 @@ const DevBanner: React.FC = () => {
   return (
     <div style={{
       backgroundColor: "#fff3cd",
-      color: "#856404",
+      color: "#ffffff",
       padding: "20px",
       borderRadius: "10px",
       margin: "20px auto",
       maxWidth: "768px",
-      border: "1px solid #ffeeba",
+      border: "1px solid #3e3e3d",
       textAlign: "center",
     }}>
       <h3 style={{ marginBottom: "10px" }}>🚧 Проект в разработке</h3>
@@ -55,7 +55,7 @@ const DevBanner: React.FC = () => {
             placeholder="Ваш email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: "8px", width: "250px", borderRadius: "4px", border: "1px solid #ccc" }}
+            style={{ padding: "8px", width: "250px", borderRadius: "4px", background: #b3b2b2; border: "1px solid #ccc" }}
           />
           <button type="submit" style={{
             padding: "8px 16px",

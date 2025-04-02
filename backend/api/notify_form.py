@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 import smtplib
 from email.message import EmailMessage
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
+
+SMTP_USER = os.getenv("SMTP_USER")
+SMTP_PASS = os.getenv("SMTP_PASS")
 
 # Настройки
 EMAIL_FILE_PATH = "/var/www/unlim-mind-ai/uploads/notified_emails.txt"
@@ -23,15 +29,16 @@ async def notify_user(req: NotifyRequest):
     with open(EMAIL_FILE_PATH, "a") as f:
         f.write(f"{timestamp} - {req.email}\n")
 
-    # 2. Отправляем email админу
+    # 2. Отправляем email админу через Gmail SMTP
     try:
         msg = EmailMessage()
         msg["Subject"] = "Новая подписка на уведомление"
-        msg["From"] = "no-reply@unlimcode.com"
+        msg["From"] = SMTP_USER
         msg["To"] = ADMIN_EMAIL
         msg.set_content(f"Пользователь оставил email на запуск проекта: {req.email}\n\nСсылка на файл: {PUBLIC_FILE_URL}")
 
-        with smtplib.SMTP("localhost") as smtp:  # или укажи SMTP-сервер
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(SMTP_USER, SMTP_PASS)
             smtp.send_message(msg)
     except Exception as e:
         print("Ошибка при отправке email:", e)

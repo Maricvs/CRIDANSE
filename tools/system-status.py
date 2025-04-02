@@ -5,6 +5,7 @@ import subprocess
 import requests
 import json
 from datetime import datetime
+from tools.notifier-bot.telegram import send_telegram
 
 # Импортируем скрипт отправки Telegram-уведомлений
 sys.path.append(os.path.join(os.path.dirname(__file__), 'notifier-bot'))
@@ -19,6 +20,19 @@ def run_command(command):
         'stdout': stdout.decode('utf-8', errors='ignore'),
         'stderr': stderr.decode('utf-8', errors='ignore')
     }
+
+def count_uvicorn_processes():
+    try:
+        result = subprocess.run(["pgrep", "-fc", "uvicorn"], capture_output=True, text=True)
+        count = int(result.stdout.strip())
+        return count
+    except Exception as e:
+        send_telegram(f"⚠️ Ошибка при проверке процессов uvicorn: {e}")
+        return 0
+
+uvicorn_count = count_uvicorn_processes()
+if uvicorn_count > 1:
+    send_telegram(f"🚨 Обнаружено {uvicorn_count} процессов uvicorn! Возможен конфликт портов.")
 
 def check_service(service_name):
     """Проверить статус systemd-сервиса"""
