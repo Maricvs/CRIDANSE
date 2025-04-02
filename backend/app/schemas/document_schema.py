@@ -9,7 +9,7 @@ class DocumentBase(BaseModel):
 class DocumentCreate(DocumentBase):
     pass
 
-class Document(DocumentBase):
+class DocumentResponse(DocumentBase):
     id: int
     user_id: int
     file_path: str
