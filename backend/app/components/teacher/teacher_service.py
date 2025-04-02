@@ -5,14 +5,17 @@ from app.models.teacher_model import TeacherSession, TeacherMessage
 from app.schemas.teacher_schema import TeacherSessionCreate, TeacherMessageCreate, TeacherSession as TeacherSessionSchema
 from typing import List
 from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
-import openai
+from openai import OpenAI
 from models.models import Profile
+from app.components.documents.document_service import get_context_for_query
 
 
 router = APIRouter()
 
-def get_teacher_prompt(topic: str, level: str) -> str:
-    return f"""Ты - опытный преподаватель, который обучает теме "{topic}" на уровне {level}.
+client = OpenAI()
+
+def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
+    base_prompt = f"""Ты - опытный преподаватель, который обучает теме "{topic}" на уровне {level}.
     Твоя задача:
     1. Не давать прямых ответов на учебные задания
     2. Задавать наводящие вопросы
@@ -24,14 +27,34 @@ def get_teacher_prompt(topic: str, level: str) -> str:
     Если ученик просит объяснить что-то - давай подробное объяснение, адаптированное под его уровень.
     Если ученик решает задачу - помогай наводящими вопросами, но не давай готового решения.
     """
-
-def get_teacher_response(messages: List[dict], topic: str, level: str) -> str:
-    client = openai.OpenAI()
     
-    system_prompt = get_teacher_prompt(topic, level)
+    if context:
+        context_prompt = f"""
+        Используй следующие учебные материалы в качестве основы своих объяснений:
+        
+        {context}
+        
+        Опирайся на эти материалы, но при необходимости можешь дополнять свои ответы другими знаниями.
+        """
+        return base_prompt + context_prompt
+    
+    return base_prompt
+
+async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None) -> str:
+    # Пытаемся получить контекст из документов пользователя
+    context = ""
+    if user_id and db:
+        user = db.query(Profile).filter(Profile.id == user_id).first()
+        if user:
+            # Получаем последнее сообщение ученика для контекстного поиска
+            last_student_message = next((m["content"] for m in reversed(messages) if m["role"] == "user"), None)
+            if last_student_message:
+                context = await get_context_for_query(db, user, last_student_message)
+    
+    system_prompt = get_teacher_prompt(topic, level, context)
     
     response = client.chat.completions.create(
-        model="gpt-4-turbo-preview",
+        model="gpt-4-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
             *messages
@@ -70,8 +93,14 @@ async def create_message(session_id: int, message: TeacherMessageCreate, db: Ses
     # Получаем информацию о сессии
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
     
-    # Получаем ответ учителя
-    teacher_response = get_teacher_response(messages_history, session.topic, session.level)
+    # Получаем ответ учителя с использованием контекста из документов
+    teacher_response = await get_teacher_response(
+        messages_history, 
+        session.topic, 
+        session.level,
+        session.user_id,  # Добавляем ID пользователя для получения контекста
+        db
+    )
     
     # Сохраняем ответ учителя
     db_teacher_message = TeacherMessage(
