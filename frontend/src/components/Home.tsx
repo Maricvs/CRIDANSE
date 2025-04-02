@@ -5,8 +5,8 @@ import DevBanner from "../components/DevBanner";
 const Home: React.FC = () => {
   return (
     <main>
-      <DevBanner />
       <WelcomeIntroBlock />
+      <DevBanner />
     </main>
   );
 };

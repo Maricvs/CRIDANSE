@@ -6,6 +6,7 @@ from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
 from models.models import Profile
 from app.models.document_model import Document
+from api import notify_form
 
 _ = Profile
 _ = Document
@@ -21,4 +22,4 @@ app.include_router(chat.router, prefix="/api/chats")
 app.include_router(library_documents.router, prefix="/api/documents")
 app.include_router(document_processor_router, prefix="/api/document_ai/processor")
 app.include_router(document_ai_service_router, prefix="/api/document_ai/service")
-
+app.include_router(notify_form.router, prefix="/api/notify_form")
