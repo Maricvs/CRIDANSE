@@ -28,6 +28,7 @@ async def notify_user(req: NotifyRequest):
     os.makedirs(os.path.dirname(EMAIL_FILE_PATH), exist_ok=True)
     with open(EMAIL_FILE_PATH, "a") as f:
         f.write(f"{timestamp} - {req.email}\n")
+    print("📝 Email записан в файл")
 
     # 2. Отправляем email админу через Gmail SMTP
     try:
@@ -36,10 +37,12 @@ async def notify_user(req: NotifyRequest):
         msg["From"] = SMTP_USER
         msg["To"] = ADMIN_EMAIL
         msg.set_content(f"Пользователь оставил email на запуск проекта: {req.email}\n\nСсылка на файл: {PUBLIC_FILE_URL}")
+        print("📬 Подключаюсь к smtp.gmail.com...")
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
             smtp.login(SMTP_USER, SMTP_PASS)
             smtp.send_message(msg)
+        print("✅ Email отправлен")
     except Exception as e:
         print("Ошибка при отправке email:", e)
 
