@@ -8,7 +8,7 @@ from typing import Optional
 import re
 from db import Base, get_db
 from app.models.document_model import Document
-from app.schemas.document_schema import DocumentResponse
+from app.schemas.document_schema import Document
 
 router = APIRouter()
 
@@ -37,7 +37,7 @@ def validate_file(file: UploadFile) -> bool:
     
     return True
 
-@router.post("/upload", response_model=DocumentResponse)
+@router.post("/upload", response_model=Document)
 async def upload_document(
     title: str = Form(...),
     description: Optional[str] = Form(None),
@@ -108,7 +108,7 @@ async def upload_document(
 
         raise HTTPException(status_code=500, detail="Internal Server Error (check logs)")
 
-@router.get("/list/user/{user_id}", response_model=list[DocumentResponse])
+@router.get("/list/user/{user_id}", response_model=list[Document])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     print(f"📥 [DEBUG] get_user_documents triggered for user_id={user_id}")
     """
@@ -117,7 +117,7 @@ async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     documents = db.query(Document).filter(Document.user_id == user_id).all()
     return documents
 
-@router.get("/single/document/{document_id}", response_model=DocumentResponse)
+@router.get("/single/document/{document_id}", response_model=Document)
 async def get_document(document_id: int, db: Session = Depends(get_db)):
     """
     Получить конкретный документ по ID
