@@ -7,8 +7,8 @@ from datetime import datetime
 from typing import Optional
 import re
 from db import Base, get_db
-from app.models.document_model import Document
-from app.schemas.document_schema import Document
+from app.models.document_model import Document as DocumentModel
+from app.schemas.document_schema import Document as DocumentSchema
 
 router = APIRouter()
 
@@ -37,7 +37,7 @@ def validate_file(file: UploadFile) -> bool:
     
     return True
 
-@router.post("/upload", response_model=Document)
+@router.post("/upload", response_model=DocumentSchema)
 async def upload_document(
     title: str = Form(...),
     description: Optional[str] = Form(None),
@@ -78,7 +78,7 @@ async def upload_document(
             buffer.write(content)
         
         # Создаем запись в БД
-        document = Document(
+        document = DocumentModel(
             title=title,
             description=description,
             file_path=str(file_path),
@@ -108,14 +108,14 @@ async def upload_document(
 
         raise HTTPException(status_code=500, detail="Internal Server Error (check logs)")
 
-@router.get("/list/user/{user_id}", response_model=list[Document])
+@router.get("/list/user/{user_id}", response_model=list[DocumentSchema])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     print(f"📥 [DEBUG] get_user_documents triggered for user_id={user_id}")
     """
     Получить все документы пользователя
     """
     try:
-        documents = db.query(Document).filter(Document.user_id == user_id).all()
+        documents = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).all()
         print(f"📦 [DEBUG] Found {len(documents)} documents for user {user_id}")
         for doc in documents:
             print(f"📄 [DEBUG] Document: id={doc.id}, title={doc.title}, user_id={doc.user_id}")
@@ -124,12 +124,12 @@ async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
         print(f"❌ [ERROR] Error fetching documents: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/single/document/{document_id}", response_model=Document)
+@router.get("/single/document/{document_id}", response_model=DocumentSchema)
 async def get_document(document_id: int, db: Session = Depends(get_db)):
     """
     Получить конкретный документ по ID
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
+    document = db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     return document
@@ -139,7 +139,7 @@ async def delete_document(document_id: int, db: Session = Depends(get_db)):
     """
     Удалить документ
     """
-    document = db.query(Document).filter(Document.id == document_id).first()
+    document = db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
     
