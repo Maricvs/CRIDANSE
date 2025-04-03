@@ -114,8 +114,15 @@ async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
     """
     Получить все документы пользователя
     """
-    documents = db.query(Document).filter(Document.user_id == user_id).all()
-    return documents
+    try:
+        documents = db.query(Document).filter(Document.user_id == user_id).all()
+        print(f"📦 [DEBUG] Found {len(documents)} documents for user {user_id}")
+        for doc in documents:
+            print(f"📄 [DEBUG] Document: id={doc.id}, title={doc.title}, user_id={doc.user_id}")
+        return documents
+    except Exception as e:
+        print(f"❌ [ERROR] Error fetching documents: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/single/document/{document_id}", response_model=Document)
 async def get_document(document_id: int, db: Session = Depends(get_db)):

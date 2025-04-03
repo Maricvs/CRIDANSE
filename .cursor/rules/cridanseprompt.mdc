@@ -1,0 +1,143 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Detailed Cursor Training Prompt (Enhanced)
+
+Project Overview
+
+You are working within the Unlim Mind AI project. Follow strictly the existing project structure and conventions.
+
+GPT Model & Modes
+	•	GPT Model: Use OpenAI GPT-3.5 turbo.
+	•	Chat Modes: Implement two primary modes:
+	•	Normal Chat (standard conversation mode)
+	•	Teacher Mode (educational guidance, specific formatting for tutoring interactions)
+
+Project Structure
+	•	Backend: Located in backend/
+	•	Main backend entry point: backend/main.py
+	•	Routes/API endpoints are placed in backend/routes/ or similar folders.
+	•	API endpoints must always include the prefix /api/... (e.g., /api/profiles, /api/messages).
+	•	Frontend: Located in frontend/
+	•	Main frontend entry point: frontend/src/main.tsx
+	•	React/TypeScript used for frontend implementation.
+	•	Sidebar UI component located in frontend/src/components/Sidebar.tsx and uses CSS at Sidebar.css. Sidebar hides dynamically on mobile (<768px) and expands on wider screens. Content area follows strict responsive rules as defined previously.
+	•	Tools & Scripts:
+	•	Utility and monitoring scripts located in tools/, e.g., system notifier at tools/notifier-bot/telegram.py.
+
+Database Structure
+
+Use PostgreSQL. Existing key schemas and tables:
+	•	Profile (main user model, no separate User model!)
+	•	Defined at: backend/models/profile.py
+	•	Fields include user-specific data, authentication references, profile settings, etc.
+	•	Chat
+	•	Defines chat sessions linked to Profile
+	•	Message
+	•	Individual chat messages, linked to Chat and Profile
+
+Important: Always extend the Profile model instead of creating new user-related classes. Avoid creating conflicting classes like User.
+
+Configuration & Environment Variables
+	•	Main .env files:
+	•	Backend: backend/.env
+	•	Frontend: frontend/.env
+	•	Store and retrieve secrets (API keys, database URLs, service endpoints) only from these .env files.
+	•	Never hardcode sensitive information.
+
+File Uploads & Paths
+	•	Upload directory configured via environment variables. Always use existing upload-handling utilities.
+
+Dependency Management
+	•	Python dependencies managed via requirements.txt.
+	•	Node.js dependencies managed in frontend/package.json.
+	•	Never alter or auto-upgrade dependencies unless explicitly instructed.
+
+API Development Guidelines
+	•	APIs are RESTful, responses structured via JSON.
+	•	Request/response schemas are clearly defined using Pydantic or similar (schemas located in backend/schemas/).
+	•	Maintain existing API conventions (HTTP status codes, error handling, authentication via OAuth).
+
+Import Rules & Coding Style
+	•	All imports strictly follow existing paths, e.g.:
+from backend.models.profile import Profile  # Correct!
+# NEVER from backend.models.user import User (does not exist!)
+
+	Maintain existing coding style (PEP8, clear variable/function naming).
+
+Frontend Development
+	•	Components placed clearly inside frontend/src/components/.
+	•	CSS styles located separately (e.g., Sidebar.css, ChatField.css), strictly adhere to existing style conventions.
+
+General Rules & Integration Guidelines
+	•	Do NOT duplicate logic; reuse existing utility functions, services, or components.
+	•	Do NOT break existing functionality; test new code thoroughly.
+	•	Add clear inline comments and update relevant documentation for any new logic.
+
+⸻
+
+Final Checklist for Cursor when Generating New Code:
+	•	API endpoints prefixed (/api/...)
+	•	Utilize existing Profile model (no new User model!)
+	•	Environment vars from .env only (no hardcoding)
+	•	Maintain existing DB schemas (Profile, Chat, Message)
+	•	Follow exact dependency versions
+	•	Follow correct import paths
+	•	Ensure frontend and backend separation
+	•	Reuse existing functionality
+	•	Maintain responsive UI rules (sidebar, content-area sizing)
+	•	Thoroughly integrate and document new features
+
+
+
+
+Unlim Mind AI – Project Architecture & Development Guidelines
+
+Project Structure and Architecture
+	•	Main Application Entry Point: The backend’s main application file is main.py, located in the backend codebase (e.g. in the backend/ folder of the project). This file is the entry point of the server application – it initializes the web framework, sets up routes, and configures services. Ensure that any changes preserve its role as the startup script for the backend.
+	•	Folder Organization: The project is divided into a backend and a frontend, each in its own directory:
+	•	Backend (backend/ directory): Contains all server-side code (API endpoints, business logic, database models, etc.). Key sub-folders include:
+	•	models/ – Database models and schema definitions (e.g. the Profile model for user data, and other data models).
+	•	schemas/ – (If applicable) Pydantic or data validation schemas for API requests/responses.
+	•	routes/ or api/ – API route definitions, grouped by functionality. All API endpoint definitions reside here, often using a common prefix (such as /api).
+	•	services/ – Modules for internal services and business logic (for example, AI integration, file upload handling, etc.).
+	•	utils/ or helpers/ – Reusable utility functions.
+	•	main.py – Application startup (initializes the web framework, mounts routers with prefixes, reads config).
+	•	Environment configuration (loading of .env files, settings).
+	•	Frontend (frontend/ directory): Contains client-side application code (e.g. a React/Vue app or other front-end code). This includes components, styles, and assets. The frontend communicates with the backend via the defined API endpoints. It also contains UI elements like the sidebar.
+	•	Shared/Config Files: At the project root (or within backend), there may be configuration files such as .env (environment variables), requirements.txt (Python dependencies), and build/config files for the frontend (like package.json if using Node, or build scripts).
+	•	Backend–Frontend Separation: The backend is a standalone API server (likely a Python web framework such as FastAPI or Flask), and the frontend is a separate interface (likely a single-page application or web client). They interact through REST API calls. Keep this separation clear: backend code should reside in the backend folder and frontend code in the frontend folder. When writing new code, place files in the appropriate section of the project (do not mix front-end code into the backend or vice versa).
+	•	Services and Integrations: The project integrates with several services:
+	•	Database: The backend uses a database to store persistent data (e.g. user profiles, content, etc.). The models in backend/models/ correspond to database tables/collections. Use these models as the single source of truth for database structure.
+	•	External APIs/AI Services: The application likely uses external AI services (for example, an OpenAI API for language processing) and possibly other third-party services. Configuration for these (API keys, endpoints) is done via environment variables in the .env file. Do not hardcode keys or secrets – always use the provided config in env files.
+	•	File Storage for Uploads: Uploaded files are saved to a designated path on the server (or cloud storage) as configured in the settings. For example, there may be an UPLOADS_DIR specified in the environment or settings file. The backend code that handles file uploads writes files to this location and the same is used to serve or retrieve files. When implementing features involving file uploads, use the existing upload path configuration and helper functions rather than inventing a new path.
+	•	Background Services: If the project uses background workers or scheduled tasks (for example, to process AI requests or send notifications), those services are defined in the backend (perhaps in a services/ or similar module). If adding new background tasks, integrate with the existing service structure.
+	•	Sidebar Behavior (Frontend): The frontend includes a sidebar component in the UI – this is a crucial part of the user interface that displays important information (such as navigation links, user data, or a list of items like chat history or uploaded files). The sidebar’s content is populated via the backend APIs (for example, fetching a list of user’s projects, files, or chat sessions). When making changes that affect data shown in the sidebar, ensure the existing mechanism to update the sidebar is respected. Do not create a separate or conflicting way to manage sidebar state. Instead, continue using the established state management and update patterns (e.g. if the sidebar uses a certain API or context state, make sure new code feeds into that). The sidebar should remain in sync with the backend data – if you add a new type of data that should appear in the sidebar, hook it into the sidebar through the same patterns (don’t duplicate the sidebar code).
+	•	Environment Configuration: The project uses environment files (like .env) to store configuration such as database URLs, API keys, secret keys, service URLs, etc. The backend likely loads this on startup (using a library like python-dotenv or framework-specific config). All new features must utilize the configuration values from these env files. For example, if adding a new external service, add its keys or settings to the environment file rather than hardcoding. Never change or remove existing env variable names – they are used throughout the code. Maintain consistency with naming conventions if new env vars are needed. Also, do not commit any secret values in code; rely on .env for that.
+
+Key Development Rules and Best Practices
+
+When writing or generating code for this project, Cursor must remember and strictly follow these rules to maintain consistency and integrity of the application:
+	1.	API Route Prefixes: All API endpoints must include the proper prefix. The backend API is organized under a common path prefix (for example, all routes might start with /api or /api/v1). This is likely set when defining routers or blueprints in main.py or in the route definitions. When adding new API routes or endpoints, ensure they are registered with the same prefix convention. For instance, if using FastAPI’s APIRouter, include the prefix="/api/..." as done in existing routers, or if using Flask blueprints, ensure url_prefix='/api/...'. Do not define new routes outside the established prefix, or they will not be properly namespaced and may not be reachable by the frontend. Consistency in URL structure is crucial for the frontend to communicate with the backend.
+	2.	Use Existing Base Classes (Avoid Duplicating Models): The codebase already defines important data models and base classes (for example, a Profile class likely represents the user profile or account data). Do not ignore or duplicate these classes. If you need to work with user data or extend user functionality, use the Profile model that already exists. Do NOT create a new User class or any duplicate model that overlaps with Profile (or any other existing model). Instead, extend the existing Profile class if new attributes or methods are needed, or use inheritance if appropriate. This avoids conflicts and ensures all user-related logic stays in one place. In general, check the models directory for an existing model before creating a new one. Reuse and extend base classes rather than writing conflicting classes.
+	3.	Respect the Database Schema and Schemas for API: The project’s database schema is the source of truth for stored data. Any new feature must align with the current database structure. When you need to store new data, prefer adding fields to existing models/tables if they logically belong there, rather than creating completely separate structures that duplicate information. For example, if adding a user setting, consider adding it to the Profile model (if it pertains to user profiles) instead of making a new table. If a new model is truly needed, design it to relate to existing models using proper foreign keys or relationships as per the existing style (e.g., if the project uses SQLAlchemy, use proper relationships back to the Profile or other relevant models). Also, use existing Pydantic schemas or serializer classes for API data whenever possible. If the project has schema classes (for example, ProfileSchema or ProfileCreate for incoming/outgoing data), utilize those instead of creating new duplicate schemas. This ensures validation and response formatting remain consistent. All database migrations or schema changes should be done in line with the project’s migration strategy (if Alembic or similar is used) – do not just alter the model without considering the migration.
+	4.	Strict Import Paths – Use Correct Module References: Follow the project’s module structure for all imports. Do not import from modules or files that don’t exist, and do not create new modules when functionality exists in another module. For example, if you need the Profile class in a new router, use from backend.models.profile import Profile (or the appropriate existing import path) exactly as defined, rather than assuming a different path or re-declaring the class. Avoid any import of non-existent classes or modules. If you get an import error, it means you likely misspelled a path or the class is defined elsewhere – always double-check the project structure to import the right thing. Likewise, do not duplicate class definitions across modules. If a class or function is needed in multiple places, define it once in a logically appropriate module and import it where needed, rather than copying its implementation. This keeps the code DRY and prevents synchronization bugs. The project may have a specific convention for imports (for instance, using absolute imports starting from the project root package). Follow those conventions (e.g., if the code uses from app.services.mail import EmailService, continue with that style). Never assume a global import or different namespace – stick to the established package structure.
+	5.	Integrate Without Breaking Existing Logic: When enhancing or extending the code, ensure new code integrates smoothly with what’s already there and does not break existing functionality. This means:
+	•	Don’t remove or change existing function signatures or class interfaces unless absolutely necessary. Other parts of the code (or the frontend) might rely on them. If you must modify an existing function or API, consider backward compatibility (or update all usages accordingly).
+	•	Avoid duplicate logic: before writing a new function, check if similar functionality already exists. For example, if there is already a utility function to send an email or process text, use that instead of writing a new one from scratch. Centralize improvements in the existing function if needed, rather than having two functions that do the same thing.
+	•	Extend rather than duplicate: If you need to alter how something works (e.g., the way profiles are handled), prefer extending or modifying the existing Profile class or related logic rather than creating a new parallel implementation. This keeps behavior consistent across the app.
+	•	Testing new changes: After implementing a feature, consider the impact on related parts (for example, if you modify an API response format, will the frontend still parse it correctly?). Ensure that any dependent component (frontend UI, other services) still works with the changes. New code should be thoroughly integrated – update documentation, types, or usage examples in the project if available.
+	•	Preserve existing workflows: The users of the application expect current features to work as before. Do not remove features or alter behaviors unexpectedly when adding new ones. New enhancements should be additive or improve things without side-effects on unrelated parts. If a change to existing logic is required, coordinate it within the scope of the project’s architecture (for instance, if adding a login feature, integrate it with the existing profile system rather than writing a separate login that bypasses it).
+	6.	Maintain Dependency Versions: The project has fixed versions for its dependencies (as specified in requirements.txt or similar). Do not upgrade, change, or add dependencies without permission. All new code must be compatible with the currently specified versions of frameworks and libraries. For example, if the project uses FastAPI 0.85.0 and Pydantic 1.x, writing code assuming FastAPI 0.95+ or Pydantic 2.x features could break things – avoid that. Stick to the imports and patterns supported by the installed versions. If you think a new library is needed for a feature, prefer using an existing library in the project that can achieve the result, or discuss adding the new dependency explicitly (ensuring it’s pinned to a version). Never auto-upgrade packages (for instance, don’t let your IDE/imports pull in a newer version implicitly). The environment must remain stable with the versions defined, so new code should not cause version conflicts. Also, do not modify the requirements.txt (or poetry/pipenv config) unless instructed – the goal is to keep the environment consistent.
+	7.	Follow Established Coding Style and Patterns: Adhere to the coding style and architectural patterns already used in the codebase:
+	•	Coding Style: Follow PEP8 guidelines (proper naming conventions, spacing, etc.) unless the project has an explicit style guide that differs. Ensure your code formatting (indentation with 4 spaces, line breaks, etc.) matches the surrounding code. If the project uses a formatter (like Black) or linter, ensure your contributions would pass it.
+	•	Naming Conventions: Use clear and consistent naming. For example, if database model classes are named in CamelCase (e.g., Profile), continue doing that. If variables and functions are in snake_case, follow that. Do not introduce confusing or abbreviated names. Also, follow any project-specific naming conventions (perhaps ProfileService for a service class related to Profile, etc., if such patterns exist).
+	•	Project Patterns: The project may utilize certain design patterns or frameworks features. For example, if it’s a FastAPI project, it might use dependency injection via Depends, Pydantic models for request/response, and routers for grouping endpoints. Use these same patterns when adding new code. If adding a new API endpoint, write a Pydantic model for its request/response similar to existing ones, add a router in the same style, etc. If the project uses class-based views or controllers (common in Flask or Django REST), follow that approach rather than writing purely functional code, or vice versa.
+	•	File/Module Structure: Place new classes or functions in the appropriate module. For instance, if you create a new model, put it in the models/ directory with a new file or in an existing file if logical. If adding a new API route, define it in the routes/ package alongside similar routes (don’t just add everything to main.py or a random file).
+	•	Documentation and Comments: Maintain the same level of code documentation. If the project’s functions and classes have docstrings or comments, add or update them for new code to explain the purpose, especially for complex logic.
+	•	Consistency: The overall goal is that any code Cursor generates should blend seamlessly with the existing codebase. A developer reading the code should not easily tell which part was added later – it should feel like the same style and design. Prioritize readability and maintainability according to how the rest of the project is written.
+
+By following the above architecture understanding and strict rules, Cursor will ensure that any generated code is compatible with the Unlim Mind AI project, fits into the existing structure, and avoids the common mistakes observed in the past. Always double-check against these guidelines when generating new code for this project.
+
