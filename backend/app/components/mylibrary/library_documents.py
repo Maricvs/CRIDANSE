@@ -9,6 +9,7 @@ import re
 from db import Base, get_db
 from app.models.document_model import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
+from app.utils.cleanup_documents import cleanup_missing_files
 
 router = APIRouter()
 
@@ -155,3 +156,20 @@ async def delete_document(document_id: int, db: Session = Depends(get_db)):
         return {"message": "Document deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/cleanup")
+async def cleanup_documents(db: Session = Depends(get_db)):
+    """
+    Очищает записи документов из БД, если соответствующие файлы не найдены
+    """
+    try:
+        deleted_count = cleanup_missing_files(db)
+        return {
+            "status": "success",
+            "message": f"Удалено {deleted_count} несуществующих документов"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при очистке документов: {str(e)}"
+        )
