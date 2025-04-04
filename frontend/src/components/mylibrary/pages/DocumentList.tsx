@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTrash, FaUpload } from 'react-icons/fa';
+import { FaTrash, FaUpload, FaFile } from 'react-icons/fa';
 import '../MyLibrary.css';
 
 interface Document {
@@ -59,13 +59,17 @@ const DocumentList: React.FC = () => {
     try {
       const response = await fetch(`/api/documents/${documentId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
         throw new Error('Failed to delete document');
       }
 
-      setDocuments(documents.filter(doc => doc.id !== documentId));
+      // Обновляем список документов после успешного удаления
+      setDocuments(prevDocs => prevDocs.filter(doc => doc.id !== documentId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete document');
     }
@@ -83,6 +87,10 @@ const DocumentList: React.FC = () => {
     return <div className="error">{error}</div>;
   }
 
+  const getFileIcon = (fileType: string) => {
+    return <FaFile />;
+  };
+
   return (
     <div>
       <div className="documents-header">
@@ -93,7 +101,7 @@ const DocumentList: React.FC = () => {
         <div className="document-card upload-card" onClick={handleUploadClick}>
           <div className="upload-placeholder">
             <div className="icon">
-              {React.createElement(FaUpload, { size: 32 })}
+              <FaUpload />
             </div>
             <p>Загрузить новый документ</p>
           </div>
@@ -107,15 +115,16 @@ const DocumentList: React.FC = () => {
             onClick={(e) => handleDocumentClick(doc.id, e)}
           >
             <div className="document-card-header">
+              <div className="file-icon">
+                {getFileIcon(doc.file_type)}
+              </div>
               <h3>{doc.title}</h3>
               <button 
                 className="delete-button"
                 onClick={(e) => handleDeleteDocument(doc.id, e)}
                 title="Удалить документ"
               >
-                <div className="icon">
-                  {React.createElement(FaTrash, { size: 16 })}
-                </div>
+                <FaTrash />
               </button>
             </div>
             <p>{doc.description}</p>
