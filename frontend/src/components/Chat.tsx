@@ -10,12 +10,8 @@ interface Message {
   created_at: string;
 }
 
-interface ChatParams {
-  id?: string;
-}
-
 export default function Chat() {
-  const { id } = useParams<ChatParams>();
+  const { id } = useParams<{ id: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
