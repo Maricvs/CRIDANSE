@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import * as Icons from 'react-icons/fa';
 import '../ChatField.css';
 import DocumentSelector from './DocumentSelector';
 
@@ -8,12 +7,8 @@ interface ChatFieldProps {
   onMessageSent?: () => void;
 }
 
-interface RouteParams {
-  id?: string;
-}
-
 const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
-  const params = useParams<RouteParams>();
+  const params = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const chatId = params.id ? parseInt(params.id, 10) : null;
 
@@ -177,11 +172,6 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   useEffect(() => {
     if (!chatId) return;
   }, [chatId]);
-
-  // Обработчик для переключения видимости селектора документов
-  const toggleDocumentSelector = () => {
-    setShowDocumentSelector(!showDocumentSelector);
-  };
 
   // Обработчик для обновления выбранных документов
   const handleDocumentsSelected = (documentIds: number[]) => {
