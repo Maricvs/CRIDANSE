@@ -305,6 +305,8 @@ async def process_document_content(document_id: int, db: Session) -> bool:
     - создает эмбеддинги
     - сохраняет в базу данных
     """
+    print(f"🧠 [DEBUG] START: process_document_content({document_id})")
+    
     # Получаем документ из БД
     document = db.query(Document).filter(Document.id == document_id).first()
     
@@ -339,7 +341,8 @@ async def process_document_content(document_id: int, db: Session) -> bool:
             db.add(db_chunk)
         
         db.commit()
+        print(f"✅ [INFO] Векторизация завершена для документа ID={document.id}")
         return True
     except Exception as e:
         print(f"❌ [ERROR] Ошибка при обработке документа {document_id}: {str(e)}")
-        raise e 
+        raise e
