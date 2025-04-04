@@ -334,3 +334,102 @@
     max-width: 95%; /* Максимально используем доступное пространство */
   }
 }
+
+.chat-field {
+  width: 100%;
+  padding: 1rem;
+  background-color: #1e1e1e;
+  border-top: 1px solid #333;
+}
+
+.input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  max-width: 768px;
+  margin: 0 auto;
+  position: relative;
+}
+
+textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 200px;
+  padding: 12px 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  border: 1px solid #444;
+  border-radius: 12px;
+  background-color: #2a2a2a;
+  color: white;
+  resize: none;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #666;
+}
+
+textarea::placeholder {
+  color: #888;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.teacher-mode-icon {
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.teacher-mode-icon:hover {
+  opacity: 1;
+}
+
+.send-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #3a3a3a;
+  color: white;
+  border-color: #666;
+}
+
+.send-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 768px) {
+  .chat-field {
+    padding: 0.5rem;
+  }
+  
+  .input-container {
+    gap: 8px;
+  }
+  
+  textarea {
+    font-size: 15px;
+  }
+  
+  .teacher-mode-icon {
+    font-size: 20px;
+  }
+}
