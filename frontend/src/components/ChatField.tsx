@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { IconType } from 'react-icons';
-import { FaPaperPlane, FaFile } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import * as Icons from 'react-icons/fa';
 import '../ChatField.css';
 import DocumentSelector from './DocumentSelector';
 
@@ -9,14 +8,14 @@ interface ChatFieldProps {
   onMessageSent?: () => void;
 }
 
-interface ChatParams {
+interface RouteParams {
   id?: string;
 }
 
 const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
-  const { id } = useParams<ChatParams>();
+  const params = useParams<RouteParams>();
   const navigate = useNavigate();
-  const chatId = id ? parseInt(id, 10) : null;
+  const chatId = params.id ? parseInt(params.id, 10) : null;
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
@@ -190,56 +189,41 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   };
 
   return (
-    <>
+    <div className="chat-field">
       {showDocumentSelector && (
-        <DocumentSelector 
+        <DocumentSelector
           onDocumentsSelected={handleDocumentsSelected}
           selectedDocuments={selectedDocuments}
         />
       )}
-
-      <div className="chat-input-wrapper">
-        <div className="chat-input-container">
-          <div className="chat-input-tools">
-            <button 
-              className={`document-button ${selectedDocuments.length > 0 ? 'active' : ''}`}
-              onClick={toggleDocumentSelector}
-              title="Выбрать документы для запроса"
-            >
-              <FaFile size={16} />
-              {selectedDocuments.length > 0 && (
-                <span className="document-count">{selectedDocuments.length}</span>
-              )}
-            </button>
-          </div>
-          <textarea
-            ref={textareaRef}
-            value={inputValue}
-            onChange={(e) => {
-              setInputValue(e.target.value);
-              if (textareaRef.current) {
-                textareaRef.current.style.height = 'auto';
-                textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder={selectedDocuments.length > 0 
-              ? "Задайте вопрос по выбранным документам..." 
-              : "Что интересного будет сегодня?"}
-            className="chat-input"
-            rows={1}
-          />
-          <button className="send-button" onClick={handleSendMessage}>
-            <FaPaperPlane size={16} />
-          </button>
-        </div>
+      <div className="input-container">
+        <button className="file-button" onClick={() => setShowDocumentSelector(true)}>
+          <Icons.FaFile />
+        </button>
+        <textarea
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            if (textareaRef.current) {
+              textareaRef.current.style.height = 'auto';
+              textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
+          placeholder="Введите сообщение..."
+          rows={1}
+          ref={textareaRef}
+        />
+        <button className="send-button" onClick={handleSendMessage}>
+          <Icons.FaPaperPlane />
+        </button>
       </div>
-    </>
+    </div>
   );
 };
 
