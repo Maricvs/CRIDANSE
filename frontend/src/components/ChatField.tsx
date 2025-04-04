@@ -1,11 +1,20 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaPaperPlane, FaFileAlt } from 'react-icons/fa';
+import { IconType } from 'react-icons';
+import { FaPaperPlane, FaFile } from 'react-icons/fa';
 import '../ChatField.css';
 import DocumentSelector from './DocumentSelector';
 
-const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) => {
-  const { id } = useParams();
+interface ChatFieldProps {
+  onMessageSent?: () => void;
+}
+
+interface ChatParams {
+  id?: string;
+}
+
+const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
+  const { id } = useParams<ChatParams>();
   const navigate = useNavigate();
   const chatId = id ? parseInt(id, 10) : null;
 
@@ -91,12 +100,6 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         const newChat = await chatResponse.json();
         currentChatId = newChat.id;
         isNewChat = true;
-
-        // Обновляем список чатов сразу после создания нового чата
-        await updateChatsList();
-        
-        // Небольшая задержка для гарантии обновления UI
-        await new Promise(resolve => setTimeout(resolve, 100));
       }
 
       // Сохраняем сообщение пользователя
@@ -134,7 +137,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
             chat_id: currentChatId
           };
 
-      // Отправляем запрос
+      // Отправляем запрос к AI
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -152,13 +155,13 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
         await autoRenameChat(currentChatId, aiResponse.response || aiResponse.message);
       }
 
-      // Обновляем список чатов после получения ответа от ИИ
-      await updateChatsList();
+      // Обновляем список сообщений только после того, как все операции завершены
+      if (onMessageSent) {
+        onMessageSent();
+      }
 
       // Если это новый чат, делаем навигацию после всех операций
       if (isNewChat && currentChatId) {
-        // Увеличенная задержка для гарантии сохранения всех данных и обновления UI
-        await new Promise(resolve => setTimeout(resolve, 1000));
         navigate(`/chat/${currentChatId}`);
       }
       
@@ -203,7 +206,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
               onClick={toggleDocumentSelector}
               title="Выбрать документы для запроса"
             >
-              <FaFileAlt />
+              <FaFile size={16} />
               {selectedDocuments.length > 0 && (
                 <span className="document-count">{selectedDocuments.length}</span>
               )}
@@ -232,7 +235,7 @@ const ChatField: React.FC<{ onMessageSent?: () => void }> = ({ onMessageSent }) 
             rows={1}
           />
           <button className="send-button" onClick={handleSendMessage}>
-            <FaPaperPlane />
+            <FaPaperPlane size={16} />
           </button>
         </div>
       </div>

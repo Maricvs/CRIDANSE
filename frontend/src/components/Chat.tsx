@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import ChatField from './ChatField';
 import './Chat.css';
 
@@ -16,14 +16,18 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef<number>(0);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const scrollToBottom = useCallback(() => {
+    if (messages.length > prevMessagesLengthRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      prevMessagesLengthRef.current = messages.length;
+    }
+  }, [messages.length]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   const fetchMessages = async () => {
     try {
@@ -39,7 +43,10 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    if (id) fetchMessages();
+    if (id) {
+      fetchMessages();
+      prevMessagesLengthRef.current = 0;
+    }
   }, [id]);
 
   if (error) return <div className="chat-error">{error}</div>;
