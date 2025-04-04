@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from "react";
 import ChatField from './ChatField';
+import './Chat.css';
 
 interface Message {
   id: number;
@@ -9,8 +10,12 @@ interface Message {
   created_at: string;
 }
 
+interface ChatParams {
+  id?: string;
+}
+
 export default function Chat() {
-  const { id } = useParams();
+  const { id } = useParams<ChatParams>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -41,7 +46,7 @@ export default function Chat() {
     if (id) fetchMessages();
   }, [id]);
 
-  if (error) return <p>{error}</p>;
+  if (error) return <div className="chat-error">{error}</div>;
 
   const isWideScreen = window.innerWidth >= 768;
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
@@ -50,11 +55,16 @@ export default function Chat() {
     return null;
   }
 
-  if (loading) return <p>Загрузка сообщений...</p>;
+  if (loading) return <div className="chat-loading">Загрузка сообщений...</div>;
 
   return (
     <div className={wrapperClass}>
       <div className="chat-messages">
+        {messages.length === 0 && (
+          <div className="empty-chat-message">
+            Начните новую беседу, отправив сообщение
+          </div>
+        )}
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -63,7 +73,7 @@ export default function Chat() {
             {msg.message}
           </div>
         ))}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="messages-end-anchor" />
       </div>
 
       <ChatField onMessageSent={fetchMessages} />

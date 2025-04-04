@@ -1,0 +1,54 @@
+.chat-error, 
+.chat-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 16px;
+  color: #e1e6f2;
+  padding: 16px;
+  text-align: center;
+}
+
+.empty-chat-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #888;
+  font-size: 16px;
+  padding: 20px;
+  text-align: center;
+  margin: auto 0;
+  height: 50vh;
+}
+
+.messages-end-anchor {
+  height: 1px;
+  margin-bottom: 20px;
+}
+
+/* Стили для адаптивного дизайна */
+@media (min-width: 768px) {
+  .chat-wrapper.with-sidebar {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+  }
+}
+
+@media (max-width: 767px) {
+  .chat-error, 
+  .chat-loading {
+    padding-top: 60px; /* Учитываем верхнюю панель */
+  }
+}
+
+/* Высококонтрастный режим для лучшей доступности */
+@media (prefers-contrast: more) {
+  .empty-chat-message {
+    color: #fff;
+  }
+  
+  .chat-error {
+    color: #ff6b6b;
+  }
+} 

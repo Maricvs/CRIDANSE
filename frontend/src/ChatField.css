@@ -25,6 +25,7 @@
   position: relative;
   -webkit-overflow-scrolling: touch; /* Для плавной прокрутки в Safari */
 }
+
 /* Приветствие */
 .chat-welcome h1,
 .chat-welcome p {
@@ -32,6 +33,7 @@
   text-align: center;
   margin: 0.5rem 0;
   margin-bottom: 1.5rem;
+  font-size: 16px; /* Минимум 11pt согласно рекомендациям Apple */
 }
 
 /* Список сообщений */
@@ -40,8 +42,8 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 0 1rem 1rem;
+  gap: 16px; /* Увеличение отступа между сообщениями */
+  padding: 0 1rem 1.5rem; /* Увеличение нижнего отступа */
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
@@ -49,8 +51,7 @@
   transition: margin-left 0.3s ease;
   position: relative;
   -webkit-overflow-scrolling: touch;
-  justify-content: flex-end;
-  min-height: 100%;
+  padding-bottom: 80px; /* Добавление отступа снизу, чтобы нижние сообщения не уходили под ввод */
 }
 
 .chat-messages,
@@ -69,6 +70,10 @@
   padding: 1rem;
   box-sizing: border-box;
   background-color: #1e1e1e;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  border-top: 1px solid #333;
 }
 
 .chat-wrapper {
@@ -76,6 +81,9 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+  height: 100vh;
+  padding-bottom: 70px; /* Область для ввода */
+  box-sizing: border-box;
 }
 
 /* Общее сообщение */
@@ -85,10 +93,13 @@
   white-space: pre-wrap;
   word-break: break-word;
   border-radius: 12px;
-  max-width: 80%;
-  padding: 12px 16px;
+  max-width: 85%; /* Немного увеличили ширину */
+  padding: 14px 16px; /* Увеличение внутренних отступов для лучшей читаемости */
   box-sizing: border-box;
   font-family: 'Figtree', sans-serif;
+  margin: 4px 0; /* Равномерные отступы сверху и снизу */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Легкая тень для выделения */
+  letter-spacing: 0.2px; /* Улучшение читаемости */
 }
 
 /* Сообщение пользователя — справа */
@@ -96,7 +107,7 @@
   align-self: flex-end;
   background-color: #3a3a3a;
   color: white;
-  border-bottom-right-radius: 0;
+  border-bottom-right-radius: 4px; /* Меньший радиус для лучшего визуального стиля */
 }
 
 /* Ответ от ИИ — слева */
@@ -104,8 +115,8 @@
   align-self: flex-start;
   background-color: #2a2a2a;
   color: white;
-  border-bottom-left-radius: 0;
-  width: 100%;
+  border-bottom-left-radius: 4px; /* Меньший радиус для лучшего визуального стиля */
+  width: auto; /* Вместо 100%, чтобы сообщение было по размеру контента */
 }
 
 .chat-input-container {
@@ -119,13 +130,14 @@
   background-color: #1e1e1e;
   display: flex;
   align-items: flex-end;
+  min-height: 56px; /* Минимальная высота для хорошего тапа */
 }
 
 /* Инструменты ввода чата */
 .chat-input-tools {
   position: absolute;
-  left: 2rem;
-  bottom: 6px;
+  left: 1.5rem;
+  bottom: 12px; /* Выравнивание по вертикали */
   display: flex;
   align-items: center;
   z-index: 10;
@@ -133,8 +145,8 @@
 
 /* Кнопка документов */
 .document-button {
-  width: 32px;
-  height: 32px;
+  width: 44px; /* Минимум 44pt согласно рекомендациям Apple */
+  height: 44px; /* Минимум 44pt согласно рекомендациям Apple */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -177,9 +189,9 @@
   flex: 1;
   width: 100%;
   padding: 12px 16px;
-  padding-right: 48px;
-  padding-left: 48px;
-  font-size: 15px;
+  padding-right: 56px; /* Увеличено для большей кнопки отправки */
+  padding-left: 56px; /* Увеличено для большей кнопки документов */
+  font-size: 16px; /* Минимум 11pt согласно рекомендациям Apple */
   line-height: 1.5;
   border: 1px solid #444;
   border-radius: 12px;
@@ -187,23 +199,25 @@
   background-color: #2a2a2a;
   color: white;
   resize: none;
-  min-height: 24px;
+  min-height: 44px; /* Минимум 44pt согласно рекомендациям Apple */
   max-height: 160px;
   overflow-y: auto;
   font-family: 'Figtree', sans-serif;
   transition: border-color 0.2s ease, background-color 0.2s ease;
   transform-origin: bottom;
+  margin: 8px 0; /* Добавление отступов сверху и снизу */
 }
 
 .chat-input:focus {
   border-color: #666;
   background-color: #333;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1); /* Добавление небольшого эффекта свечения при фокусе */
 }
 
 .chat-input::placeholder {
   color: #888;
   font-family: 'Figtree', sans-serif;
-  font-size: 15px;
+  font-size: 16px; /* Минимум 11pt согласно рекомендациям Apple */
 }
 
 .chat-textarea {
@@ -224,7 +238,7 @@
 /* Кнопка отправки */
 .send-button {
   position: absolute;
-  right: 2rem;
+  right: 1.5rem;
   bottom: 6px;
   padding: 0.5rem;
   font-size: 1rem;
@@ -232,8 +246,8 @@
   color: #888;
   border: none;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  width: 44px; /* Минимум 44pt согласно рекомендациям Apple */
+  height: 44px; /* Минимум 44pt согласно рекомендациям Apple */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,126 +266,71 @@
 }
 
 .send-button.active .send-icon {
-  color: #007bff;
   transform: scale(1.1);
+  color: #4285f4;
 }
 
 .send-icon {
-  font-size: 18px;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 @media (min-width: 768px) {
   .chat-wrapper {
-    width: 100%;
-    padding-left: 0;
+    padding-left: 260px; /* Учитываем ширину сайдбара */
     transition: padding-left 0.3s ease;
+    min-height: 100vh;
+    height: auto; /* Позволяет контенту расти при необходимости */
+    display: flex;
+    flex-direction: column;
   }
-
-
 }
 
 @media (max-width: 767px) {
   .chat-wrapper {
-    padding-bottom: 4rem;
-    width: 100%;
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-    height: -webkit-fill-available;
+    padding-left: 0;
+    transition: padding-left 0.3s ease;
+    min-height: 100vh;
+    height: auto; /* Позволяет контенту расти при необходимости */
+    padding-bottom: 80px; /* Дополнительный отступ снизу для мобильных устройств */
   }
 
   .chat-input-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100vw;
-    padding: 0.5rem;
-    background-color: #1e1e1e;
-    z-index: 100;
-    box-sizing: border-box;
-    padding-bottom: env(safe-area-inset-bottom);
-    display: flex;
-    align-items: flex-end;
-  }
-
-  .chat-messages {
-    padding: 0 0.5rem 1rem;
-    position: relative;
-    height: calc(100vh - 120px);
-    height: calc(-webkit-fill-available - 120px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    max-width: 100vw;
-    box-sizing: border-box;
-    justify-content: flex-end;
-    min-height: 100%;
-  }
-
-  .message {
-    max-width: 90%;
-  }
-
-  .chat-container-center {
-    padding: 0.5rem;
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-    height: -webkit-fill-available;
-    max-width: 100vw;
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  }
-
-  .chat-input-wrapper {
-    padding: 0.5rem;
-    position: relative;
-    width: 100%;
-    background-color: #1e1e1e;
-    padding-bottom: env(safe-area-inset-bottom);
-    max-width: 100vw;
+    padding: 0 0.75rem; /* Уменьшаем боковые отступы для мобильных устройств */
   }
 
   .chat-input {
-    padding: 12px 16px;
-    padding-right: 44px;
-    padding-left: 44px;
-    font-size: 16px;
-    min-height: 24px;
-    max-height: 120px;
+    padding: 12px 14px;
+    padding-right: 50px;
+    padding-left: 50px;
+    font-size: 16px; /* Сохраняем минимальный размер шрифта 11pt для читаемости */
+  }
+
+  .message {
+    max-width: 90%; /* Увеличиваем максимальную ширину сообщений на мобильных устройствах */
+    padding: 12px 14px; /* Немного уменьшаем отступы */
+  }
+
+  .chat-messages {
+    padding: 0 0.75rem 4rem; /* Увеличиваем отступ снизу для лучшей прокрутки */
   }
 
   .send-button {
-    right: 1.5rem;
-    bottom: 4px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .send-icon {
-    font-size: 16px;
-  }
-
-  /* Специфичные стили для Safari */
-  @supports (-webkit-touch-callout: none) {
-    .chat-messages {
-      height: calc(100vh - 140px);
-      height: calc(-webkit-fill-available - 140px);
-      padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
-    
-    .chat-input-container {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .chat-container-center {
-      padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    }
+    right: 0.75rem;
   }
 
   .chat-input-tools {
-    left: 1rem;
+    left: 0.75rem;
+  }
+}
+
+/* Специальный стиль для устройств с меньшими экранами */
+@media (max-width: 375px) {
+  .chat-input {
+    padding-right: 46px;
+    padding-left: 46px;
+  }
+  
+  .message {
+    max-width: 95%; /* Максимально используем доступное пространство */
   }
 }
