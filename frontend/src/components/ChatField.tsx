@@ -15,7 +15,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
-  const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
+  // const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
     try {
@@ -104,22 +104,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при сохранении сообщения');
       }
 
-      const apiEndpoint = selectedDocuments.length > 0 
-        ? '/api/document_ai/service/ask_with_documents'
-        : '/api/gpt/ask';
+      const apiEndpoint = '/api/gpt/ask';
       
-      const requestData = selectedDocuments.length > 0
-        ? {
-            prompt,
-            user_id: userId,
-            chat_id: currentChatId,
-            document_ids: selectedDocuments
-          }
-        : {
-            prompt,
-            user_id: userId,
-            chat_id: currentChatId
-          };
+      const requestData = {
+        prompt,
+        user_id: userId,
+        chat_id: currentChatId
+      };
 
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
