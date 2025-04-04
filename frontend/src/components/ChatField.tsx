@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../ChatField.css';
-import DocumentSelector from './DocumentSelector';
+// import DocumentSelector from './DocumentSelector';
 import { FaPaperPlane } from 'react-icons/fa';
 
 interface ChatFieldProps {
@@ -159,9 +159,9 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
     if (!chatId) return;
   }, [chatId]);
 
-  const handleDocumentsSelected = (documentIds: number[]) => {
-    setSelectedDocuments(documentIds);
-  };
+  // const handleDocumentsSelected = (documentIds: number[]) => {
+  //   setSelectedDocuments(documentIds);
+  // };
 
   return (
     <div className="chat-field">
