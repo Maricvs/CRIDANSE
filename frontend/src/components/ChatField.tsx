@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../ChatField.css';
 import DocumentSelector from './DocumentSelector';
+import { FaFile, FaPaperPlane } from 'react-icons/fa';
 
 interface ChatFieldProps {
   onMessageSent?: () => void;
@@ -188,7 +189,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       )}
       <div className="input-container">
         <button className="file-button" onClick={() => setShowDocumentSelector(true)}>
-          <Icons.FaFile />
+          <FaFile />
         </button>
         <textarea
           value={inputValue}
@@ -210,7 +211,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           ref={textareaRef}
         />
         <button className="send-button" onClick={handleSendMessage}>
-          <Icons.FaPaperPlane />
+          <FaPaperPlane />
         </button>
       </div>
     </div>
