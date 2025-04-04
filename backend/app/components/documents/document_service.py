@@ -295,3 +295,51 @@ async def generate_teacher_response(
     )
     
     return response.choices[0].message.content 
+
+# Функция для обработки содержимого документа
+async def process_document_content(document_id: int, db: Session) -> bool:
+    """
+    Обрабатывает содержимое документа из "Моей библиотеки":
+    - извлекает текст
+    - разбивает на чанки
+    - создает эмбеддинги
+    - сохраняет в базу данных
+    """
+    # Получаем документ из БД
+    document = db.query(Document).filter(Document.id == document_id).first()
+    
+    if not document:
+        raise ValueError(f"Документ с ID {document_id} не найден")
+    
+    # Извлекаем текст из документа
+    try:
+        file_type = document.file_name.split('.')[-1] if document.file_name else document.file_type
+        if not file_type:
+            raise ValueError("Неизвестный тип файла")
+            
+        text = extract_text_from_file(document.file_path, file_type)
+        
+        # Разбиваем текст на чанки
+        chunks = split_text_into_chunks(text)
+        
+        print(f"✅ [INFO] Документ {document.id} разбит на {len(chunks)} чанков")
+        
+        # Создаем эмбеддинги для каждого чанка
+        for i, chunk_text in enumerate(chunks):
+            embedding = await get_embedding(chunk_text)
+            
+            # Сохраняем чанк в БД
+            db_chunk = DocumentChunk(
+                document_id=document.id,
+                content=chunk_text,
+                embedding=json.dumps(embedding),
+                chunk_index=i
+            )
+            
+            db.add(db_chunk)
+        
+        db.commit()
+        return True
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при обработке документа {document_id}: {str(e)}")
+        raise e 

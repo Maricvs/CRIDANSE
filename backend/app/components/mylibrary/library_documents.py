@@ -10,6 +10,7 @@ from db import Base, get_db
 from app.models.document_model import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
+from app.components.documents.document_service import process_document_content
 
 router = APIRouter()
 
@@ -92,6 +93,15 @@ async def upload_document(
         db.add(document)
         db.commit()
         db.refresh(document)
+        
+        # Векторизация документа
+        try:
+            # Обрабатываем и векторизуем содержимое документа
+            await process_document_content(document.id, db)
+            print(f"✅ [INFO] Документ успешно векторизован: id={document.id}, title={document.title}")
+        except Exception as process_err:
+            print(f"⚠️ [WARNING] Ошибка при векторизации документа: {str(process_err)}")
+            # Не вызываем исключение, чтобы документ сохранился даже если векторизация не удалась
         
         return document
         
