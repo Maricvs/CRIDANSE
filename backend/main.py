@@ -7,13 +7,13 @@ from app.components.document_ai import document_processor_router, document_ai_se
 from app.components.teacher import teacher_service
 from app.components.documents import document_router
 from models.models import Profile
-from app.models.document_model import Document
+from app.models.document_model import Document, DocumentChunk
 from api import notify_form
 
 
 _ = Profile
 _ = Document
-
+_ = DocumentChunk
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
