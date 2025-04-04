@@ -13,28 +13,62 @@
 
 .documents-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  padding: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 24px;
 }
 
 .document-card {
   background-color: var(--secondary-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 20px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .document-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.document-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 .document-card h3 {
-  margin: 0 0 10px 0;
-  color: var(--accent-color);
+  margin: 0;
+  color: var(--text-color);
+  font-size: 18px;
+  flex: 1;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #888;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.document-card:hover .delete-button {
+  opacity: 1;
+}
+
+.delete-button:hover {
+  color: #ff4444;
+  background-color: rgba(255, 68, 68, 0.1);
 }
 
 .document-card p {
@@ -264,4 +298,41 @@
 
 .cancel-button:hover {
   background-color: #5a6268;
+}
+
+.upload-card {
+  border: 2px dashed var(--border-color);
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.upload-card:hover {
+  border-color: var(--accent-color);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #888;
+}
+
+.upload-placeholder svg {
+  color: var(--accent-color);
+  transition: transform 0.2s ease;
+}
+
+.upload-card:hover .upload-placeholder svg {
+  transform: scale(1.1);
+}
+
+.upload-placeholder p {
+  margin: 0;
+  font-size: 16px;
+  text-align: center;
 } 
