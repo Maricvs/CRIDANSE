@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../ChatField.css';
 import DocumentSelector from './DocumentSelector';
-import { FaFile, FaPaperPlane } from 'react-icons/fa';
+import { FaPaperPlane } from 'react-icons/fa';
 
 interface ChatFieldProps {
   onMessageSent?: () => void;
@@ -15,13 +15,10 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
-  const [showDocumentSelector, setShowDocumentSelector] = useState(false);
   const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
-  // Функция для автоматического переименования чата
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
     try {
-      // Извлекаем первые 50 символов из ответа ИИ для названия
       const suggestedTitle = aiResponse.split('\n')[0].slice(0, 50);
       
       const response = await fetch(`/api/chats/title/${chatId}`, {
@@ -34,14 +31,12 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при переименовании чата');
       }
 
-      // Обновляем список чатов после переименования
       await updateChatsList();
     } catch (err) {
       console.error('Ошибка при автоматическом переименовании:', err);
     }
   };
 
-  // Функция для обновления списка чатов
   const updateChatsList = async () => {
     const userId = localStorage.getItem('user_id');
     if (!userId) return;
@@ -52,11 +47,9 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при обновлении списка чатов');
       }
       const data = await response.json();
-      // Вызываем колбэк для обновления списка чатов
       if (onMessageSent) {
         onMessageSent();
       }
-      // Отправляем событие для обновления списка чатов
       window.dispatchEvent(new Event('messageSent'));
       return data;
     } catch (err) {
@@ -76,7 +69,6 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       let currentChatId = chatId;
       let isNewChat = false;
 
-      // Создаём чат, если его нет
       if (!currentChatId && !creatingChat) {
         setCreatingChat(true);
         const chatResponse = await fetch('/api/chats/user', {
@@ -97,7 +89,6 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         isNewChat = true;
       }
 
-      // Сохраняем сообщение пользователя
       const messageResponse = await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,12 +104,10 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при сохранении сообщения');
       }
 
-      // Определяем, куда отправлять запрос в зависимости от выбора документов
       const apiEndpoint = selectedDocuments.length > 0 
         ? '/api/document_ai/service/ask_with_documents'
         : '/api/gpt/ask';
       
-      // Формируем данные запроса
       const requestData = selectedDocuments.length > 0
         ? {
             prompt,
@@ -132,7 +121,6 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
             chat_id: currentChatId
           };
 
-      // Отправляем запрос к AI
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -145,17 +133,14 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
 
       const aiResponse = await aiResponseFetch.json();
       
-      // Если это новый чат, переименовываем его на основе ответа ИИ
       if (isNewChat && currentChatId) {
         await autoRenameChat(currentChatId, aiResponse.response || aiResponse.message);
       }
 
-      // Обновляем список сообщений только после того, как все операции завершены
       if (onMessageSent) {
         onMessageSent();
       }
 
-      // Если это новый чат, делаем навигацию после всех операций
       if (isNewChat && currentChatId) {
         navigate(`/chat/${currentChatId}`);
       }
@@ -174,23 +159,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
     if (!chatId) return;
   }, [chatId]);
 
-  // Обработчик для обновления выбранных документов
   const handleDocumentsSelected = (documentIds: number[]) => {
     setSelectedDocuments(documentIds);
   };
 
   return (
     <div className="chat-field">
-      {showDocumentSelector && (
-        <DocumentSelector
-          onDocumentsSelected={handleDocumentsSelected}
-          selectedDocuments={selectedDocuments}
-        />
-      )}
       <div className="input-container">
-        <button className="file-button" onClick={() => setShowDocumentSelector(true)}>
-          <FaFile />
-        </button>
         <textarea
           value={inputValue}
           onChange={(e) => {
@@ -210,9 +185,12 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           rows={1}
           ref={textareaRef}
         />
-        <button className="send-button" onClick={handleSendMessage}>
-          <FaPaperPlane />
-        </button>
+        <div className="action-buttons">
+          <span className="teacher-mode-icon">🧑‍🏫</span>
+          <button className="send-button" onClick={handleSendMessage}>
+            <FaPaperPlane />
+          </button>
+        </div>
       </div>
     </div>
   );
