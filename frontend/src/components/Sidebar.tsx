@@ -387,7 +387,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                                 <Link 
                                   to={`/chat/${chat.id}`} 
                                   onClick={handleLinkClick}
-                                  className={isActive ? 'active-chat' : ''}
+                                  className={selectedChatId === String(chat.id) ? 'active-chat' : ''}
                                 >
                                   {chat.title}
                                 </Link>
