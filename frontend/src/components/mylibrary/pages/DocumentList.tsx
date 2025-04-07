@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTrash, FaUpload, FaFile } from 'react-icons/fa';
+import { FaTrash, FaUpload, FaFile, FaFilePdfO, FaFileWordO, FaFileExcelO, FaFileImageO, FaFileTextO } from 'react-icons/fa';
 import '../MyLibrary.css';
 
 interface Document {
@@ -79,6 +79,26 @@ const DocumentList: React.FC = () => {
     navigate('/mylibrary/upload');
   };
 
+  const getFileIcon = (fileType: string) => {
+    const type = fileType.toLowerCase();
+    if (type.includes('pdf')) {
+      return <FaFilePdfO />;
+    }
+    if (type.includes('doc') || type.includes('word')) {
+      return <FaFileWordO />;
+    }
+    if (type.includes('xls') || type.includes('excel') || type.includes('sheet')) {
+      return <FaFileExcelO />;
+    }
+    if (type.includes('jpg') || type.includes('jpeg') || type.includes('png') || type.includes('gif')) {
+      return <FaFileImageO />;
+    }
+    if (type.includes('txt') || type.includes('text')) {
+      return <FaFileTextO />;
+    }
+    return <FaFile />;
+  };
+
   if (loading) {
     return <div className="loading">Загрузка...</div>;
   }
@@ -86,10 +106,6 @@ const DocumentList: React.FC = () => {
   if (error) {
     return <div className="error">{error}</div>;
   }
-
-  const getFileIcon = (fileType: string) => {
-    return <FaFile />;
-  };
 
   return (
     <div>
