@@ -199,7 +199,7 @@ a:hover {
 }
 
 .chat-list li {
-  margin: 4px 0;
+  margin: 2px 0;
 }
 
 .chat-list li.no-chats {
@@ -211,13 +211,13 @@ a:hover {
 .chat-list li a {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
+  padding: 5px 16px;
   color: #e1e6f2;
   text-decoration: none;
   border-radius: 6px;
   transition: all 0.2s ease;
   background-color: transparent;
-  min-height: 44px;
+  /*min-height: 44px;*/
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.2px;
@@ -231,6 +231,7 @@ a:hover {
 
 .chat-list li a:hover {
   background-color: #2c2c2c;
+  padding: 0px 5px;
   transform: translateX(2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -329,6 +330,10 @@ a:hover {
   align-items: center;
   gap: 10px;
   font-size: 14px;
+}
+
+.subscription-link a {
+  display: inline-flex;
 }
 
 .user-greeting {
@@ -535,6 +540,6 @@ a:hover {
 
 .flex-container {
   display: flex;
-  align-items: center;
-  gap: 5px;
+  /*align-items: center;*/
+  /*gap: 5px;*/
 }
