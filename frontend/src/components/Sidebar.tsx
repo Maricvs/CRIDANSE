@@ -408,8 +408,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                 <div className="user-greeting">
                   {userName ? (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <FaUser className="icon" /><span>Привет, {userName}</span>
+                      <div className="flex-container">
+                        <FaUser className="icon" /><span>{userName}</span>
                       </div>
                       <button className="logout-button" onClick={handleLogout}>
                         <FaSignOutAlt /> Выйти

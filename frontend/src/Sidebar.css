@@ -125,7 +125,7 @@ a:hover {
 
 .sidebar-nav {
   flex: 1;
-  padding-top: 10px;
+  /*padding-top: 10px;*/
   list-style: none;
   overflow: hidden;
   display: flex;
@@ -156,6 +156,10 @@ a:hover {
   gap: 10px;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+.sidebar-section li a {
+  display: inline-flex;
 }
 
 .sidebar-section li:hover {
@@ -527,4 +531,10 @@ a:hover {
   .migration-prompt {
     padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
+}
+
+.flex-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
