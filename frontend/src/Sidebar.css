@@ -223,7 +223,7 @@ a:hover {
   letter-spacing: 0.2px;
 }
 
-.chat-list li.active a {
+  a.active-chat {
   background-color: #3c3c3c;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
