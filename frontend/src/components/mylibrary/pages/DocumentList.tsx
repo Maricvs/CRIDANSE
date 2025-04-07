@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTrash, FaUpload, FaFile, FaFilePdfO, FaFileWordO, FaFileExcelO, FaFileImageO, FaFileTextO } from 'react-icons/fa';
+import { FaTrash, FaUpload, FaFile, FaFilePdf, FaFileWord, FaFileExcel, FaFileImage, FaFileAlt } from 'react-icons/fa';
 import '../MyLibrary.css';
 
 interface Document {
@@ -82,19 +82,19 @@ const DocumentList: React.FC = () => {
   const getFileIcon = (fileType: string) => {
     const type = fileType.toLowerCase();
     if (type.includes('pdf')) {
-      return <FaFilePdfO />;
+      return <FaFilePdf />;
     }
     if (type.includes('doc') || type.includes('word')) {
-      return <FaFileWordO />;
+      return <FaFileWord />;
     }
     if (type.includes('xls') || type.includes('excel') || type.includes('sheet')) {
-      return <FaFileExcelO />;
+      return <FaFileExcel />;
     }
     if (type.includes('jpg') || type.includes('jpeg') || type.includes('png') || type.includes('gif')) {
-      return <FaFileImageO />;
+      return <FaFileImage />;
     }
     if (type.includes('txt') || type.includes('text')) {
-      return <FaFileTextO />;
+      return <FaFileAlt />;
     }
     return <FaFile />;
   };
@@ -156,4 +156,4 @@ const DocumentList: React.FC = () => {
   );
 };
 
-export default DocumentList; 
+export default DocumentList;
