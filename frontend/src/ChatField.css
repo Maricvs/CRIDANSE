@@ -74,6 +74,7 @@
   bottom: 0;
   z-index: 10;
   border-top: 1px solid #333;
+  align-items: stretch; /* Изменено на stretch */
 }
 
 .chat-wrapper {
@@ -131,13 +132,12 @@
   display: flex;
   align-items: flex-end;
   min-height: 56px; /* Минимальная высота для хорошего тапа */
+  flex-direction: column; /* Изменено на column */
 }
 
 /* Инструменты ввода чата */
 .chat-input-tools {
-  position: absolute;
-  left: 1.5rem;
-  bottom: 12px; /* Выравнивание по вертикали */
+  margin-top: 0.5rem; /* Добавлен отступ сверху */
   display: flex;
   align-items: center;
   z-index: 10;
@@ -199,7 +199,7 @@
   background-color: #2a2a2a;
   color: white;
   resize: none;
-  min-height: 44px; /* Минимум 44pt согласно рекомендациям Apple */
+  min-height: 3rem; /* Изменено на 3rem */
   max-height: 160px;
   overflow-y: auto;
   font-family: 'Figtree', sans-serif;
@@ -237,9 +237,10 @@
 
 /* Кнопка отправки */
 .send-button {
-  position: absolute;
-  right: 1.5rem;
-  bottom: 6px;
+  position: relative; /* Изменено на relative */
+  align-self: flex-end; /* Добавлено для выравнивания */
+  margin-left: auto; /* Добавлено для выравнивания */
+  margin-top: 0.5rem; /* Добавлен отступ между полем ввода и кнопкой */
   padding: 0.5rem;
   font-size: 1rem;
   background: transparent;
