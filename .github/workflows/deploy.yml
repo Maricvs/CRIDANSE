@@ -101,3 +101,8 @@ jobs:
             if systemctl is-active --quiet unlim_backend && systemctl is-active --quiet nginx; then
               python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
             fi
+
+            if ! sudo systemctl restart log_watcher; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
+              exit 1
+            fi
