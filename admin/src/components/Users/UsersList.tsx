@@ -47,7 +47,7 @@ const UsersList: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users?search=${searchText}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users?search=${searchText}`);
       if (!response.ok) {
         throw new Error('Failed to fetch users');
       }
@@ -70,7 +70,7 @@ const UsersList: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${id}`, {
         method: 'DELETE',
       });
       
@@ -97,8 +97,8 @@ const UsersList: React.FC = () => {
   const handleSaveUser = async (userData: Partial<User>) => {
     try {
       const url = selectedUser
-        ? `${process.env.REACT_APP_API_URL}/api/users/${selectedUser.id}`
-        : `${process.env.REACT_APP_API_URL}/api/users`;
+        ? `${import.meta.env.VITE_API_URL}/api/users/${selectedUser.id}`
+        : `${import.meta.env.VITE_API_URL}/api/users`;
       
       const response = await fetch(url, {
         method: selectedUser ? 'PUT' : 'POST',
@@ -314,4 +314,4 @@ const UsersList: React.FC = () => {
   );
 };
 
-export default UsersList; 
+export default UsersList;

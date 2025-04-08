@@ -64,7 +64,7 @@ const SystemLogs: React.FC = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/logs?level=${logLevelFilter}&source=${sourceFilter}&search=${searchText}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/logs?level=${logLevelFilter}&source=${sourceFilter}&search=${searchText}`);
       if (!response.ok) {
         throw new Error('Failed to fetch logs');
       }
@@ -169,7 +169,7 @@ const SystemLogs: React.FC = () => {
 
   const handleDeleteLog = async (id: string) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/logs/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/logs/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
