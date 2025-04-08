@@ -10,7 +10,10 @@ import {
   IconButton,
   InputAdornment
 } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { 
+  MdVisibility as VisibilityIcon,
+  MdVisibilityOff as VisibilityOffIcon 
+} from 'react-icons/md';
 
 interface LoginProps {
   onLogin: (username: string, password: string) => boolean;
@@ -82,7 +85,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                       onClick={toggleShowPassword}
                       edge="end"
                     >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? <VisibilityOffIcon size="1.2em" /> : <VisibilityIcon size="1.2em" />}
                     </IconButton>
                   </InputAdornment>
                 )

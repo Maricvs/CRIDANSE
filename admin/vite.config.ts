@@ -4,6 +4,7 @@ import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/admin/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -22,7 +23,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'build',
+    outDir: 'dist',
     sourcemap: true,
     emptyOutDir: true,
   },

@@ -5,6 +5,7 @@ import sys
 BOT_TOKEN = '7986127060:AAG1hFnHFHkCuWekVhBGGtHovQNunukz5Zo'
 CHAT_ID = '-1002616934883'
 
+
 def send_message(text):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     payload = {

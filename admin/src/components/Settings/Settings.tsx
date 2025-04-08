@@ -28,13 +28,13 @@ import {
   Divider,
 } from '@mui/material';
 import {
-  Save as SaveIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Language as LanguageIcon,
-  Translate as TranslateIcon,
-} from '@mui/icons-material';
+  MdSave as SaveIcon,
+  MdAdd as AddIcon,
+  MdEdit as EditIcon,
+  MdDelete as DeleteIcon,
+  MdLanguage as LanguageIcon,
+  MdTranslate as TranslateIcon,
+} from 'react-icons/md';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -53,7 +53,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
       aria-labelledby={`settings-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <Box style={{ padding: '24px 0' }}>{children}</Box>}
     </div>
   );
 };
@@ -248,7 +248,7 @@ const Settings: React.FC = () => {
                       })}
                     >
                       <MenuItem value="gpt-3.5">GPT-3.5</MenuItem>
-                      <MenuItem value="gpt-4">GPT-4</MenuItem>
+                      <MenuItem value="gpt-4o">GPT-4o</MenuItem>
                       <MenuItem value="claude">Claude</MenuItem>
                     </Select>
                   </FormControl>

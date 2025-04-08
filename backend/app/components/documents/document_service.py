@@ -285,7 +285,7 @@ async def generate_teacher_response(
     
     # Вызываем GPT для генерации ответа
     response = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "Вы - опытный преподаватель, который отвечает на вопросы студентов на основе учебных материалов."},
             {"role": "user", "content": prompt}

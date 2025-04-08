@@ -13,13 +13,13 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-  Notifications as NotificationsIcon,
-  Settings,
-  Logout,
-} from '@mui/icons-material';
+  MdMenu as MenuIcon,
+  MdBrightness4 as DarkModeIcon,
+  MdBrightness7 as LightModeIcon,
+  MdNotifications as NotificationsIcon,
+  MdSettings as SettingsIcon,
+  MdExitToApp as LogoutIcon,
+} from 'react-icons/md';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -48,8 +48,8 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <AppBar
       position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
+      style={{
+        zIndex: 1200,
         background: darkMode ? '#1e1e1e' : '#fff',
         color: darkMode ? '#fff' : '#333',
         boxShadow: 'none',
@@ -62,23 +62,23 @@ const Header: React.FC<HeaderProps> = ({
           color="inherit"
           edge="start"
           onClick={onToggleSidebar}
-          sx={{ mr: 2 }}
+          style={{ marginRight: '16px' }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" style={{ flexGrow: 1 }}>
           Unlim Mind Admin
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box style={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Переключить тему">
-            <IconButton color="inherit" onClick={onToggleTheme} sx={{ mr: 1 }}>
+            <IconButton color="inherit" onClick={onToggleTheme} style={{ marginRight: '8px' }}>
               {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Уведомления">
-            <IconButton color="inherit" sx={{ mr: 1 }}>
+            <IconButton color="inherit" style={{ marginRight: '8px' }}>
               <NotificationsIcon />
             </IconButton>
           </Tooltip>
@@ -92,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
               aria-expanded={open ? 'true' : undefined}
               color="inherit"
             >
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>A</Avatar>
+              <Avatar style={{ width: 32, height: 32, backgroundColor: '#1976d2' }}>A</Avatar>
             </IconButton>
           </Tooltip>
         </Box>
@@ -113,18 +113,18 @@ const Header: React.FC<HeaderProps> = ({
           }}
         >
           <MenuItem>
-            <Avatar sx={{ width: 24, height: 24, mr: 1 }} /> Администратор
+            <Avatar style={{ width: 24, height: 24, marginRight: '8px' }} /> Администратор
           </MenuItem>
           <Divider />
           <MenuItem>
             <ListItemIcon>
-              <Settings fontSize="small" />
+              <SettingsIcon size="1.2em" />
             </ListItemIcon>
             Настройки
           </MenuItem>
           <MenuItem onClick={onLogout}>
             <ListItemIcon>
-              <Logout fontSize="small" />
+              <LogoutIcon size="1.2em" />
             </ListItemIcon>
             Выйти
           </MenuItem>

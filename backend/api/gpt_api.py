@@ -4,11 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
 from openai import OpenAI
 from db import get_db
 import os
-
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.models import Message
 
@@ -77,7 +76,7 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
         })
 
         chat_completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=conversation,
         )
 
@@ -111,7 +110,7 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
                     f"\"{request.prompt}\". Оно должно быть не длиннее 5 слов."
                 )
                 title_response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o",
                     messages=[
                         {"role": "system", "content": "Ты создаёшь краткие и понятные названия чатов."},
                         {"role": "user", "content": title_prompt}
@@ -126,28 +125,3 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-    class TitleRequest(BaseModel):
-        message: str
-
-    class TitleResponse(BaseModel):
-        title: str
-
-    @router.post("/title", response_model=TitleResponse)
-    async def generate_title(req: TitleRequest):
-        try:
-            prompt = (
-                f"Придумай короткое и понятное название для чата по следующему сообщению: "
-                f"\"{req.message}\". Оно должно быть не длиннее 5 слов."
-            )
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Ты создаёшь краткие и понятные названия чатов на основе первого сообщения пользователя."},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            title = response.choices[0].message.content.strip().strip('"')
-            return {"title": title}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))

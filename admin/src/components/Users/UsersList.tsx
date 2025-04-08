@@ -14,13 +14,13 @@ import {
   Avatar,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-  PersonAdd as PersonAddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  AdminPanelSettings as AdminIcon,
-} from '@mui/icons-material';
+  MdRefresh as RefreshIcon,
+  MdSearch as SearchIcon,
+  MdPersonAdd as PersonAddIcon,
+  MdEdit as EditIcon,
+  MdDelete as DeleteIcon,
+  MdSecurity as AdminIcon,
+} from 'react-icons/md';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 interface User {
@@ -130,7 +130,7 @@ const UsersList: React.FC = () => {
   };
 
   const handleEdit = (user: User) => {
-    // TODO: Реализовать редактирование пользователя
+    // TODO: Реализовать редактирование пользовател
     console.log('Edit user:', user);
   };
 
@@ -219,7 +219,7 @@ const UsersList: React.FC = () => {
       renderCell: (params: GridRenderCellParams<User>) => (
         params.value ? (
           <Tooltip title="Администратор">
-            <AdminIcon color="primary" />
+            <AdminIcon size={20} color="primary" />
           </Tooltip>
         ) : null
       ),
@@ -231,10 +231,10 @@ const UsersList: React.FC = () => {
       renderCell: (params: GridRenderCellParams<User>) => (
         <Box>
           <IconButton onClick={() => handleEdit(params.row)}>
-            <EditIcon />
+            <EditIcon size={20} />
           </IconButton>
           <IconButton onClick={() => handleDelete(params.row.id)}>
-            <DeleteIcon />
+            <DeleteIcon size={20} />
           </IconButton>
         </Box>
       ),
@@ -249,13 +249,13 @@ const UsersList: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Добавить пользователя">
-            <IconButton color="primary" sx={{ mr: 1 }}>
-              <PersonAddIcon />
+            <IconButton color="primary" style={{ marginRight: '8px' }}>
+              <PersonAddIcon size={20} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Обновить список">
             <IconButton onClick={handleRefresh} color="primary">
-              <RefreshIcon />
+              <RefreshIcon size={20} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -272,7 +272,7 @@ const UsersList: React.FC = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon />
+                  <SearchIcon size={20} />
                 </InputAdornment>
               ),
             }}

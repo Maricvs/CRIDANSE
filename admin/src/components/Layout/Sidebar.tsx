@@ -11,16 +11,16 @@ import {
   Divider,
   Tooltip,
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  People as UsersIcon,
-  Chat as ChatIcon,
-  Description as DocumentsIcon,
-  Error as LogsIcon,
-  Settings as SettingsIcon,
-  Translate as TranslateIcon,
-  Dns as SystemIcon,
-} from '@mui/icons-material';
+import { 
+  MdDashboard as DashboardIcon,
+  MdPeople as UsersIcon,
+  MdChat as ChatIcon,
+  MdDescription as DocumentsIcon,
+  MdError as LogsIcon,
+  MdSettings as SettingsIcon,
+  MdTranslate as TranslateIcon,
+  MdDns as SystemIcon,
+} from 'react-icons/md';
 
 interface SidebarProps {
   open: boolean;
@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
                   px: 2.5,
                   borderRadius: '0 20px 20px 0',
                   bgcolor: isActive(item.path) ? 'rgba(25, 118, 210, 0.12)' : 'transparent',
-                  mr: 1,
+                  marginRight: '8px',
                   '&:hover': {
                     bgcolor: isActive(item.path) ? 'rgba(25, 118, 210, 0.2)' : 'rgba(0, 0, 0, 0.04)',
                   },
