@@ -35,20 +35,7 @@ jobs:
             git clean -fd
             git pull origin main
 
-            cd admin
-
-            if ! npm install; then
-              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
-              exit 1
-            fi
-
-            if ! node --max_old_space_size=3072 ./node_modules/vite/bin/vite.js build>admin_build_error.log; then
-              error_log=$(tail -n 10 admin_build_error.log)
-              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
-              exit 1
-            fi
-
-
+            
             cd frontend
 
             if ! npm install; then
@@ -84,6 +71,20 @@ jobs:
               python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
               exit 1
             fi
+
+            cd admin
+
+            if ! npm install; then
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
+              exit 1
+            fi
+
+            if ! node --max_old_space_size=3072 ./node_modules/vite/bin/vite.js build>admin_build_error.log; then
+              error_log=$(tail -n 10 admin_build_error.log)
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
+              exit 1
+            fi
+            
       - name: Уведомление об окончании деплоя
         run: |
           cd ${{ github.workspace }}

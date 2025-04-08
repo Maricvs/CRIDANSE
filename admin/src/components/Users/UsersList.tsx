@@ -26,144 +26,56 @@ import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 interface User {
   id: number;
   email: string;
-  full_name: string;
+  full_name: string | null;
   oauth_provider: string;
   created_at: string;
   avatar_url: string | null;
-  is_admin: boolean;
-  status: 'active' | 'inactive';
 }
 
 const UsersList: React.FC = () => {
-  const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState('');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const fetchUsers = async () => {
-    setLoading(true);
     try {
-      // В реальном приложении здесь будет запрос к API
-      // Пока используем моковые данные
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          email: 'admin@example.com',
-          full_name: 'Администратор Системы',
-          oauth_provider: 'google',
-          created_at: '2023-01-01T12:00:00Z',
-          avatar_url: null,
-          is_admin: true,
-          status: 'active',
-        },
-        {
-          id: 2,
-          email: 'user1@example.com',
-          full_name: 'Иван Петров',
-          oauth_provider: 'google',
-          created_at: '2023-01-15T10:30:00Z',
-          avatar_url: 'https://randomuser.me/api/portraits/men/1.jpg',
-          is_admin: false,
-          status: 'active',
-        },
-        {
-          id: 3,
-          email: 'user2@example.com',
-          full_name: 'Анна Смирнова',
-          oauth_provider: 'google',
-          created_at: '2023-02-20T15:45:00Z',
-          avatar_url: 'https://randomuser.me/api/portraits/women/2.jpg',
-          is_admin: false,
-          status: 'active',
-        },
-        {
-          id: 4,
-          email: 'user3@example.com',
-          full_name: 'Сергей Иванов',
-          oauth_provider: 'google',
-          created_at: '2023-03-10T09:15:00Z',
-          avatar_url: 'https://randomuser.me/api/portraits/men/3.jpg',
-          is_admin: false,
-          status: 'inactive',
-        },
-        {
-          id: 5,
-          email: 'editor@example.com',
-          full_name: 'Екатерина Редакторова',
-          oauth_provider: 'google',
-          created_at: '2023-04-05T14:20:00Z',
-          avatar_url: 'https://randomuser.me/api/portraits/women/4.jpg',
-          is_admin: true,
-          status: 'active',
-        },
-      ];
-      
-      setUsers(mockUsers);
+      setLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users?search=${searchText}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const data = await response.json();
+      setUsers(data);
     } catch (error) {
-      console.error('Ошибка при загрузке пользователей:', error);
+      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRefresh = () => {
+  useEffect(() => {
     fetchUsers();
-  };
+  }, [searchText]);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
+  const handleDeleteUser = async (id: number) => {
+    if (!window.confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+      return;
+    }
 
-  const handleToggleAdminFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRoleFilter(event.target.checked ? 'admin' : 'all');
-  };
-
-  const handleToggleStatusFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStatusFilter(event.target.checked ? 'active' : 'all');
-  };
-
-  const handleEdit = (user: User) => {
-    // TODO: Реализовать редактирование пользовател
-    console.log('Edit user:', user);
-  };
-
-  const handleDelete = async (userId: number) => {
     try {
-      // TODO: Реализовать удаление пользователя через API
-      console.log('Delete user:', userId);
-      // После успешного удаления обновляем список
-      setUsers(users.filter(user => user.id !== userId));
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
+      
+      setUsers(users.filter(user => user.id !== id));
     } catch (error) {
       console.error('Error deleting user:', error);
-      // TODO: Показать уведомление об ошибке
     }
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesRoleFilter = roleFilter === 'all' || (roleFilter === 'admin' ? user.is_admin : true);
-    const matchesStatusFilter = statusFilter === 'all' || (statusFilter === 'active' ? user.status === 'active' : true);
-    
-    return matchesSearch && matchesRoleFilter && matchesStatusFilter;
-  });
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ru-RU', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   const columns: GridColDef[] = [
@@ -171,159 +83,110 @@ const UsersList: React.FC = () => {
       field: 'avatar',
       headerName: '',
       width: 60,
-      renderCell: (params: GridRenderCellParams<User>) => (
+      renderCell: (params: GridRenderCellParams) => (
         <Avatar
-          src={params.row.avatar_url || '/default-avatar.png'}
-          alt={params.row.full_name}
-        />
+          src={params.row.avatar_url || undefined}
+          alt={params.row.full_name || params.row.email}
+        >
+          {(params.row.full_name || params.row.email).charAt(0).toUpperCase()}
+        </Avatar>
       ),
     },
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'full_name', headerName: 'Имя', width: 200 },
-    { field: 'email', headerName: 'Email', width: 220 },
+    {
+      field: 'email',
+      headerName: 'Email',
+      flex: 1,
+      minWidth: 200,
+    },
+    {
+      field: 'full_name',
+      headerName: 'Имя',
+      flex: 1,
+      minWidth: 200,
+      valueGetter: (params) => params.row.full_name || 'Не указано',
+    },
     {
       field: 'oauth_provider',
       headerName: 'Провайдер',
-      width: 130,
-      renderCell: (params: GridRenderCellParams<User>) => (
+      width: 120,
+      renderCell: (params: GridRenderCellParams) => (
         <Chip
           label={params.value}
-          color="primary"
-          variant="outlined"
           size="small"
+          color={params.value === 'google' ? 'primary' : 'default'}
         />
       ),
     },
     {
       field: 'created_at',
       headerName: 'Дата регистрации',
-      width: 200,
-      valueFormatter: (params: any) => formatDate(params.value as string),
-    },
-    {
-      field: 'status',
-      headerName: 'Статус',
-      width: 120,
-      renderCell: (params: GridRenderCellParams<User>) => (
-        <Chip
-          label={params.value === 'active' ? 'Активен' : 'Неактивен'}
-          color={params.value === 'active' ? 'success' : 'error'}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'is_admin',
-      headerName: 'Админ',
-      width: 80,
-      renderCell: (params: GridRenderCellParams<User>) => (
-        params.value ? (
-          <Tooltip title="Администратор">
-            <AdminIcon size={20} color="primary" />
-          </Tooltip>
-        ) : null
-      ),
+      width: 180,
+      valueGetter: (params) => new Date(params.value).toLocaleString(),
     },
     {
       field: 'actions',
       headerName: 'Действия',
       width: 120,
-      renderCell: (params: GridRenderCellParams<User>) => (
+      renderCell: (params: GridRenderCellParams) => (
         <Box>
-          <IconButton onClick={() => handleEdit(params.row)}>
-            <EditIcon size={20} />
-          </IconButton>
-          <IconButton onClick={() => handleDelete(params.row.id)}>
-            <DeleteIcon size={20} />
-          </IconButton>
+          <Tooltip title="Удалить">
+            <IconButton
+              size="small"
+              onClick={() => handleDeleteUser(params.row.id)}
+              color="error"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       ),
     },
   ];
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <Box style={{ padding: '24px' }}>
+      <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <Typography variant="h5" component="h1">
           Пользователи
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Tooltip title="Добавить пользователя">
-            <IconButton color="primary" style={{ marginRight: '8px' }}>
-              <PersonAddIcon size={20} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Обновить список">
-            <IconButton onClick={handleRefresh} color="primary">
-              <RefreshIcon size={20} />
+        <Box style={{ display: 'flex', gap: '16px' }}>
+          <TextField
+            size="small"
+            placeholder="Поиск пользователей..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Tooltip title="Обновить">
+            <IconButton onClick={fetchUsers} disabled={loading}>
+              <RefreshIcon />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <TextField
-            placeholder="Поиск пользователей..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon size={20} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ width: { xs: '100%', sm: '300px' } }}
-          />
-          
-          <FormControlLabel
-            control={
-              <Switch
-                checked={roleFilter === 'admin'}
-                onChange={handleToggleAdminFilter}
-                color="primary"
-              />
-            }
-            label="Только администраторы"
-          />
-          
-          <FormControlLabel
-            control={
-              <Switch
-                checked={statusFilter === 'active'}
-                onChange={handleToggleStatusFilter}
-                color="primary"
-              />
-            }
-            label="Только активные пользователи"
-          />
-        </Box>
-      </Paper>
-
-      <Paper sx={{ height: 500, width: '100%' }}>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <DataGrid
-            rows={filteredUsers}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-              sorting: {
-                sortModel: [{ field: 'id', sort: 'asc' }],
-              },
-            }}
-            pageSizeOptions={[5, 10, 25]}
-            disableRowSelectionOnClick
-          />
-        )}
+      <Paper style={{ height: 'calc(100vh - 200px)', width: '100%' }}>
+        <DataGrid
+          rows={users}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10, 25, 50]}
+          disableSelectionOnClick
+          loading={loading}
+          components={{
+            LoadingOverlay: () => (
+              <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <CircularProgress />
+              </Box>
+            ),
+          }}
+        />
       </Paper>
     </Box>
   );

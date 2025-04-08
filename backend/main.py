@@ -10,6 +10,7 @@ from models.models import Profile
 from app.models.document_model import Document, DocumentChunk
 from api import notify_form
 from api import logs
+from api import users
 
 _ = Profile
 _ = Document
@@ -29,3 +30,4 @@ app.include_router(teacher_service.router, prefix="/api/teacher")
 app.include_router(document_router.router, prefix="/api/document_search")
 app.include_router(notify_form.router)
 app.include_router(logs.router, prefix="/api/logs")
+app.include_router(users.router, prefix="/api/users")
