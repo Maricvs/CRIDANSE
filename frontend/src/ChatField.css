@@ -246,7 +246,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 20px;
-  margin-left: auto;
   margin-top: 0.5rem;
 }
 
@@ -258,7 +257,6 @@
 .send-button {
   position: relative;
   align-self: flex-end;
-  margin-left: auto;
 }
 
 .send-button:disabled {
