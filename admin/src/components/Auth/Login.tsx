@@ -103,9 +103,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </Button>
           </form>
           
-          <Typography variant="body2" align="center" color="textSecondary">
-            По умолчанию: имя пользователя - "admin", пароль - "admin123"
-          </Typography>
+
         </Paper>
       </Container>
     </Box>
