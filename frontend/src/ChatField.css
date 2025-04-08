@@ -237,10 +237,10 @@
 
 /* Кнопка отправки */
 .send-button {
-  position: relative; /* Изменено на relative */
-  align-self: flex-end; /* Добавлено для выравнивания */
-  margin-left: auto; /* Добавлено для выравнивания */
-  margin-top: 0.5rem; /* Добавлен отступ между полем ввода и кнопкой */
+  position: relative;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-top: 0.5rem;
   padding: 0.5rem;
   font-size: 1rem;
   background: transparent;
@@ -254,6 +254,14 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.send-button.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .send-button:hover {
@@ -390,47 +398,4 @@ textarea::placeholder {
 
 .teacher-mode-icon:hover {
   opacity: 1;
-}
-
-.send-button {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  color: #888;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.send-button:hover {
-  background-color: #3a3a3a;
-  color: white;
-  border-color: #666;
-}
-
-.send-button svg {
-  width: 16px;
-  height: 16px;
-}
-
-@media (max-width: 768px) {
-  .chat-field {
-    padding: 0.5rem;
-  }
-  
-  .input-container {
-    gap: 8px;
-  }
-  
-  textarea {
-    font-size: 15px;
-  }
-  
-  .teacher-mode-icon {
-    font-size: 20px;
-  }
 }

@@ -178,7 +178,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         />
         <div className="action-buttons">
           <span className="teacher-mode-icon">🧑‍🏫</span>
-          <button className="send-button" onClick={handleSendMessage}>
+          <button className={`send-button ${inputValue.trim() ? 'visible' : ''}`} onClick={handleSendMessage}>
             <FaPaperPlane />
           </button>
         </div>
