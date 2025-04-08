@@ -248,7 +248,7 @@ const Settings: React.FC = () => {
                       })}
                     >
                       <MenuItem value="gpt-3.5">GPT-3.5</MenuItem>
-                      <MenuItem value="gpt-4">GPT-4</MenuItem>
+                      <MenuItem value="gpt-4o">GPT-4o</MenuItem>
                       <MenuItem value="claude">Claude</MenuItem>
                     </Select>
                   </FormControl>

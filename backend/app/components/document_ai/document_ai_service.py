@@ -91,7 +91,7 @@ async def ask_with_documents(
         
         # Отправляем запрос к OpenAI
         chat_completion = client.chat.completions.create(
-            model="gpt-3.5-turbo-16k",  # Используем модель с большим контекстом
+            model="gpt-4o",  # Используем модель с большим контекстом
             messages=messages,
         )
         

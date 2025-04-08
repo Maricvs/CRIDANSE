@@ -54,7 +54,7 @@ async def get_teacher_response(messages: List[dict], topic: str, level: str, use
     system_prompt = get_teacher_prompt(topic, level, context)
     
     response = client.chat.completions.create(
-        model="gpt-4-turbo",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
             *messages
