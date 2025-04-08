@@ -296,7 +296,7 @@ const UsersList: React.FC = () => {
             },
           }}
           pageSizeOptions={[10, 25, 50]}
-          disableSelectionOnClick
+          disableRowSelectionOnClick
           loading={loading}
           components={{
             LoadingOverlay: () => (
