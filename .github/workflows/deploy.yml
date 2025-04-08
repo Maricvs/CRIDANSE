@@ -35,6 +35,20 @@ jobs:
             git clean -fd
             git pull origin main
 
+            cd ../admin
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
+              exit 1
+            fi
+
+            if ! NODE_OPTIONS=--max-old-space-size=3072 npm run build 2>admin_build_error.log; then
+              error_log=$(tail -n 10 admin_build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
+              exit 1
+            fi
+
+
             cd frontend
 
             if ! npm install; then
