@@ -64,7 +64,7 @@ const SystemLogs: React.FC = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/logs?level=${logLevelFilter}&source=${sourceFilter}&search=${searchText}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/logs/logs?level=${logLevelFilter}&source=${sourceFilter}&search=${searchText}`);
       if (!response.ok) {
         throw new Error('Failed to fetch logs');
       }
