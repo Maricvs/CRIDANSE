@@ -130,7 +130,7 @@ const UsersList: React.FC = () => {
   };
 
   const handleEdit = (user: User) => {
-    // TODO: Реализовать редактирование пользователя
+    // TODO: Реализовать редактирование пользовател
     console.log('Edit user:', user);
   };
 
