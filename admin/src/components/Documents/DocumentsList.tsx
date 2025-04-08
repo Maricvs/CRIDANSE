@@ -185,6 +185,63 @@ const DocumentsList: React.FC = () => {
     setPreviewDialogOpen(true);
   };
 
+  const handleDownloadDocument = async (doc: Document) => {
+    try {
+      // Имитация запроса на скачивание документа
+      console.log(`Скачивание документа: ${doc.title}`);
+      
+      // В реальном приложении здесь будет запрос к API для получения URL для скачивания
+      // const response = await fetch(`/api/documents/${doc.id}/download`);
+      // const data = await response.json();
+      
+      // Создаем временную ссылку для скачивания
+      const link = document.createElement('a');
+      link.href = `https://example.com/api/documents/${doc.id}/download`; // Замените на реальный URL
+      link.download = doc.title;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Показываем уведомление об успешном скачивании
+      alert(`Документ "${doc.title}" успешно скачан`);
+    } catch (error) {
+      console.error('Ошибка при скачивании документа:', error);
+      alert('Произошла ошибка при скачивании документа');
+    }
+  };
+
+  const handleDeleteDocument = async (doc: Document) => {
+    if (!window.confirm(`Вы уверены, что хотите удалить документ "${doc.title}"?`)) {
+      return;
+    }
+    
+    try {
+      // Имитация запроса на удаление документа
+      console.log(`Удаление документа: ${doc.title}`);
+      
+      // В реальном приложении здесь будет запрос к API для удаления документа
+      // const response = await fetch(`/api/documents/${doc.id}`, {
+      //   method: 'DELETE',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   }
+      // });
+      
+      // if (!response.ok) {
+      //   throw new Error('Ошибка при удалении документа');
+      // }
+      
+      // Обновляем список документов после успешного удаления
+      setDocuments(prevDocs => prevDocs.filter(d => d.id !== doc.id));
+      
+      // Показываем уведомление об успешном удалении
+      alert(`Документ "${doc.title}" успешно удален`);
+    } catch (error) {
+      console.error('Ошибка при удалении документа:', error);
+      alert('Произошла ошибка при удалении документа');
+    }
+  };
+
   const handleCloseDialog = () => {
     setPreviewDialogOpen(false);
   };

@@ -105,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({
           onClick={handleClose}
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-          style={{
+          sx={{
             '& .MuiPaper-root': {
               boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
               minWidth: 180,
