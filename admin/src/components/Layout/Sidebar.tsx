@@ -11,16 +11,16 @@ import {
   Divider,
   Tooltip,
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  People as UsersIcon,
-  Chat as ChatIcon,
-  Description as DocumentsIcon,
-  Error as LogsIcon,
-  Settings as SettingsIcon,
-  Translate as TranslateIcon,
-  Dns as SystemIcon,
-} from '@mui/icons-material';
+import { 
+  MdDashboard as DashboardIcon,
+  MdPeople as UsersIcon,
+  MdChat as ChatIcon,
+  MdDescription as DocumentsIcon,
+  MdError as LogsIcon,
+  MdSettings as SettingsIcon,
+  MdTranslate as TranslateIcon,
+  MdDns as SystemIcon,
+} from 'react-icons/md';
 
 interface SidebarProps {
   open: boolean;

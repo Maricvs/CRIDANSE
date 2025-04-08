@@ -13,13 +13,13 @@ import {
   ListItemIcon,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  Brightness4 as DarkModeIcon,
-  Brightness7 as LightModeIcon,
-  Notifications as NotificationsIcon,
-  Settings,
-  Logout,
-} from '@mui/icons-material';
+  MdMenu as MenuIcon,
+  MdBrightness4 as DarkModeIcon,
+  MdBrightness7 as LightModeIcon,
+  MdNotifications as NotificationsIcon,
+  MdSettings as SettingsIcon,
+  MdExitToApp as LogoutIcon,
+} from 'react-icons/md';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -118,13 +118,13 @@ const Header: React.FC<HeaderProps> = ({
           <Divider />
           <MenuItem>
             <ListItemIcon>
-              <Settings fontSize="small" />
+              <SettingsIcon size="1.2em" />
             </ListItemIcon>
             Настройки
           </MenuItem>
           <MenuItem onClick={onLogout}>
             <ListItemIcon>
-              <Logout fontSize="small" />
+              <LogoutIcon size="1.2em" />
             </ListItemIcon>
             Выйти
           </MenuItem>
