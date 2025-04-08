@@ -290,7 +290,7 @@ const UsersList: React.FC = () => {
         <DataGrid
           rows={filteredUsers}
           columns={columns}
-          pageSize={10}
+          initialState + paginationModel={10}
           rowsPerPageOptions={[10, 25, 50]}
           disableSelectionOnClick
           loading={loading}

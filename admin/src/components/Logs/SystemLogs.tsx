@@ -176,8 +176,8 @@ const SystemLogs: React.FC = () => {
         throw new Error('Failed to delete log');
       }
       // Обновляем список логов после успешного удаления
-      setLogs(logs.filter(log => log.id !== id));
-      setFilteredLogs(filteredLogs.filter(log => log.id !== id));
+      setLogs(logs.filter(log => log.id !== Number(id)));
+      setFilteredLogs(filteredLogs.filter(log => log.id !== Number(id)));
       setSelectedLog(null);
     } catch (error) {
       console.error('Error deleting log:', error);
