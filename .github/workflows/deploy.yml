@@ -81,7 +81,7 @@ jobs:
               exit 1
             fi
 
-            if ! node --max_old_space_size=3072 ./node_modules/vite/bin/vite.js build>admin_build_error.log; then
+            if ! npm run build>admin_build_error.log; then
               error_log=$(tail -n 10 admin_build_error.log)
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
               exit 1
