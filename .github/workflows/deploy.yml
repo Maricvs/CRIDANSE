@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Уведомление в Telegram о старт
+      - name: Уведомление в Telegram о старте
         run: |
           cd ${{ github.workspace }}
           python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
@@ -35,7 +35,7 @@ jobs:
             git clean -fd
             git pull origin main
 
-            cd ../admin
+            cd admin
 
             if ! npm install; then
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
