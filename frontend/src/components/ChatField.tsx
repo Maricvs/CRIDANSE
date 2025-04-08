@@ -177,7 +177,9 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           ref={textareaRef}
         />
         <div className="action-buttons">
-          <LiaChalkboardTeacherSolid className="chat-action-button" />
+          <button className={`chat-action-button ${inputValue.trim() ? 'visible' : ''}`} onClick={ }>
+            <LiaChalkboardTeacherSolid />
+          </button>
           <button className={`chat-action-button ${inputValue.trim() ? 'visible' : ''}`} onClick={handleSendMessage}>
             <RiChatUploadLine />
           </button>
