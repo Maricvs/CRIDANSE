@@ -106,3 +106,15 @@ jobs:
               python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
               exit 1
             fi
+
+             if [ ! -f /etc/systemd/system/log_watcher.service ]; then
+              echo "⚙️ Установка log_watcher.service"
+              sudo cp tools/notifier-bot/log_watcher.service /etc/systemd/system/
+              sudo systemctl daemon-reexec
+              sudo systemctl enable log_watcher.service
+            fi
+
+            sudo systemctl restart log_watcher.service || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
+              exit 1
+            }
