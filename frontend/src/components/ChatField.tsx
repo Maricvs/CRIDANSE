@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../ChatField.css';
-// import DocumentSelector from './DocumentSelector';
-import { FaPaperPlane } from 'react-icons/fa';
+import { RiChatUploadLine } from "react-icons/ri";
+import { LiaChalkboardTeacherSolid } from 'react-icons/lia';
 
 interface ChatFieldProps {
   onMessageSent?: () => void;
@@ -177,9 +177,9 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           ref={textareaRef}
         />
         <div className="action-buttons">
-          <span className="teacher-mode-icon">🧑‍🏫</span>
-          <button className={`send-button ${inputValue.trim() ? 'visible' : ''}`} onClick={handleSendMessage}>
-            <FaPaperPlane />
+          <LiaChalkboardTeacherSolid className="teacher-mode-icon chat-action-button" />
+          <button className={`send-button chat-action-button ${inputValue.trim() ? 'visible' : ''}`} onClick={handleSendMessage}>
+            <RiChatUploadLine />
           </button>
         </div>
       </div>

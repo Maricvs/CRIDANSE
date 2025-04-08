@@ -233,34 +233,32 @@
 }
 
 /* Кнопка отправки */
+.chat-action-button {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 20px;
+  margin-left: auto;
+  margin-top: 0.5rem;
+}
+
+.chat-action-button:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 .send-button {
   position: relative;
   align-self: flex-end;
   margin-left: auto;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  font-size: 1rem;
-  background: transparent;
-  color: #888;
-  border: none;
-  border-radius: 50%;
-  width: 44px; /* Минимум 44pt согласно рекомендациям Apple */
-  height: 44px; /* Минимум 44pt согласно рекомендациям Apple */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.send-button.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.send-button:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .send-button:disabled {
@@ -268,9 +266,9 @@
   opacity: 0.5;
 }
 
-.send-button.active .send-icon {
-  transform: scale(1.1);
-  color: #4285f4;
+.send-button.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .send-icon {
@@ -339,6 +337,7 @@
 }
 
 .chat-field {
+  max-width: 768px;
   width: 100%;
   padding: 1rem;
   background-color: #1e1e1e;
@@ -389,10 +388,7 @@ textarea::placeholder {
 }
 
 .teacher-mode-icon {
-  font-size: 24px;
-  cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.2s ease;
 }
 
 .teacher-mode-icon:hover {
