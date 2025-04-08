@@ -22,6 +22,7 @@ import {
   MdSecurity as AdminIcon,
 } from 'react-icons/md';
 import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import UserDialog from './UserDialog';
 
 interface User {
   id: number;
@@ -30,6 +31,8 @@ interface User {
   oauth_provider: string;
   created_at: string;
   avatar_url: string | null;
+  is_admin: boolean;
+  status: 'active' | 'inactive';
 }
 
 const UsersList: React.FC = () => {
@@ -37,6 +40,9 @@ const UsersList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showOnlyAdmins, setShowOnlyAdmins] = useState(false);
+  const [showOnlyActive, setShowOnlyActive] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -78,6 +84,52 @@ const UsersList: React.FC = () => {
     }
   };
 
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setDialogOpen(true);
+  };
+
+  const handleAddUser = () => {
+    setSelectedUser(null);
+    setDialogOpen(true);
+  };
+
+  const handleSaveUser = async (userData: Partial<User>) => {
+    try {
+      const url = selectedUser
+        ? `${process.env.REACT_APP_API_URL}/api/users/${selectedUser.id}`
+        : `${process.env.REACT_APP_API_URL}/api/users`;
+      
+      const response = await fetch(url, {
+        method: selectedUser ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save user');
+      }
+
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error saving user:', error);
+      throw error;
+    }
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = 
+      user.email.toLowerCase().includes(searchText.toLowerCase()) ||
+      (user.full_name?.toLowerCase().includes(searchText.toLowerCase()) ?? false);
+    
+    const matchesAdminFilter = !showOnlyAdmins || user.is_admin;
+    const matchesStatusFilter = !showOnlyActive || user.status === 'active';
+    
+    return matchesSearch && matchesAdminFilter && matchesStatusFilter;
+  });
+
   const columns: GridColDef[] = [
     {
       field: 'avatar',
@@ -118,6 +170,30 @@ const UsersList: React.FC = () => {
       ),
     },
     {
+      field: 'status',
+      headerName: 'Статус',
+      width: 120,
+      renderCell: (params: GridRenderCellParams) => (
+        <Chip
+          label={params.value === 'active' ? 'Активен' : 'Неактивен'}
+          size="small"
+          color={params.value === 'active' ? 'success' : 'error'}
+        />
+      ),
+    },
+    {
+      field: 'is_admin',
+      headerName: 'Админ',
+      width: 80,
+      renderCell: (params: GridRenderCellParams) => (
+        params.value ? (
+          <Tooltip title="Администратор">
+            <AdminIcon size={20} color="primary" />
+          </Tooltip>
+        ) : null
+      ),
+    },
+    {
       field: 'created_at',
       headerName: 'Дата регистрации',
       width: 180,
@@ -129,6 +205,15 @@ const UsersList: React.FC = () => {
       width: 120,
       renderCell: (params: GridRenderCellParams) => (
         <Box>
+          <Tooltip title="Редактировать">
+            <IconButton
+              size="small"
+              onClick={() => handleEditUser(params.row)}
+              color="primary"
+            >
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Удалить">
             <IconButton
               size="small"
@@ -150,6 +235,21 @@ const UsersList: React.FC = () => {
           Пользователи
         </Typography>
         <Box style={{ display: 'flex', gap: '16px' }}>
+          <Tooltip title="Добавить пользователя">
+            <IconButton onClick={handleAddUser} color="primary">
+              <PersonAddIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Обновить">
+            <IconButton onClick={fetchUsers} disabled={loading}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Box>
+
+      <Paper style={{ padding: '16px', marginBottom: '24px' }}>
+        <Box style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField
             size="small"
             placeholder="Поиск пользователей..."
@@ -163,17 +263,32 @@ const UsersList: React.FC = () => {
               ),
             }}
           />
-          <Tooltip title="Обновить">
-            <IconButton onClick={fetchUsers} disabled={loading}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showOnlyAdmins}
+                onChange={(e) => setShowOnlyAdmins(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Только администраторы"
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showOnlyActive}
+                onChange={(e) => setShowOnlyActive(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Только активные"
+          />
         </Box>
-      </Box>
+      </Paper>
 
-      <Paper style={{ height: 'calc(100vh - 200px)', width: '100%' }}>
+      <Paper style={{ height: 'calc(100vh - 300px)', width: '100%' }}>
         <DataGrid
-          rows={users}
+          rows={filteredUsers}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10, 25, 50]}
@@ -188,6 +303,13 @@ const UsersList: React.FC = () => {
           }}
         />
       </Paper>
+
+      <UserDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSave={handleSaveUser}
+        user={selectedUser}
+      />
     </Box>
   );
 };
