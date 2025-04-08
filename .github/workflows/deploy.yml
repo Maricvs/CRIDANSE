@@ -74,6 +74,8 @@ jobs:
 
             cd admin
 
+            export NODE_OPTIONS="--max_old_space_size=3072"
+
             if ! npm install; then
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
               exit 1
@@ -84,7 +86,7 @@ jobs:
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
               exit 1
             fi
-            
+
       - name: Уведомление об окончании деплоя
         run: |
           cd ${{ github.workspace }}

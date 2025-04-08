@@ -11,11 +11,20 @@ from app.models.document_model import Document, DocumentChunk
 from api import notify_form
 from api import logs
 from api import users
+from fastapi.middleware.cors import CORSMiddleware
 
 _ = Profile
 _ = Document
 _ = DocumentChunk
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://www.unlimcode.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
