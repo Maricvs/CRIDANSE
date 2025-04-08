@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Уведомление в Telegram о старте
+      - name: Уведомление в Telegram о старт
         run: |
           cd ${{ github.workspace }}
           python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
@@ -42,7 +42,7 @@ jobs:
               exit 1
             fi
 
-            if ! NODE_OPTIONS=--max-old-space-size=3072 npm run build 2>admin_build_error.log; then
+            if ! node --max_old_space_size=3072 ./node_modules/vite/bin/vite.js build>admin_build_error.log; then
               error_log=$(tail -n 10 admin_build_error.log)
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
               exit 1
