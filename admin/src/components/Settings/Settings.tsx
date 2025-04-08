@@ -28,13 +28,13 @@ import {
   Divider,
 } from '@mui/material';
 import {
-  Save as SaveIcon,
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Language as LanguageIcon,
-  Translate as TranslateIcon,
-} from '@mui/icons-material';
+  MdSave as SaveIcon,
+  MdAdd as AddIcon,
+  MdEdit as EditIcon,
+  MdDelete as DeleteIcon,
+  MdLanguage as LanguageIcon,
+  MdTranslate as TranslateIcon,
+} from 'react-icons/md';
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -11,14 +11,14 @@ import {
   CircularProgress,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Person as UserIcon,
-  Chat as ChatIcon,
-  Description as DocumentIcon,
-  ErrorOutline as ErrorIcon,
-  Memory as CPUIcon,
-  Storage as StorageIcon,
-} from '@mui/icons-material';
+  MdRefresh as RefreshIcon,
+  MdPerson as UserIcon,
+  MdChat as ChatIcon,
+  MdDescription as DocumentIcon,
+  MdErrorOutline as ErrorIcon,
+  MdMemory as CPUIcon,
+  MdStorage as StorageIcon,
+} from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -138,7 +138,7 @@ const Dashboard: React.FC = () => {
         </Typography>
         <Tooltip title="Обновить данные">
           <IconButton onClick={handleRefresh} color="primary">
-            <RefreshIcon />
+            <RefreshIcon size="1.5em" />
           </IconButton>
         </Tooltip>
       </Box>
@@ -157,7 +157,7 @@ const Dashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Пользователи
                     </Typography>
-                    <UserIcon color="primary" />
+                    <UserIcon size="1.5em" style={{ color: '#1976d2' }} />
                   </Box>
                   <Typography variant="h4" component="div" className="stat-value">
                     {stats.users.toLocaleString()}
@@ -172,7 +172,7 @@ const Dashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Чаты
                     </Typography>
-                    <ChatIcon color="primary" />
+                    <ChatIcon size="1.5em" style={{ color: '#1976d2' }} />
                   </Box>
                   <Typography variant="h4" component="div" className="stat-value">
                     {stats.chats.toLocaleString()}
@@ -187,7 +187,7 @@ const Dashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Документы
                     </Typography>
-                    <DocumentIcon color="primary" />
+                    <DocumentIcon size="1.5em" style={{ color: '#1976d2' }} />
                   </Box>
                   <Typography variant="h4" component="div" className="stat-value">
                     {stats.documents.toLocaleString()}
@@ -202,7 +202,7 @@ const Dashboard: React.FC = () => {
                     <Typography color="textSecondary" gutterBottom>
                       Ошибки
                     </Typography>
-                    <ErrorIcon color="error" />
+                    <ErrorIcon size="1.5em" style={{ color: '#1976d2' }} />
                   </Box>
                   <Typography variant="h4" component="div" className="stat-value">
                     {stats.errors.toLocaleString()}
@@ -224,7 +224,7 @@ const Dashboard: React.FC = () => {
                   <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CPUIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                        <CPUIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
                         <Typography variant="body2">CPU</Typography>
                       </Box>
                       <Typography variant="body2">{stats.cpu}%</Typography>
@@ -244,7 +244,7 @@ const Dashboard: React.FC = () => {
                   <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CPUIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                        <CPUIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
                         <Typography variant="body2">Память</Typography>
                       </Box>
                       <Typography variant="body2">{stats.memory}%</Typography>
@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <StorageIcon fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                        <StorageIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
                         <Typography variant="body2">Диск</Typography>
                       </Box>
                       <Typography variant="body2">{stats.disk}%</Typography>

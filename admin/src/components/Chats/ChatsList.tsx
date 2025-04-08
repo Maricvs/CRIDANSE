@@ -29,13 +29,13 @@ import {
   DialogActions,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-  Delete as DeleteIcon,
-  Visibility as ViewIcon,
-  ChatBubble as ChatIcon,
-  Download as DownloadIcon,
-} from '@mui/icons-material';
+  MdRefresh as RefreshIcon,
+  MdSearch as SearchIcon,
+  MdDelete as DeleteIcon,
+  MdVisibility as ViewIcon,
+  MdChat as ChatIcon,
+  MdFileDownload as DownloadIcon,
+} from 'react-icons/md';
 import { SelectChangeEvent } from '@mui/material/Select';
 
 // Интерфейс для чата
@@ -250,12 +250,12 @@ const ChatsList: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Обновить список">
             <IconButton onClick={handleRefresh} color="primary" sx={{ mr: 1 }}>
-              <RefreshIcon />
+              <RefreshIcon size="1.5em" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Экспорт чатов">
             <IconButton color="primary">
-              <DownloadIcon />
+              <DownloadIcon size="1.5em" />
             </IconButton>
           </Tooltip>
         </Box>
@@ -265,7 +265,7 @@ const ChatsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <ChatIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
+              <ChatIcon size="1.5em" style={{ marginBottom: 8, color: 'primary' }} />
               <Typography variant="h4">{stats.totalChats}</Typography>
               <Typography variant="body2" color="textSecondary">Всего чатов</Typography>
             </CardContent>
@@ -274,7 +274,7 @@ const ChatsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <ChatIcon color="success" sx={{ fontSize: 40, mb: 1 }} />
+              <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#4caf50' }} />
               <Typography variant="h4">{stats.activeChats}</Typography>
               <Typography variant="body2" color="textSecondary">Активных чатов</Typography>
             </CardContent>
@@ -283,7 +283,7 @@ const ChatsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <ChatIcon sx={{ fontSize: 40, mb: 1, color: '#9c27b0' }} />
+              <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#9c27b0' }} />
               <Typography variant="h4">{stats.totalMessages}</Typography>
               <Typography variant="body2" color="textSecondary">Всего сообщений</Typography>
             </CardContent>
@@ -292,7 +292,7 @@ const ChatsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <ChatIcon sx={{ fontSize: 40, mb: 1, color: '#ff9800' }} />
+              <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#ff9800' }} />
               <Typography variant="h4">{stats.averageMessagesPerChat}</Typography>
               <Typography variant="body2" color="textSecondary">Сообщений на чат</Typography>
             </CardContent>
@@ -311,7 +311,7 @@ const ChatsList: React.FC = () => {
               value={searchText}
               onChange={handleSearchChange}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                startAdornment: <SearchIcon size="1.5em" style={{ marginRight: 8, color: 'inherit' }} />,
               }}
             />
           </Grid>
@@ -333,7 +333,7 @@ const ChatsList: React.FC = () => {
             <Button
               fullWidth
               variant="outlined"
-              startIcon={<RefreshIcon />}
+              startIcon={<RefreshIcon size="1.5em" />}
               onClick={handleResetFilters}
             >
               Сбросить
@@ -396,7 +396,7 @@ const ChatsList: React.FC = () => {
                           size="small"
                           onClick={() => handleViewChat(chat)}
                         >
-                          <ViewIcon />
+                          <ViewIcon size="1.5em" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Удалить чат">
@@ -404,7 +404,7 @@ const ChatsList: React.FC = () => {
                           color="error"
                           size="small"
                         >
-                          <DeleteIcon />
+                          <DeleteIcon size="1.5em" />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
@@ -486,7 +486,7 @@ const ChatsList: React.FC = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseDialog}>Закрыть</Button>
-              <Button color="primary" startIcon={<DownloadIcon />}>
+              <Button color="primary" startIcon={<DownloadIcon size="1.5em" />}>
                 Экспорт чата
               </Button>
             </DialogActions>

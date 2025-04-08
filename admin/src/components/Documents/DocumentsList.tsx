@@ -30,18 +30,18 @@ import {
   DialogActions,
 } from '@mui/material';
 import {
-  Refresh as RefreshIcon,
-  Search as SearchIcon,
-  Delete as DeleteIcon,
-  Visibility as ViewIcon,
-  Description as DocumentIcon,
-  FileUpload as UploadIcon,
-  Download as DownloadIcon,
-  FileCopy as FileIcon,
-  PictureAsPdf as PdfIcon,
-  InsertDriveFile as DocIcon,
-  Image as ImageIcon,
-} from '@mui/icons-material';
+  MdRefresh as RefreshIcon,
+  MdSearch as SearchIcon,
+  MdDelete as DeleteIcon,
+  MdVisibility as ViewIcon,
+  MdDescription as DocumentIcon,
+  MdFileUpload as UploadIcon,
+  MdFileDownload as DownloadIcon,
+  MdInsertDriveFile as FileIcon,
+  MdPictureAsPdf as PdfIcon,
+  MdInsertDriveFile as DocIcon,
+  MdImage as ImageIcon,
+} from 'react-icons/md';
 
 // Интерфейс для документа
 interface Document {
@@ -210,18 +210,19 @@ const DocumentsList: React.FC = () => {
   };
 
   const getFileIcon = (fileType: string) => {
+    const iconStyle = { size: "1.5em" };
     switch (fileType) {
       case 'pdf':
-        return <PdfIcon sx={{ color: '#f44336' }} />;
+        return <PdfIcon {...iconStyle} style={{ color: '#f44336' }} />;
       case 'doc':
       case 'docx':
-        return <DocIcon sx={{ color: '#2196f3' }} />;
+        return <DocIcon {...iconStyle} style={{ color: '#2196f3' }} />;
       case 'jpg':
       case 'png':
       case 'gif':
-        return <ImageIcon sx={{ color: '#4caf50' }} />;
+        return <ImageIcon {...iconStyle} style={{ color: '#4caf50' }} />;
       default:
-        return <FileIcon />;
+        return <FileIcon {...iconStyle} />;
     }
   };
 
@@ -253,7 +254,7 @@ const DocumentsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <DocumentIcon color="primary" sx={{ fontSize: 40, mb: 1 }} />
+              <DocumentIcon style={{ fontSize: 24, marginBottom: 8 }} />
               <Typography variant="h4">{stats.totalDocuments}</Typography>
               <Typography variant="body2" color="textSecondary">Всего документов</Typography>
             </CardContent>
@@ -262,7 +263,7 @@ const DocumentsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <PdfIcon sx={{ fontSize: 40, mb: 1, color: '#f44336' }} />
+              <PdfIcon style={{ fontSize: 24, marginBottom: 8, color: '#f44336' }} />
               <Typography variant="h4">{stats.pdfCount}</Typography>
               <Typography variant="body2" color="textSecondary">PDF файлов</Typography>
             </CardContent>
@@ -271,7 +272,7 @@ const DocumentsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <DocIcon sx={{ fontSize: 40, mb: 1, color: '#2196f3' }} />
+              <DocIcon style={{ fontSize: 24, marginBottom: 8, color: '#2196f3' }} />
               <Typography variant="h4">{stats.docCount}</Typography>
               <Typography variant="body2" color="textSecondary">DOC файлов</Typography>
             </CardContent>
@@ -280,7 +281,7 @@ const DocumentsList: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
-              <DocumentIcon sx={{ fontSize: 40, mb: 1, color: '#ff9800' }} />
+              <ImageIcon style={{ fontSize: 24, marginBottom: 8, color: '#ff9800' }} />
               <Typography variant="h4">{formatFileSize(stats.totalSize)}</Typography>
               <Typography variant="body2" color="textSecondary">Общий размер</Typography>
             </CardContent>
@@ -299,7 +300,7 @@ const DocumentsList: React.FC = () => {
               value={searchText}
               onChange={handleSearchChange}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                startAdornment: <SearchIcon style={{ marginRight: 8, color: 'inherit' }} />,
               }}
             />
           </Grid>
