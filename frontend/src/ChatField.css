@@ -336,6 +336,7 @@
 
 .chat-field {
   max-width: 768px;
+  margin: auto;
   width: 100%;
   padding: 1rem;
   background-color: #1e1e1e;
