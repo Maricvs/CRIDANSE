@@ -167,21 +167,27 @@ const SystemLogs: React.FC = () => {
   // Получаем уникальные источники из логов
   const sources = ['all', ...Array.from(new Set(logs.map(log => log.source)))];
 
-  const handleDeleteLog = async (id: string) => {
+  const handleDeleteLog = async (id: number) => {
+    if (!window.confirm('Вы уверены, что хотите удалить этот лог?')) {
+      return;
+    }
+
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/logs/${id}`, {
         method: 'DELETE',
       });
+      
       if (!response.ok) {
         throw new Error('Failed to delete log');
       }
+      
       // Обновляем список логов после успешного удаления
-      setLogs(logs.filter(log => log.id !== Number(id)));
-      setFilteredLogs(filteredLogs.filter(log => log.id !== Number(id)));
+      setLogs(logs.filter(log => log.id !== id));
+      setFilteredLogs(filteredLogs.filter(log => log.id !== id));
       setSelectedLog(null);
     } catch (error) {
       console.error('Error deleting log:', error);
-      // В реальном приложении здесь можно добавить уведомление об ошибке
+      alert('Ошибка при удалении лога');
     }
   };
 
@@ -339,9 +345,19 @@ const SystemLogs: React.FC = () => {
         <Paper style={{ marginTop: '24px', padding: '24px' }}>
           <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Typography variant="h6">Детали лога #{selectedLog.id}</Typography>
-            <Button variant="outlined" onClick={handleCloseDetails}>
-              Закрыть
-            </Button>
+            <Box>
+              <Button 
+                variant="outlined" 
+                color="error" 
+                onClick={() => handleDeleteLog(selectedLog.id)}
+                style={{ marginRight: '8px' }}
+              >
+                Удалить
+              </Button>
+              <Button variant="outlined" onClick={handleCloseDetails}>
+                Закрыть
+              </Button>
+            </Box>
           </Box>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={3}>
