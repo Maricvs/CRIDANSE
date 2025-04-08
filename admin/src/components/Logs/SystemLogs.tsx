@@ -83,6 +83,36 @@ const SystemLogs: React.FC = () => {
     return array[Math.floor(Math.random() * array.length)];
   };
 
+  const handleDownloadLogs = async () => {
+    try {
+      // Форматируем логи для скачивания
+      const logsToDownload = filteredLogs.map(log => ({
+        ...log,
+        timestamp: formatTimestamp(log.timestamp)
+      }));
+
+      // Генерируем имя файла с текущей датой
+      const prefixes = ['system', 'app', 'server'];
+      const date = new Date().toISOString().split('T')[0];
+      const randomPrefix = sample(prefixes);
+      const fileName = `${randomPrefix}-logs-${date}.json`;
+
+      // Создаем и скачиваем файл
+      const blob = new Blob([JSON.stringify(logsToDownload, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading logs:', error);
+      alert('Ошибка при скачивании логов');
+    }
+  };
+
   const filterLogs = () => {
     let filtered = [...logs];
     
@@ -111,6 +141,25 @@ const SystemLogs: React.FC = () => {
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    // Применяем фильтры в зависимости от выбранной вкладки
+    switch(newValue) {
+      case 0: // Все логи
+        setLogLevelFilter('all');
+        setSourceFilter('all');
+        break;
+      case 1: // Системные
+        setSourceFilter('system');
+        break;
+      case 2: // Ошибки
+        setLogLevelFilter('error');
+        break;
+      case 3: // API
+        setSourceFilter('api');
+        break;
+      case 4: // База данных
+        setSourceFilter('database');
+        break;
+    }
   };
 
   const handleRefresh = () => {
@@ -204,7 +253,11 @@ const SystemLogs: React.FC = () => {
             </IconButton>
           </Tooltip>
           <Tooltip title="Скачать логи">
-            <IconButton color="primary" style={{ marginRight: '8px' }}>
+            <IconButton 
+              color="primary" 
+              style={{ marginRight: '8px' }}
+              onClick={handleDownloadLogs}
+            >
               <DownloadIcon />
             </IconButton>
           </Tooltip>
