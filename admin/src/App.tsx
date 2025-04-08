@@ -127,14 +127,14 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<Login onLogin={handleLogin} />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UsersList />} />
         <Route path="/chats" element={<ChatsList />} />
         <Route path="/documents" element={<DocumentsList />} />
        
         <Route path="/settings" element={<Settings />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 };
