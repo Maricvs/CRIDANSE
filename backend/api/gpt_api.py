@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from openai import OpenAI
 from db import get_db
 import os
-
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.models import Message
 
