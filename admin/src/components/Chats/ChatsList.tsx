@@ -242,14 +242,19 @@ const ChatsList: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <Box style={{ padding: '16px' }}>
+      <Box style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '24px' 
+      }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Чаты
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box style={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Обновить список">
-            <IconButton onClick={handleRefresh} color="primary" sx={{ mr: 1 }}>
+            <IconButton onClick={handleRefresh} color="primary" style={{ marginRight: '8px' }}>
               <RefreshIcon size="1.5em" />
             </IconButton>
           </Tooltip>
@@ -261,10 +266,10 @@ const ChatsList: React.FC = () => {
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} style={{ marginBottom: '24px' }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <ChatIcon size="1.5em" style={{ marginBottom: 8, color: 'primary' }} />
               <Typography variant="h4">{stats.totalChats}</Typography>
               <Typography variant="body2" color="textSecondary">Всего чатов</Typography>
@@ -273,7 +278,7 @@ const ChatsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#4caf50' }} />
               <Typography variant="h4">{stats.activeChats}</Typography>
               <Typography variant="body2" color="textSecondary">Активных чатов</Typography>
@@ -282,7 +287,7 @@ const ChatsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#9c27b0' }} />
               <Typography variant="h4">{stats.totalMessages}</Typography>
               <Typography variant="body2" color="textSecondary">Всего сообщений</Typography>
@@ -291,7 +296,7 @@ const ChatsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <ChatIcon size="1.5em" style={{ marginBottom: 8, color: '#ff9800' }} />
               <Typography variant="h4">{stats.averageMessagesPerChat}</Typography>
               <Typography variant="body2" color="textSecondary">Сообщений на чат</Typography>
@@ -300,7 +305,7 @@ const ChatsList: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper style={{ padding: '16px', marginBottom: '24px' }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={5}>
             <TextField
@@ -342,17 +347,17 @@ const ChatsList: React.FC = () => {
         </Grid>
       </Paper>
 
-      <Typography variant="subtitle1" sx={{ mb: 2 }}>
+      <Typography variant="subtitle1" style={{ marginBottom: '16px' }}>
         Найдено: {filteredChats.length} чатов
       </Typography>
 
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper style={{ width: '100%', overflow: 'hidden' }}>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer sx={{ maxHeight: 600 }}>
+          <TableContainer style={{ maxHeight: 600 }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -371,11 +376,11 @@ const ChatsList: React.FC = () => {
                     <TableCell>{chat.id}</TableCell>
                     <TableCell>{chat.title}</TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           src={chat.userAvatar}
                           alt={chat.userName}
-                          sx={{ width: 30, height: 30, mr: 1 }}
+                          style={{ width: 30, height: 30, marginRight: '8px' }}
                         />
                         {chat.userName}
                       </Box>
@@ -426,7 +431,7 @@ const ChatsList: React.FC = () => {
         {selectedChat && (
           <>
             <DialogTitle>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="h6">
                   {selectedChat.title} (ID: {selectedChat.id})
                 </Typography>
@@ -442,40 +447,40 @@ const ChatsList: React.FC = () => {
             </DialogTitle>
             <DialogContent dividers>
               {messagesLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                <Box style={{ display: 'flex', justifyContent: 'center', padding: '24px' }}>
                   <CircularProgress />
                 </Box>
               ) : (
-                <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+                <Box style={{ maxHeight: 400, overflow: 'auto' }}>
                   {messages.map((message) => (
                     <Box
                       key={message.id}
-                      sx={{
+                      style={{
                         display: 'flex',
                         flexDirection: message.role === 'user' ? 'row' : 'row-reverse',
-                        mb: 2,
+                        marginBottom: '16px',
                       }}
                     >
                       <Avatar
-                        sx={{
-                          bgcolor: message.role === 'user' ? 'primary.main' : 'secondary.main',
-                          mr: message.role === 'user' ? 1 : 0,
-                          ml: message.role === 'assistant' ? 1 : 0,
+                        style={{
+                          backgroundColor: message.role === 'user' ? 'primary.main' : 'secondary.main',
+                          marginRight: message.role === 'user' ? '8px' : 0,
+                          marginLeft: message.role === 'assistant' ? '8px' : 0,
                         }}
                       >
                         {message.role === 'user' ? 'U' : 'AI'}
                       </Avatar>
                       <Paper
                         variant="outlined"
-                        sx={{
-                          p: 2,
+                        style={{
+                          padding: '16px',
                           maxWidth: '70%',
-                          borderRadius: 2,
-                          bgcolor: message.role === 'user' ? 'background.default' : 'primary.light',
+                          borderRadius: '8px',
+                          backgroundColor: message.role === 'user' ? 'background.default' : 'primary.light',
                         }}
                       >
                         <Typography variant="body1">{message.content}</Typography>
-                        <Typography variant="caption" color="textSecondary" sx={{ display: 'block', mt: 1 }}>
+                        <Typography variant="caption" color="textSecondary" style={{ display: 'block', marginTop: '8px' }}>
                           {formatDate(message.timestamp)}
                         </Typography>
                       </Paper>

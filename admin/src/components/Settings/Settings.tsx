@@ -53,7 +53,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
       aria-labelledby={`settings-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <Box style={{ padding: '24px 0' }}>{children}</Box>}
     </div>
   );
 };

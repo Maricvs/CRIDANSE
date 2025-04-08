@@ -131,8 +131,8 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <Box style={{ padding: '16px' }}>
+      <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Панель мониторинга
         </Typography>
@@ -144,16 +144,16 @@ const Dashboard: React.FC = () => {
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
           <CircularProgress />
         </Box>
       ) : (
         <>
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={3} style={{ marginBottom: '32px' }}>
             <Grid item xs={12} sm={6} md={3}>
               <Card className="dashboard-card">
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography color="textSecondary" gutterBottom>
                       Пользователи
                     </Typography>
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={3}>
               <Card className="dashboard-card">
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography color="textSecondary" gutterBottom>
                       Чаты
                     </Typography>
@@ -183,7 +183,7 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={3}>
               <Card className="dashboard-card">
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography color="textSecondary" gutterBottom>
                       Документы
                     </Typography>
@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
             <Grid item xs={12} sm={6} md={3}>
               <Card className="dashboard-card">
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography color="textSecondary" gutterBottom>
                       Ошибки
                     </Typography>
@@ -212,70 +212,70 @@ const Dashboard: React.FC = () => {
             </Grid>
           </Grid>
 
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={3} style={{ marginBottom: '32px' }}>
             <Grid item xs={12} md={4}>
-              <Card className="dashboard-card" sx={{ height: '100%' }}>
+              <Card className="dashboard-card" style={{ height: '100%' }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     Системные ресурсы
                   </Typography>
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider style={{ marginBottom: '16px' }} />
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CPUIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
+                  <Box style={{ marginBottom: '16px' }}>
+                    <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
+                        <CPUIcon size="1.5em" style={{ color: '#1976d2', marginRight: '8px' }} />
                         <Typography variant="body2">CPU</Typography>
                       </Box>
                       <Typography variant="body2">{stats.cpu}%</Typography>
                     </Box>
-                    <Box sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 1, height: 8 }}>
+                    <Box style={{ width: '100%', backgroundColor: '#f5f5f5', borderRadius: '4px', height: '8px' }}>
                       <Box
-                        sx={{
+                        style={{
                           width: `${stats.cpu}%`,
-                          bgcolor: stats.cpu > 80 ? 'error.main' : stats.cpu > 60 ? 'warning.main' : 'primary.main',
-                          height: 8,
-                          borderRadius: 1,
+                          backgroundColor: stats.cpu > 80 ? '#f44336' : stats.cpu > 60 ? '#ff9800' : '#1976d2',
+                          height: '8px',
+                          borderRadius: '4px',
                         }}
                       />
                     </Box>
                   </Box>
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <CPUIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
+                  <Box style={{ marginBottom: '16px' }}>
+                    <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
+                        <CPUIcon size="1.5em" style={{ color: '#1976d2', marginRight: '8px' }} />
                         <Typography variant="body2">Память</Typography>
                       </Box>
                       <Typography variant="body2">{stats.memory}%</Typography>
                     </Box>
-                    <Box sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 1, height: 8 }}>
+                    <Box style={{ width: '100%', backgroundColor: '#f5f5f5', borderRadius: '4px', height: '8px' }}>
                       <Box
-                        sx={{
+                        style={{
                           width: `${stats.memory}%`,
-                          bgcolor: stats.memory > 80 ? 'error.main' : stats.memory > 60 ? 'warning.main' : 'primary.main',
-                          height: 8,
-                          borderRadius: 1,
+                          backgroundColor: stats.memory > 80 ? '#f44336' : stats.memory > 60 ? '#ff9800' : '#1976d2',
+                          height: '8px',
+                          borderRadius: '4px',
                         }}
                       />
                     </Box>
                   </Box>
                   
                   <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <StorageIcon size="1.5em" style={{ color: '#1976d2', mr: 1 }} />
+                    <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
+                        <StorageIcon size="1.5em" style={{ color: '#1976d2', marginRight: '8px' }} />
                         <Typography variant="body2">Диск</Typography>
                       </Box>
                       <Typography variant="body2">{stats.disk}%</Typography>
                     </Box>
-                    <Box sx={{ width: '100%', bgcolor: 'background.paper', borderRadius: 1, height: 8 }}>
+                    <Box style={{ width: '100%', backgroundColor: '#f5f5f5', borderRadius: '4px', height: '8px' }}>
                       <Box
-                        sx={{
+                        style={{
                           width: `${stats.disk}%`,
-                          bgcolor: stats.disk > 80 ? 'error.main' : stats.disk > 60 ? 'warning.main' : 'primary.main',
-                          height: 8,
-                          borderRadius: 1,
+                          backgroundColor: stats.disk > 80 ? '#f44336' : stats.disk > 60 ? '#ff9800' : '#1976d2',
+                          height: '8px',
+                          borderRadius: '4px',
                         }}
                       />
                     </Box>
@@ -289,7 +289,7 @@ const Dashboard: React.FC = () => {
                   <Typography variant="h6" gutterBottom>
                     Активность пользователей
                   </Typography>
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider style={{ marginBottom: '16px' }} />
                   <Box className="chart-container">
                     <Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
                   </Box>
@@ -305,7 +305,7 @@ const Dashboard: React.FC = () => {
                   <Typography variant="h6" gutterBottom>
                     Загрузка системы
                   </Typography>
-                  <Divider sx={{ mb: 2 }} />
+                  <Divider style={{ marginBottom: '16px' }} />
                   <Box className="chart-container">
                     <Line data={systemLoadData} options={{ responsive: true, maintainAspectRatio: false }} />
                   </Box>

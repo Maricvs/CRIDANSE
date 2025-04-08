@@ -249,7 +249,7 @@ const UsersList: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Добавить пользователя">
-            <IconButton color="primary" sx={{ mr: 1 }}>
+            <IconButton color="primary" style={{ marginRight: '8px' }}>
               <PersonAddIcon size={20} />
             </IconButton>
           </Tooltip>

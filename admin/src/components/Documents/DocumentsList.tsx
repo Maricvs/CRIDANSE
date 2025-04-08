@@ -227,33 +227,33 @@ const DocumentsList: React.FC = () => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <Box style={{ padding: '16px' }}>
+      <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Документы
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box style={{ display: 'flex', alignItems: 'center' }}>
           <Tooltip title="Загрузить новый документ">
             <Button
               variant="contained"
               startIcon={<UploadIcon />}
-              sx={{ mr: 1 }}
+              style={{ marginRight: '8px' }}
             >
               Загрузить
             </Button>
           </Tooltip>
           <Tooltip title="Обновить список">
-            <IconButton onClick={handleRefresh} color="primary" sx={{ mr: 1 }}>
-              <RefreshIcon />
+            <IconButton onClick={handleRefresh} color="primary" style={{ marginRight: '8px' }}>
+              <RefreshIcon size={20} />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
 
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={3} style={{ marginBottom: '24px' }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <DocumentIcon style={{ fontSize: 24, marginBottom: 8 }} />
               <Typography variant="h4">{stats.totalDocuments}</Typography>
               <Typography variant="body2" color="textSecondary">Всего документов</Typography>
@@ -262,7 +262,7 @@ const DocumentsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <PdfIcon style={{ fontSize: 24, marginBottom: 8, color: '#f44336' }} />
               <Typography variant="h4">{stats.pdfCount}</Typography>
               <Typography variant="body2" color="textSecondary">PDF файлов</Typography>
@@ -271,7 +271,7 @@ const DocumentsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <DocIcon style={{ fontSize: 24, marginBottom: 8, color: '#2196f3' }} />
               <Typography variant="h4">{stats.docCount}</Typography>
               <Typography variant="body2" color="textSecondary">DOC файлов</Typography>
@@ -280,7 +280,7 @@ const DocumentsList: React.FC = () => {
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardContent sx={{ textAlign: 'center' }}>
+            <CardContent style={{ textAlign: 'center' }}>
               <ImageIcon style={{ fontSize: 24, marginBottom: 8, color: '#ff9800' }} />
               <Typography variant="h4">{formatFileSize(stats.totalSize)}</Typography>
               <Typography variant="body2" color="textSecondary">Общий размер</Typography>
@@ -289,7 +289,7 @@ const DocumentsList: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Paper sx={{ p: 2, mb: 3 }}>
+      <Paper style={{ padding: '16px', marginBottom: '24px' }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={6}>
             <TextField
@@ -335,17 +335,17 @@ const DocumentsList: React.FC = () => {
         </Grid>
       </Paper>
 
-      <Typography variant="subtitle1" sx={{ mb: 2 }}>
+      <Typography variant="subtitle1" style={{ marginBottom: '16px' }}>
         Найдено: {filteredDocuments.length} документов
       </Typography>
 
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper style={{ width: '100%', overflow: 'hidden' }}>
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+          <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
             <CircularProgress />
           </Box>
         ) : (
-          <TableContainer sx={{ maxHeight: 600 }}>
+          <TableContainer style={{ maxHeight: 600 }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
@@ -363,9 +363,9 @@ const DocumentsList: React.FC = () => {
                   <TableRow key={doc.id} hover>
                     <TableCell>{doc.id}</TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
                         {getFileIcon(doc.fileType)}
-                        <Typography sx={{ ml: 1 }}>{doc.title}</Typography>
+                        <Typography style={{ marginLeft: '8px' }}>{doc.title}</Typography>
                       </Box>
                       <Typography variant="caption" color="textSecondary">
                         {doc.description.length > 60 ? `${doc.description.slice(0, 60)}...` : doc.description}
@@ -381,39 +381,41 @@ const DocumentsList: React.FC = () => {
                     <TableCell>{formatFileSize(doc.fileSize)}</TableCell>
                     <TableCell>{formatDate(doc.createdAt)}</TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           src={doc.userAvatar}
                           alt={doc.userName}
-                          sx={{ width: 30, height: 30, mr: 1 }}
+                          style={{ width: 30, height: 30, marginRight: '8px' }}
                         />
                         {doc.userName}
                       </Box>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title="Просмотреть документ">
+                      <Tooltip title="Просмотреть">
                         <IconButton
                           color="primary"
                           size="small"
                           onClick={() => handleViewDocument(doc)}
                         >
-                          <ViewIcon />
+                          <ViewIcon size={20} />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Скачать документ">
+                      <Tooltip title="Скачать">
                         <IconButton
-                          color="success"
+                          color="primary"
                           size="small"
+                          onClick={() => handleDownloadDocument(doc)}
                         >
-                          <DownloadIcon />
+                          <DownloadIcon size={20} />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Удалить документ">
+                      <Tooltip title="Удалить">
                         <IconButton
                           color="error"
                           size="small"
+                          onClick={() => handleDeleteDocument(doc)}
                         >
-                          <DeleteIcon />
+                          <DeleteIcon size={20} />
                         </IconButton>
                       </Tooltip>
                     </TableCell>
@@ -425,7 +427,6 @@ const DocumentsList: React.FC = () => {
         )}
       </Paper>
 
-      {/* Диалог для просмотра документа */}
       <Dialog
         open={previewDialogOpen}
         onClose={handleCloseDialog}
@@ -435,9 +436,9 @@ const DocumentsList: React.FC = () => {
         {selectedDocument && (
           <>
             <DialogTitle>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box style={{ display: 'flex', alignItems: 'center' }}>
                 {getFileIcon(selectedDocument.fileType)}
-                <Typography variant="h6" sx={{ ml: 1 }}>
+                <Typography variant="h6" style={{ marginLeft: '8px' }}>
                   {selectedDocument.title}
                 </Typography>
               </Box>
@@ -454,7 +455,7 @@ const DocumentsList: React.FC = () => {
                       label={selectedDocument.fileType.toUpperCase()}
                       size="small"
                       variant="outlined"
-                      sx={{ mr: 1 }}
+                      style={{ marginRight: '8px' }}
                     />
                     {formatFileSize(selectedDocument.fileSize)}
                   </Typography>
@@ -463,15 +464,15 @@ const DocumentsList: React.FC = () => {
                   <Typography variant="subtitle2" color="textSecondary">Загружен</Typography>
                   <Typography variant="body1">{formatDate(selectedDocument.createdAt)}</Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary" sx={{ mt: 1 }}>Последнее обновление</Typography>
+                  <Typography variant="subtitle2" color="textSecondary" style={{ marginTop: '8px' }}>Последнее обновление</Typography>
                   <Typography variant="body1">{formatDate(selectedDocument.updatedAt)}</Typography>
                   
-                  <Typography variant="subtitle2" color="textSecondary" sx={{ mt: 1 }}>Пользователь</Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="subtitle2" color="textSecondary" style={{ marginTop: '8px' }}>Пользователь</Typography>
+                  <Box style={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
                       src={selectedDocument.userAvatar}
                       alt={selectedDocument.userName}
-                      sx={{ width: 24, height: 24, mr: 1 }}
+                      style={{ width: 24, height: 24, marginRight: '8px' }}
                     />
                     <Typography variant="body1">
                       {selectedDocument.userName} (ID: {selectedDocument.userId})
@@ -479,12 +480,12 @@ const DocumentsList: React.FC = () => {
                   </Box>
                 </Grid>
                 <Grid item xs={12}>
-                  <Box sx={{ 
-                    mt: 2, 
-                    p: 3, 
+                  <Box style={{ 
+                    marginTop: '16px', 
+                    padding: '24px', 
                     border: '1px dashed', 
                     borderColor: 'divider',
-                    borderRadius: 1,
+                    borderRadius: '4px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -495,11 +496,11 @@ const DocumentsList: React.FC = () => {
                       <Box component="img" 
                         src={`https://via.placeholder.com/800x400?text=Предпросмотр+изображения+недоступен`} 
                         alt={selectedDocument.title}
-                        sx={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain' }}
+                        style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain' }}
                       />
                     ) : (
                       <>
-                        <Typography variant="body1" sx={{ mb: 2 }}>
+                        <Typography variant="body1" style={{ marginBottom: '16px' }}>
                           Предпросмотр для файла типа {selectedDocument.fileType.toUpperCase()} недоступен
                         </Typography>
                         <Button

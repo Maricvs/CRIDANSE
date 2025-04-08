@@ -89,7 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
                   px: 2.5,
                   borderRadius: '0 20px 20px 0',
                   bgcolor: isActive(item.path) ? 'rgba(25, 118, 210, 0.12)' : 'transparent',
-                  mr: 1,
+                  marginRight: '8px',
                   '&:hover': {
                     bgcolor: isActive(item.path) ? 'rgba(25, 118, 210, 0.2)' : 'rgba(0, 0, 0, 0.04)',
                   },
