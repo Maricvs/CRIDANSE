@@ -1,4 +1,4 @@
-/* Глобальный кастомный скроллбар */
+/ Глобальный кастомный скроллбар */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -129,8 +129,6 @@
   box-sizing: border-box;
   padding: 0 1rem;
   background-color: #1e1e1e;
-  display: flex;
-  align-items: flex-end;
   min-height: 56px; /* Минимальная высота для хорошего тапа */
   flex-direction: column; /* Изменено на column */
 }
@@ -345,11 +343,12 @@
   padding: 1rem;
   background-color: #1e1e1e;
   border-top: 1px solid #333;
+  border: 1px solid #444;
+  border-radius: 12px;
+  background-color: #2a2a2a;
 }
 
 .input-container {
-  display: flex;
-  align-items: flex-end;
   gap: 12px;
   max-width: 768px;
   margin: 0 auto;
