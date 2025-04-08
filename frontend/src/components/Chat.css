@@ -30,7 +30,6 @@
 /* Стили для адаптивного дизайна */
 @media (min-width: 768px) {
   .chat-wrapper.with-sidebar {
-    margin-left: 260px;
     width: calc(100% - 260px);
   }
 }

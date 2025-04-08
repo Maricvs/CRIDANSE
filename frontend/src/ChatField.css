@@ -39,7 +39,6 @@
 /* Список сообщений */
 .chat-messages {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px; /* Увеличение отступа между сообщениями */
