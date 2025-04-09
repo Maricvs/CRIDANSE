@@ -7,7 +7,6 @@ from app.components.document_ai import document_processor_router, document_ai_se
 from app.components.teacher import teacher_service
 from app.components.documents import document_router
 from models.models import Profile, Document, DocumentChunk
-from app.models.document_model import Document, DocumentChunk
 from api import notify_form
 from api import logs
 from api import users
