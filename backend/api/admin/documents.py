@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from db import get_db
 from models.models import Document, Profile
 from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
-from auth import get_current_user
+from app.api.auth import get_current_user
 from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
 router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
