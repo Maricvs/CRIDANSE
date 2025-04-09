@@ -23,8 +23,8 @@ class Document(DocumentBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        orm_mode = True
+class Config:
+    from_attributes = True
 
 class DocumentResponse(Document):
     pass
@@ -42,7 +42,7 @@ class DocumentChunk(DocumentChunkBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class SearchQuery(BaseModel):
     query: str

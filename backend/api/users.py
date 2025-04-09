@@ -19,7 +19,7 @@ class UserResponse(BaseModel):
     status: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserCreateUpdate(BaseModel):
     email: str
@@ -29,7 +29,7 @@ class UserCreateUpdate(BaseModel):
     status: str = "active"
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.get("/", response_model=List[UserResponse])
 async def get_users(
