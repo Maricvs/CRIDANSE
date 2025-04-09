@@ -12,7 +12,7 @@ from api import logs
 from api import users
 from fastapi.middleware.cors import CORSMiddleware
 from api.admin import auth as admin_auth
-from api.admin import documents as admin_documents
+from app.api import documents as admin_documents
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
