@@ -41,7 +41,7 @@ const UsersList: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showOnlyAdmins, setShowOnlyAdmins] = useState(false);
-  const [showOnlyActive, setShowOnlyActive] = useState(true);
+  const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const fetchUsers = async () => {
@@ -124,8 +124,8 @@ const UsersList: React.FC = () => {
       user.email.toLowerCase().includes(searchText.toLowerCase()) ||
       (user.full_name?.toLowerCase().includes(searchText.toLowerCase()) ?? false);
     
-    const matchesAdminFilter = !showOnlyAdmins || user.is_admin;
-    const matchesStatusFilter = !showOnlyActive || user.status === 'active';
+    const matchesAdminFilter = !showOnlyAdmins || user.is_admin === true;
+    const matchesStatusFilter = !showOnlyActive || user.status?.toLowerCase() === 'active';
     
     return matchesSearch && matchesAdminFilter && matchesStatusFilter;
   });
