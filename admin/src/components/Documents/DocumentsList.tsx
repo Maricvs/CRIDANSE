@@ -46,6 +46,7 @@ import {
   MdClose as CloseIcon,
 } from 'react-icons/md';
 import axios from 'axios';
+import { authService } from '../../services/auth';
 
 // Интерфейс для документа
 interface Document {
@@ -107,7 +108,11 @@ const DocumentsList: React.FC = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/admin/documents');
+      const user = authService.getUser();
+      const userId = user?.id;
+      const response = await axios.get('/api/admin/documents', {
+        params: { user_id: userId }
+      });
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
@@ -118,7 +123,11 @@ const DocumentsList: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('/api/admin/documents/stats');
+      const user = authService.getUser();
+      const userId = user?.id;
+      const response = await axios.get('/api/admin/documents/stats', {
+        params: { user_id: userId }
+      });
       setStats(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке статистики:', error);
