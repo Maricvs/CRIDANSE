@@ -1,22 +1,36 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class DocumentBase(BaseModel):
     title: str
+    description: Optional[str] = None
     file_type: str
 
 class DocumentCreate(DocumentBase):
     pass
 
+#эти классы были созданы правильно и с определенной целью - 
+# разделить валидацию входных и выходных данных, 
+# а также защитить системные поля от случайного изменения.
+class DocumentUpdate(DocumentBase):
+    pass
+
 class Document(DocumentBase):
     id: int
     user_id: int
+    file_name: str
+    file_size: int
     file_path: str
+    is_deleted: bool
     created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        orm_mode = True
+class Config:
+    from_attributes = True
+
+class DocumentResponse(Document):
+    pass
 
 class DocumentChunkBase(BaseModel):
     content: str
@@ -31,7 +45,7 @@ class DocumentChunk(DocumentChunkBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class SearchQuery(BaseModel):
     query: str

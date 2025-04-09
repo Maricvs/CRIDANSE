@@ -27,6 +27,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TableSortLabel,
 } from '@mui/material';
 import {
   MdRefresh as RefreshIcon,
@@ -59,6 +60,8 @@ interface Message {
   timestamp: string;
 }
 
+type Order = 'asc' | 'desc';
+
 const ChatsList: React.FC = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [filteredChats, setFilteredChats] = useState<Chat[]>([]);
@@ -69,6 +72,8 @@ const ChatsList: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
+  const [orderBy, setOrderBy] = useState<keyof Chat>('lastMessageDate');
+  const [order, setOrder] = useState<Order>('desc');
 
   // Статистика
   const [stats, setStats] = useState({
@@ -84,7 +89,7 @@ const ChatsList: React.FC = () => {
 
   useEffect(() => {
     filterChats();
-  }, [chats, searchText, statusFilter]);
+  }, [chats, searchText, statusFilter, orderBy, order]);
 
   const fetchChats = async () => {
     setLoading(true);
@@ -185,6 +190,36 @@ const ChatsList: React.FC = () => {
     return array[Math.floor(Math.random() * array.length)];
   };
 
+  const handleRequestSort = (property: keyof Chat) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortChats = (chatsToSort: Chat[]) => {
+    return [...chatsToSort].sort((a, b) => {
+      if (orderBy === 'lastMessageDate') {
+        return order === 'desc' 
+          ? new Date(b.lastMessageDate).getTime() - new Date(a.lastMessageDate).getTime()
+          : new Date(a.lastMessageDate).getTime() - new Date(b.lastMessageDate).getTime();
+      }
+      
+      if (orderBy === 'messageCount') {
+        return order === 'desc' 
+          ? b.messageCount - a.messageCount
+          : a.messageCount - b.messageCount;
+      }
+      
+      const aValue = a[orderBy] || '';
+      const bValue = b[orderBy] || '';
+      
+      if (order === 'desc') {
+        return String(bValue).localeCompare(String(aValue));
+      }
+      return String(aValue).localeCompare(String(bValue));
+    });
+  };
+
   const filterChats = () => {
     let filtered = [...chats];
     
@@ -200,6 +235,9 @@ const ChatsList: React.FC = () => {
       const isActive = statusFilter === 'active';
       filtered = filtered.filter(chat => chat.isActive === isActive);
     }
+    
+    // Сортировка
+    filtered = sortChats(filtered);
     
     setFilteredChats(filtered);
   };
@@ -362,10 +400,34 @@ const ChatsList: React.FC = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>ID</TableCell>
-                  <TableCell>Название</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'title'}
+                      direction={orderBy === 'title' ? order : 'asc'}
+                      onClick={() => handleRequestSort('title')}
+                    >
+                      Название
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell>Пользователь</TableCell>
-                  <TableCell>Сообщений</TableCell>
-                  <TableCell>Последнее сообщение</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'messageCount'}
+                      direction={orderBy === 'messageCount' ? order : 'asc'}
+                      onClick={() => handleRequestSort('messageCount')}
+                    >
+                      Сообщений
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'lastMessageDate'}
+                      direction={orderBy === 'lastMessageDate' ? order : 'asc'}
+                      onClick={() => handleRequestSort('lastMessageDate')}
+                    >
+                      Последнее сообщение
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell>Статус</TableCell>
                   <TableCell>Действия</TableCell>
                 </TableRow>

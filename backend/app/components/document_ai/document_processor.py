@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import os
-import tempfile
-import shutil
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel
 from db import get_db
-from app.models.document_model import Document
+from models.models import Document
+from datetime import datetime
 
 # Для извлечения текста из документов
 try:
@@ -85,25 +83,13 @@ def get_document_content_internal(document_id: int, user_id: int, db: Session) -
         file_type=document.file_type
     )
 
-
 @router.get("/content/{document_id}", response_model=DocumentContent)
 async def get_document_content(document_id: int, user_id: int, db: Session = Depends(get_db)):
     """
     Получить содержимое документа для использования в ИИ.
     Проверяет доступ пользователя к документу.
     """
-    # Проверяем доступ пользователя к документу
-    document = check_document_access(document_id, user_id, db)
-    
-    # Извлекаем текст из документа
-    content = extract_text_from_file(document.file_path, document.file_type)
-    
-    return {
-        "id": document.id,
-        "title": document.title,
-        "content": content,
-        "file_type": document.file_type
-    }
+    return get_document_content_internal(document_id, user_id, db)
 
 @router.get("/list_for_ai/{user_id}", response_model=List[dict])
 async def get_documents_for_ai(user_id: int, db: Session = Depends(get_db)):

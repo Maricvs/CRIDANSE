@@ -10,6 +10,7 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
+import { authService } from './services/auth';
 
 // Компоненты для админ-панели
 import Dashboard from './components/Dashboard/Dashboard';
@@ -18,7 +19,7 @@ import Header from './components/Layout/Header';
 import UsersList from './components/Users/UsersList';
 import ChatsList from './components/Chats/ChatsList';
 import DocumentsList from './components/Documents/DocumentsList';
-//import SystemLogs from './components/Logs/SystemLogs';
+import SystemLogs from './components/Logs/SystemLogs';
 import Settings from './components/Settings/Settings';
 import Login from './components/Auth/Login';
 
@@ -90,8 +91,7 @@ const Layout = () => {
           sx={{ 
             flexGrow: 1, 
             p: 3, 
-            width: { sm: `calc(100% - ${sidebarOpen ? 240 : 60}px)` },
-            ml: { sm: `${sidebarOpen ? 240 : 60}px` },
+            width: { sm: `calc(100% - ${sidebarOpen ? 200 : 50}px)` },
             transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
           }}
         >
@@ -112,7 +112,7 @@ const Layout = () => {
 
 // Защищенный маршрут
 const ProtectedRoute = () => {
-  const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
+  const isAuthenticated = authService.isAuthenticated();
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -125,16 +125,16 @@ const ProtectedRoute = () => {
 const App = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login onLogin={handleLogin} />} />
+      <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UsersList />} />
         <Route path="/chats" element={<ChatsList />} />
         <Route path="/documents" element={<DocumentsList />} />
-       
+        <Route path="/logs" element={<SystemLogs />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 };

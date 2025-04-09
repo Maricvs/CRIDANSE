@@ -97,14 +97,14 @@ You get this error when querying the database:
 sqlalchemy.exc.ArgumentError: Column expression, FROM clause, or other columns clause element expected, got <class 'app.schemas.document_schema.Document'>
 Cause:
 You’re importing both the SQLAlchemy and Pydantic Document models with the same name:
-from app.models.document_model import Document          # ✅ SQLAlchemy
+from app.models.models import Document          # ✅ SQLAlchemy
 from app.schemas.document_schema import Document        # ❌ Pydantic (overwrites the first one)
 
 So db.query(Document) ends up using the wrong one (Pydantic), causing the error.
 
 Fix:
 Rename the imports to avoid conflict:
-from app.models.document_model import Document as DocumentModel
+from app.models.models import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 Use:
 	•	DocumentModel for all database queries

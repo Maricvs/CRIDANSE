@@ -6,15 +6,28 @@ from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
 from app.components.teacher import teacher_service
 from app.components.documents import document_router
-from models.models import Profile
-from app.models.document_model import Document, DocumentChunk
+from models.models import Profile, Document, DocumentChunk
 from api import notify_form
-
+from api import logs
+from api import users
+from fastapi.middleware.cors import CORSMiddleware
+from api.admin import auth as admin_auth
+from api.admin import documents as admin_documents
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 _ = Profile
 _ = Document
 _ = DocumentChunk
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://www.unlimcode.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,3 +41,7 @@ app.include_router(document_ai_service_router, prefix="/api/document_ai/service"
 app.include_router(teacher_service.router, prefix="/api/teacher")
 app.include_router(document_router.router, prefix="/api/document_search")
 app.include_router(notify_form.router)
+app.include_router(logs.router, prefix="/api/logs")
+app.include_router(users.router, prefix="/api/users")
+app.include_router(admin_auth.router, prefix="/api/admin/auth", tags=["admin-auth"])
+app.include_router(admin_documents.router, prefix="/api/admin/documents", tags=["admin-documents"])
