@@ -15,7 +15,7 @@ from app.components.documents.document_service import process_document_content
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads/documents"
+UPLOAD_DIR = "/var/www/uploads/documents"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.get("/documents", response_model=List[DocumentResponse])
