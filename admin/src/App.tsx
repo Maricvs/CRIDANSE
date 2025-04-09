@@ -91,7 +91,6 @@ const Layout = () => {
             flexGrow: 1, 
             p: 3, 
             width: { sm: `calc(100% - ${sidebarOpen ? 240 : 60}px)` },
-            ml: { sm: `${sidebarOpen ? 240 : 60}px` },
             transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
           }}
         >
