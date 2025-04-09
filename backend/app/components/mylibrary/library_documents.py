@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional
 import re
 from db import Base, get_db
-from app.models.document_model import Document as DocumentModel
+from app.models.models import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
 from app.components.documents.document_service import process_document_content
