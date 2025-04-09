@@ -47,6 +47,11 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (!userId) {
+      setError('Пользователь не авторизован');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -55,6 +60,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
     formDataToSend.append('description', formData.description || '');
     formDataToSend.append('file', formData.file);
     formDataToSend.append('file_type', formData.file.type);
+    formDataToSend.append('user_id', userId);
 
     try {
       const response = await fetch('/api/documents', {
