@@ -56,7 +56,7 @@ async def get_documents(
     for doc, user_name in documents:
         doc_dict = doc.__dict__.copy()
         doc_dict["user_name"] = user_name
-    enriched_documents.append(doc_dict)
+        enriched_documents.append(doc_dict)
 
     return enriched_documents
 
