@@ -10,6 +10,9 @@ class DocumentBase(BaseModel):
 class DocumentCreate(DocumentBase):
     pass
 
+#эти классы были созданы правильно и с определенной целью - 
+# разделить валидацию входных и выходных данных, 
+# а также защитить системные поля от случайного изменения.
 class DocumentUpdate(DocumentBase):
     pass
 

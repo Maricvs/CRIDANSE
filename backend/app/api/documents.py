@@ -52,27 +52,58 @@ async def create_document(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
+    """
+    Создание нового документа.
+    Валидирует входные данные через DocumentCreate.
+    """
+    # Проверяем тип файла
+    if not file.content_type:
+        raise HTTPException(
+            status_code=400,
+            detail="Не удалось определить тип файла"
+        )
+    
+    # Проверяем соответствие типа файла
+    if file.content_type != document.file_type:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Указанный тип файла ({document.file_type}) не соответствует реальному типу ({file.content_type})"
+        )
+    
+    # Создаем путь для файла
     file_path = os.path.join(UPLOAD_DIR, f"{datetime.now().timestamp()}_{file.filename}")
     
-    with open(file_path, "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
+    try:
+        # Сохраняем файл
+        with open(file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+            
+        # Создаем документ в БД
+        db_document = Document(
+            title=document.title,
+            description=document.description,
+            file_name=file.filename,
+            file_type=document.file_type,
+            file_size=len(content),
+            file_path=file_path,
+            user_id=current_user.id
+        )
         
-    db_document = Document(
-        title=document.title,
-        description=document.description,
-        file_name=file.filename,
-        file_type=document.file_type,
-        file_size=len(content),
-        file_path=file_path,
-        user_id=current_user.id
-    )
-    
-    db.add(db_document)
-    db.commit()
-    db.refresh(db_document)
-    
-    return db_document
+        db.add(db_document)
+        db.commit()
+        db.refresh(db_document)
+        
+        return db_document
+        
+    except Exception as e:
+        # В случае ошибки удаляем файл
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при создании документа: {str(e)}"
+        )
 
 @router.put("/documents/{document_id}", response_model=DocumentResponse)
 async def update_document(
@@ -81,18 +112,40 @@ async def update_document(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    db_document = db.query(Document).filter(Document.id == document_id).first()
+    """
+    Обновление существующего документа.
+    Валидирует входные данные через DocumentUpdate.
+    """
+    # Получаем документ и проверяем права доступа
+    db_document = db.query(Document).filter(
+        Document.id == document_id,
+        Document.user_id == current_user.id,
+        Document.is_deleted == False
+    ).first()
+    
     if not db_document:
-        raise HTTPException(status_code=404, detail="Document not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Документ не найден или у вас нет прав на его редактирование"
+        )
+    
+    try:
+        # Обновляем только разрешенные поля
+        for field, value in document.dict(exclude_unset=True).items():
+            setattr(db_document, field, value)
         
-    for field, value in document.dict(exclude_unset=True).items():
-        setattr(db_document, field, value)
-    
-    db_document.updated_at = datetime.now()
-    db.commit()
-    db.refresh(db_document)
-    
-    return db_document
+        db_document.updated_at = datetime.now()
+        db.commit()
+        db.refresh(db_document)
+        
+        return db_document
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при обновлении документа: {str(e)}"
+        )
 
 @router.delete("/documents/{document_id}")
 async def delete_document(

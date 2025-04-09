@@ -8,7 +8,7 @@ from pathlib import Path
 
 from db import get_db
 from models.models import Document, Profile
-from schemas.document import DocumentCreate, DocumentResponse, DocumentUpdate
+from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
 from auth import get_current_user
 
 router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
