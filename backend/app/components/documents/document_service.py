@@ -3,6 +3,7 @@ import uuid
 from typing import List, Optional, Dict, Any
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.models.document_model import Document, DocumentChunk
 from models.models import Profile
 from app.schemas.document_schema import DocumentCreate, DocumentChunkCreate, SearchQuery
@@ -12,6 +13,7 @@ import tiktoken
 from openai import OpenAI
 import numpy as np
 import json
+from datetime import datetime
 
 # Константы
 UPLOAD_DIR = "uploads"

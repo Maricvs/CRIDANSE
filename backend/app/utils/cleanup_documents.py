@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from pathlib import Path
 import os
-from app.models.document_model import Document
+from models.models import Document
 from db import get_db
 
 def cleanup_missing_files(db: Session):

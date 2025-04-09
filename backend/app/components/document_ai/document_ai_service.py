@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import os
 from openai import OpenAI
 from db import get_db
-from app.models.document_model import Document
+from models.models import Document
 from .document_processor import get_document_content, check_document_access, get_document_content_internal
 
 # Инициализация клиента OpenAI

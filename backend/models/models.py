@@ -70,10 +70,10 @@ class Document(Base):
     file_name = Column(String(255), nullable=False)
     file_type = Column(String(50), nullable=False)
     file_size = Column(Integer, nullable=False)
-    file_path = Column(String(255), nullable=False)
+    file_path = Column(String(512), nullable=False)
     is_deleted = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Связь с пользователем
     user = relationship("Profile", back_populates="documents")
@@ -89,8 +89,8 @@ class DocumentChunk(Base):
     document_id = Column(Integer, ForeignKey("documents.documents.id"), nullable=False)
     content = Column(Text, nullable=False)
     chunk_index = Column(Integer, nullable=False)
-    embedding = Column(Text, nullable=False)  # Храним эмбеддинг как JSON
-    created_at = Column(DateTime, default=datetime.utcnow)
+    embedding = Column(JSON, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Связь с документом
     document = relationship("Document", back_populates="chunks")

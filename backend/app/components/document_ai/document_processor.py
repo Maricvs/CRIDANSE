@@ -7,6 +7,9 @@ from typing import List, Optional
 from pydantic import BaseModel
 from db import get_db
 from app.models.document_model import Document
+from datetime import datetime
+import json
+from openai import OpenAI
 
 # Для извлечения текста из документов
 try:

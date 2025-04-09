@@ -6,7 +6,7 @@ from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
 from app.components.teacher import teacher_service
 from app.components.documents import document_router
-from models.models import Profile
+from models.models import Profile, Document, DocumentChunk
 from app.models.document_model import Document, DocumentChunk
 from api import notify_form
 from api import logs
@@ -14,6 +14,8 @@ from api import users
 from fastapi.middleware.cors import CORSMiddleware
 from api.admin import auth as admin_auth
 from api.admin import documents as admin_documents
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 _ = Profile
 _ = Document
