@@ -19,6 +19,7 @@ class DocumentUpdate(DocumentBase):
 class Document(DocumentBase):
     id: int
     user_id: int
+    user_name: Optional[str]
     file_name: str
     file_size: int
     file_path: str
