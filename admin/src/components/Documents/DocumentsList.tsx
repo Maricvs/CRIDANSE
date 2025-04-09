@@ -117,7 +117,7 @@ const DocumentsList: React.FC = () => {
       if (!user?.id) {
         throw new Error('Пользователь не авторизован');
       }
-      const response = await axios.get('/api/admin/documents');
+      const response = await axios.get('/api/admin/documents/documents');
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
