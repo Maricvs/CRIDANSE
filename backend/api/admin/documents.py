@@ -3,11 +3,9 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
 from fastapi.responses import FileResponse
-
 from db import get_db
 from models.models import Document, Profile
 from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
-from api.auth import get_current_user
 from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
 router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
@@ -15,18 +13,18 @@ router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
 @router.get("/", response_model=List[DocumentResponse])
 async def get_documents(
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user),
+    user_id: int,
     skip: int = 0,
     limit: int = 100,
     search: Optional[str] = None,
     file_type: Optional[str] = None,
-    user_id: Optional[int] = None,
     include_deleted: bool = False
 ):
     """
     Получение списка документов с фильтрацией и поиском
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     query = db.query(Document)
@@ -45,21 +43,19 @@ async def get_documents(
     if file_type:
         query = query.filter(Document.file_type == file_type)
 
-    if user_id:
-        query = query.filter(Document.user_id == user_id)
-
     documents = query.order_by(Document.created_at.desc()).offset(skip).limit(limit).all()
     return documents
 
 @router.get("/stats")
 async def get_documents_stats(
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    user_id: int
 ):
     """
     Получение статистики по документам
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     total_documents = db.query(Document).filter(Document.is_deleted == False).count()
@@ -80,12 +76,13 @@ async def get_documents_stats(
 async def get_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    user_id: int
 ):
     """
     Получение информации о конкретном документе
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     document = db.query(Document).filter(Document.id == document_id).first()
@@ -100,12 +97,13 @@ async def upload_document(
     title: str = None,
     description: str = None,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    user_id: int
 ):
     """
     Загрузка нового документа
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     try:
@@ -114,7 +112,7 @@ async def upload_document(
         
         # Создаем запись в БД
         document = Document(
-            user_id=current_user.id,
+            user_id=user.id,
             title=title or original_filename,
             description=description,
             file_name=original_filename,
@@ -140,12 +138,13 @@ async def upload_document(
 async def delete_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    user_id: int
 ):
     """
     Удаление документа (мягкое удаление)
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     document = db.query(Document).filter(Document.id == document_id).first()
@@ -163,12 +162,13 @@ async def delete_document(
 async def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    user_id: int
 ):
     """
     Скачивание документа
     """
-    if not current_user.is_admin:
+    user = db.query(Profile).get(user_id)
+    if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
     document = db.query(Document).filter(Document.id == document_id).first()
@@ -192,4 +192,4 @@ async def download_document(
         raise HTTPException(
             status_code=500,
             detail="Ошибка при скачивании документа"
-        ) 
+        )
