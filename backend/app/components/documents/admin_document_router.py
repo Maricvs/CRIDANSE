@@ -7,16 +7,15 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 
 from db import get_db
-from models.models import Document, DocumentChunk
-from ..schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
-from models.models import Profile
-from api.admin.auth import get_current_admin
-from ..services.file_service import save_uploaded_file
-from ..components.documents.document_service import process_document_content
+from models.models import Document, DocumentChunk, Profile
+from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
+from api.auth import get_current_user
+from app.services.file_service import save_uploaded_file
+from app.components.documents.document_service import process_document_content
 
 router = APIRouter()
 
-UPLOAD_DIR = "uploads/documents"
+UPLOAD_DIR = "/var/www/uploads/documents"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.get("/documents", response_model=List[DocumentResponse])
@@ -24,7 +23,7 @@ async def get_documents(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Получить список документов пользователя
@@ -48,7 +47,7 @@ async def get_documents(
 @router.get("/documents/stats")
 async def get_document_stats(
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Получить статистику по документам пользователя
@@ -84,7 +83,7 @@ async def create_document(
     document: DocumentCreate,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Создание нового документа
@@ -129,7 +128,7 @@ async def update_document(
     document_id: int,
     document: DocumentUpdate,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Обновление существующего документа
@@ -172,7 +171,7 @@ async def update_document(
 async def delete_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Удаление документа (мягкое удаление)
@@ -210,7 +209,7 @@ async def delete_document(
 async def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Скачивание документа
@@ -248,57 +247,4 @@ async def download_document(
         raise HTTPException(
             status_code=500,
             detail="Ошибка при скачивании документа"
-        )
-
-@router.get("/documents/{document_id}/vectorization", response_model=dict)
-async def get_document_vectorization(
-    document_id: int,
-    db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
-):
-    """
-    Получить информацию о векторизации документа
-    """
-    try:
-        document = db.query(Document).filter(
-            Document.id == document_id,
-            Document.user_id == current_user.id,
-            Document.is_deleted == False
-        ).first()
-        
-        if not document:
-            raise HTTPException(
-                status_code=404,
-                detail="Документ не найден или у вас нет прав на его просмотр"
-            )
-        
-        chunks = db.query(DocumentChunk).filter(
-            DocumentChunk.document_id == document_id
-        ).all()
-        
-        print(f"✅ [INFO] Получена информация о векторизации документа: id={document_id}")
-        
-        return {
-            "document_id": document.id,
-            "title": document.title,
-            "total_chunks": len(chunks),
-            "chunks": [
-                {
-                    "id": chunk.id,
-                    "index": chunk.chunk_index,
-                    "content_preview": chunk.content[:200] + "..." if len(chunk.content) > 200 else chunk.content,
-                    "embedding_size": len(chunk.embedding) if chunk.embedding else 0,
-                    "created_at": chunk.created_at
-                }
-                for chunk in chunks
-            ]
-        }
-        
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        print(f"❌ [ERROR] Ошибка при получении информации о векторизации: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Ошибка при получении информации о векторизации"
         ) 

@@ -12,15 +12,7 @@ from app.components.documents.document_service import (
     search_relevant_chunks,
     generate_teacher_response
 )
-
-# Функция для имитации авторизации (заменить на реальную)
-def get_current_user(db: Session = Depends(get_db)):
-    # Это заглушка - в реальном приложении здесь должна быть полноценная авторизация
-    # Например, через JWT-токен
-    user = db.query(Profile).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
-    return user
+from api.auth import get_current_user
 
 router = APIRouter()
 
