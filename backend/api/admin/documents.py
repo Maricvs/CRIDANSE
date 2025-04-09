@@ -12,8 +12,8 @@ router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
 
 @router.get("/", response_model=List[DocumentResponse])
 async def get_documents(
-    db: Session = Depends(get_db),
     user_id: int,
+    db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
     search: Optional[str] = None,
@@ -48,8 +48,8 @@ async def get_documents(
 
 @router.get("/stats")
 async def get_documents_stats(
-    db: Session = Depends(get_db),
-    user_id: int
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
     """
     Получение статистики по документам
@@ -75,8 +75,8 @@ async def get_documents_stats(
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(
     document_id: int,
-    db: Session = Depends(get_db),
-    user_id: int
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
     """
     Получение информации о конкретном документе
@@ -93,11 +93,11 @@ async def get_document(
 
 @router.post("/upload", response_model=DocumentResponse)
 async def upload_document(
+    user_id: int,
     file: UploadFile = File(...),
     title: str = None,
     description: str = None,
-    db: Session = Depends(get_db),
-    user_id: int
+    db: Session = Depends(get_db)
 ):
     """
     Загрузка нового документа
@@ -137,8 +137,8 @@ async def upload_document(
 @router.delete("/{document_id}")
 async def delete_document(
     document_id: int,
-    db: Session = Depends(get_db),
-    user_id: int
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
     """
     Удаление документа (мягкое удаление)
@@ -161,8 +161,8 @@ async def delete_document(
 @router.get("/{document_id}/download")
 async def download_document(
     document_id: int,
-    db: Session = Depends(get_db),
-    user_id: int
+    user_id: int,
+    db: Session = Depends(get_db)
 ):
     """
     Скачивание документа
