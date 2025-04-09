@@ -24,6 +24,8 @@ class Profile(Base):
 
     # 🔧 ДОБАВЛЕНО: связь с сообщениями
     messages = relationship("Message", back_populates="user")
+    # 🔧 ДОБАВЛЕНО: связь с документами
+    documents = relationship("Document", back_populates="user")
 
 # Таблица chats.messages
 class Message(Base):
@@ -55,3 +57,23 @@ class Chat(Base):
 
     # ✅ ЭТА СТРОКА УЖЕ ЕСТЬ:
     messages = relationship("Message", back_populates="chat", cascade="all, delete")
+
+# Таблица documents.documents
+class Document(Base):
+    __tablename__ = "documents"
+    __table_args__ = {"schema": "documents"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
+    title = Column(String(255), nullable=False)
+    description = Column(Text)
+    file_name = Column(String(255), nullable=False)
+    file_type = Column(String(50), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    file_path = Column(String(255), nullable=False)
+    is_deleted = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Связь с пользователем
+    user = relationship("Profile", back_populates="documents")

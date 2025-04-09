@@ -42,7 +42,10 @@ import {
   MdPictureAsPdf as PdfIcon,
   MdInsertDriveFile as DocIcon,
   MdImage as ImageIcon,
+  MdMemory as MemoryIcon,
+  MdClose as CloseIcon,
 } from 'react-icons/md';
+import axios from 'axios';
 
 // Интерфейс для документа
 interface Document {
@@ -56,6 +59,17 @@ interface Document {
   userId: number;
   userName: string;
   userAvatar?: string;
+  isDeleted: boolean;
+  vectorization?: {
+    totalChunks: number;
+    chunks: Array<{
+      id: number;
+      index: number;
+      contentPreview: string;
+      embeddingSize: number;
+      createdAt: string;
+    }>;
+  };
 }
 
 type Order = 'asc' | 'desc';
@@ -68,6 +82,7 @@ const DocumentsList: React.FC = () => {
   const [fileTypeFilter, setFileTypeFilter] = useState<string>('all');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [vectorizationDialogOpen, setVectorizationDialogOpen] = useState(false);
   const [orderBy, setOrderBy] = useState<keyof Document>('createdAt');
   const [order, setOrder] = useState<Order>('desc');
 
@@ -82,6 +97,7 @@ const DocumentsList: React.FC = () => {
 
   useEffect(() => {
     fetchDocuments();
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -91,55 +107,21 @@ const DocumentsList: React.FC = () => {
   const fetchDocuments = async () => {
     setLoading(true);
     try {
-      // Имитация запроса к API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Моковые данные
-      const fileTypes = ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt'];
-      const mockDocuments: Document[] = Array.from({ length: 30 }, (_, i) => {
-        const fileType = fileTypes[Math.floor(Math.random() * fileTypes.length)];
-        const fileSize = Math.floor(Math.random() * 10000000) + 100000; // от 100KB до 10MB
-        
-        const createdDate = new Date();
-        createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 30));
-        
-        const updatedDate = new Date(createdDate);
-        updatedDate.setDate(updatedDate.getDate() + Math.floor(Math.random() * 10));
-        
-        return {
-          id: i + 1,
-          title: `Документ ${i + 1} - ${['Отчет', 'Презентация', 'Исследование', 'Инструкция', 'Договор'][Math.floor(Math.random() * 5)]}`,
-          description: `Описание документа ${i + 1}. ${['Важный документ для работы.', 'Содержит конфиденциальную информацию.', 'Техническая документация по проекту.', 'Результаты исследования.'][Math.floor(Math.random() * 4)]}`,
-          fileType,
-          fileSize,
-          createdAt: createdDate.toISOString(),
-          updatedAt: updatedDate.toISOString(),
-          userId: Math.floor(Math.random() * 10) + 1,
-          userName: ['Иван Петров', 'Анна Смирнова', 'Сергей Иванов', 'Екатерина Козлова', 'Алексей Николаев'][Math.floor(Math.random() * 5)],
-          userAvatar: Math.random() > 0.3 ? `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 50) + 1}.jpg` : undefined,
-        };
-      });
-      
-      setDocuments(mockDocuments);
-      
-      // Обновляем статистику
-      const pdfCount = mockDocuments.filter(doc => doc.fileType === 'pdf').length;
-      const docCount = mockDocuments.filter(doc => doc.fileType === 'doc' || doc.fileType === 'docx').length;
-      const imageCount = mockDocuments.filter(doc => doc.fileType === 'jpg' || doc.fileType === 'png').length;
-      const totalSize = mockDocuments.reduce((sum, doc) => sum + doc.fileSize, 0);
-      
-      setStats({
-        totalDocuments: mockDocuments.length,
-        pdfCount,
-        docCount,
-        imageCount,
-        totalSize,
-      });
-      
+      const response = await axios.get('/api/admin/documents');
+      setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get('/api/admin/documents/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Ошибка при загрузке статистики:', error);
     }
   };
 
@@ -216,6 +198,7 @@ const DocumentsList: React.FC = () => {
 
   const handleRefresh = () => {
     fetchDocuments();
+    fetchStats();
   };
 
   const handleViewDocument = (doc: Document) => {
@@ -225,23 +208,18 @@ const DocumentsList: React.FC = () => {
 
   const handleDownloadDocument = async (doc: Document) => {
     try {
-      // Имитация запроса на скачивание документа
-      console.log(`Скачивание документа: ${doc.title}`);
+      const response = await axios.get(`/api/admin/documents/${doc.id}/download`, {
+        responseType: 'blob'
+      });
       
-      // В реальном приложении здесь будет запрос к API для получения URL для скачивания
-      // const response = await fetch(`/api/documents/${doc.id}/download`);
-      // const data = await response.json();
-      
-      // Создаем временную ссылку для скачивания
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
-      link.href = `https://example.com/api/documents/${doc.id}/download`; // Замените на реальный URL
-      link.download = doc.title;
+      link.href = url;
+      link.setAttribute('download', doc.title);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      
-      // Показываем уведомление об успешном скачивании
-      alert(`Документ "${doc.title}" успешно скачан`);
+      link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Ошибка при скачивании документа:', error);
       alert('Произошла ошибка при скачивании документа');
@@ -254,26 +232,9 @@ const DocumentsList: React.FC = () => {
     }
     
     try {
-      // Имитация запроса на удаление документарр
-      console.log(`Удаление документа: ${doc.title}`);
-      
-      // В реальном приложении здесь будет запрос к API для удаления документа
-      // const response = await fetch(`/api/documents/${doc.id}`, {
-      //   method: 'DELETE',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   }
-      // });
-      
-      // if (!response.ok) {
-      //   throw new Error('Ошибка при удалении документа');
-      // }
-      
-      // Обновляем список документов после успешного удаления
-      setDocuments(prevDocs => prevDocs.filter(d => d.id !== doc.id));
-      
-      // Показываем уведомление об успешном удалении
-      alert(`Документ "${doc.title}" успешно удален`);
+      await axios.delete(`/api/admin/documents/${doc.id}`);
+      fetchDocuments();
+      fetchStats();
     } catch (error) {
       console.error('Ошибка при удалении документа:', error);
       alert('Произошла ошибка при удалении документа');
@@ -321,6 +282,19 @@ const DocumentsList: React.FC = () => {
     }
   };
 
+  const handleViewVectorization = async (document: Document) => {
+    try {
+      const response = await axios.get(`/api/documents/${document.id}/vectorization`);
+      setSelectedDocument({
+        ...document,
+        vectorization: response.data
+      });
+      setVectorizationDialogOpen(true);
+    } catch (error) {
+      console.error('Ошибка при загрузке информации о векторизации:', error);
+    }
+  };
+
   return (
     <Box style={{ padding: '16px' }}>
       <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -333,8 +307,33 @@ const DocumentsList: React.FC = () => {
               variant="contained"
               startIcon={<UploadIcon />}
               style={{ marginRight: '8px' }}
+              component="label"
             >
               Загрузить
+              <input
+                type="file"
+                hidden
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('title', file.name);
+                    try {
+                      await axios.post('/api/admin/documents/upload', formData, {
+                        headers: {
+                          'Content-Type': 'multipart/form-data',
+                        },
+                      });
+                      fetchDocuments();
+                      fetchStats();
+                    } catch (error) {
+                      console.error('Ошибка при загрузке документа:', error);
+                      alert('Произошла ошибка при загрузке документа');
+                    }
+                  }
+                }}
+              />
             </Button>
           </Tooltip>
           <Tooltip title="Обновить список">
@@ -444,7 +443,6 @@ const DocumentsList: React.FC = () => {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell>ID</TableCell>
                   <TableCell>
                     <TableSortLabel
                       active={orderBy === 'title'}
@@ -488,14 +486,13 @@ const DocumentsList: React.FC = () => {
               <TableBody>
                 {filteredDocuments.map((doc) => (
                   <TableRow key={doc.id} hover>
-                    <TableCell>{doc.id}</TableCell>
                     <TableCell>
                       <Box style={{ display: 'flex', alignItems: 'center' }}>
                         {getFileIcon(doc.fileType)}
                         <Typography style={{ marginLeft: '8px' }}>{doc.title}</Typography>
                       </Box>
                       <Typography variant="caption" color="textSecondary">
-                        {doc.description.length > 60 ? `${doc.description.slice(0, 60)}...` : doc.description}
+                        {doc.description?.length > 60 ? `${doc.description.slice(0, 60)}...` : doc.description}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -518,6 +515,14 @@ const DocumentsList: React.FC = () => {
                       </Box>
                     </TableCell>
                     <TableCell>
+                      <Tooltip title="Информация о векторизации">
+                        <IconButton
+                          onClick={() => handleViewVectorization(doc)}
+                          title="Информация о векторизации"
+                        >
+                          <MemoryIcon />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Просмотреть">
                         <IconButton
                           color="primary"
@@ -621,7 +626,7 @@ const DocumentsList: React.FC = () => {
                   }}>
                     {['jpg', 'png', 'gif'].includes(selectedDocument.fileType) ? (
                       <Box component="img" 
-                        src={`https://via.placeholder.com/800x400?text=Предпросмотр+изображения+недоступен`} 
+                        src={`/api/admin/documents/${selectedDocument.id}/download`} 
                         alt={selectedDocument.title}
                         style={{ maxWidth: '100%', maxHeight: 300, objectFit: 'contain' }}
                       />
@@ -633,6 +638,7 @@ const DocumentsList: React.FC = () => {
                         <Button
                           variant="contained"
                           startIcon={<DownloadIcon />}
+                          onClick={() => handleDownloadDocument(selectedDocument)}
                         >
                           Скачать для просмотра
                         </Button>
@@ -644,12 +650,71 @@ const DocumentsList: React.FC = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseDialog}>Закрыть</Button>
-              <Button color="primary" startIcon={<DownloadIcon />}>
+              <Button 
+                color="primary" 
+                startIcon={<DownloadIcon />}
+                onClick={() => handleDownloadDocument(selectedDocument)}
+              >
                 Скачать
               </Button>
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      <Dialog
+        open={vectorizationDialogOpen}
+        onClose={() => setVectorizationDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Информация о векторизации документа
+          <IconButton
+            aria-label="close"
+            onClick={() => setVectorizationDialogOpen(false)}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {selectedDocument?.vectorization && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                {selectedDocument.title}
+              </Typography>
+              <Typography variant="subtitle1" gutterBottom>
+                Всего чанков: {selectedDocument.vectorization.totalChunks}
+              </Typography>
+              
+              <TableContainer component={Paper} sx={{ mt: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Индекс</TableCell>
+                      <TableCell>Предпросмотр содержимого</TableCell>
+                      <TableCell>Размер эмбеддинга</TableCell>
+                      <TableCell>Создан</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedDocument.vectorization.chunks.map((chunk) => (
+                      <TableRow key={chunk.id}>
+                        <TableCell>{chunk.index}</TableCell>
+                        <TableCell>{chunk.contentPreview}</TableCell>
+                        <TableCell>{chunk.embeddingSize}</TableCell>
+                        <TableCell>
+                          {new Date(chunk.createdAt).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+        </DialogContent>
       </Dialog>
     </Box>
   );

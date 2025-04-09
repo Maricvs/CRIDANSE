@@ -30,7 +30,7 @@ const DocumentList: React.FC = () => {
     if (!userId) return;
     
     try {
-      const response = await fetch(`/api/documents/list/user/${userId}`);
+      const response = await fetch('/api/documents');
       if (!response.ok) {
         throw new Error('Failed to fetch documents');
       }

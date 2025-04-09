@@ -51,13 +51,13 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
     setError(null);
 
     const formDataToSend = new FormData();
-    formDataToSend.append('title', formData.title);
-    formDataToSend.append('description', formData.description);
+    formDataToSend.append('title', formData.title || formData.file.name);
+    formDataToSend.append('description', formData.description || '');
     formDataToSend.append('file', formData.file);
-    formDataToSend.append('user_id', userId || '');
+    formDataToSend.append('file_type', formData.file.type);
 
     try {
-      const response = await fetch('/api/documents/upload', {
+      const response = await fetch('/api/documents', {
         method: 'POST',
         body: formDataToSend
       });
