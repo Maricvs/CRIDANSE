@@ -44,8 +44,21 @@ async def get_documents(
     if file_type:
         query = query.filter(Document.file_type == file_type)
 
-    documents = query.order_by(Document.created_at.desc()).offset(skip).limit(limit).all()
-    return documents
+    documents = (
+    db.query(Document, Profile.full_name.label("user_name"))
+    .join(Profile, Document.user_id == Profile.id)
+    .order_by(Document.created_at.desc())
+    .offset(skip)
+    .limit(limit)
+    .all()
+)
+    enriched_documents = []
+    for doc, user_name in documents:
+        doc_dict = doc.__dict__.copy()
+        doc_dict["user_name"] = user_name
+    enriched_documents.append(doc_dict)
+
+    return enriched_documents
 
 @router.get("/stats")
 async def get_documents_stats(
