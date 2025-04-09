@@ -148,8 +148,9 @@ const UsersList: React.FC = () => {
     },
     {
       field: 'id',
-      headerName: 'ID',
+      headerName: '',
       width: 80,
+      hide: true,
     },
     {
       field: 'full_name',
@@ -314,6 +315,30 @@ const UsersList: React.FC = () => {
                 <CircularProgress />
               </Box>
             ),
+          }}
+          sx={{
+            '& .MuiDataGrid-columnHeaders': {
+              backgroundColor: 'background.paper',
+              borderBottom: '1px solid rgba(224, 224, 224, 1)',
+            },
+            '& .MuiDataGrid-columnHeader': {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
+            '& .MuiDataGrid-columnSeparator': {
+              display: 'block !important',
+              visibility: 'visible !important',
+              width: '1px !important',
+              maxWidth: '1px !important',
+              borderColor: 'rgba(224, 224, 224, 1)',
+            },
+            '& .MuiDataGrid-sortIcon': {
+              opacity: 1,
+            },
           }}
         />
       </Paper>

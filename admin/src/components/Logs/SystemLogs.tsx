@@ -434,7 +434,6 @@ const SystemLogs: React.FC = () => {
                   <TableRow
                     key={log.id}
                     hover
-                    onClick={() => handleLogClick(log)}
                     style={{ cursor: 'pointer' }}
                   >
                     <TableCell>{formatTimestamp(log.timestamp)}</TableCell>
