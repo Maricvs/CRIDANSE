@@ -7,10 +7,10 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 
 from ..db.database import get_db
-from ..models.models import Document, DocumentChunk
+from models.models import Document, DocumentChunk
 from ..schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
 from ..api.auth import get_current_user
-from ..models.models import User
+from models.models import Profile
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ async def get_documents(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     documents = db.query(Document).filter(
         Document.is_deleted == False
@@ -32,7 +32,7 @@ async def get_documents(
 @router.get("/documents/stats")
 async def get_document_stats(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     total = db.query(Document).filter(Document.is_deleted == False).count()
     total_size = db.query(func.sum(Document.file_size)).filter(
@@ -50,7 +50,7 @@ async def create_document(
     document: DocumentCreate,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     file_path = os.path.join(UPLOAD_DIR, f"{datetime.now().timestamp()}_{file.filename}")
     
@@ -79,7 +79,7 @@ async def update_document(
     document_id: int,
     document: DocumentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     db_document = db.query(Document).filter(Document.id == document_id).first()
     if not db_document:
@@ -98,7 +98,7 @@ async def update_document(
 async def delete_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
@@ -114,7 +114,7 @@ async def delete_document(
 async def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     document = db.query(Document).filter(Document.id == document_id).first()
     if not document:
@@ -133,7 +133,7 @@ async def download_document(
 async def get_document_vectorization(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_user)
 ):
     """Получить информацию о векторизации документа"""
     document = db.query(Document).filter(Document.id == document_id).first()
