@@ -15,6 +15,8 @@ class UserResponse(BaseModel):
     oauth_provider: str
     created_at: datetime
     avatar_url: str | None
+    is_admin: bool
+    status: str
 
     class Config:
         orm_mode = True
