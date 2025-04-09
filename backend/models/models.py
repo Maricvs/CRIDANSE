@@ -1,6 +1,6 @@
 # backend/models/models.py
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, func
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import TIMESTAMP
@@ -16,8 +16,8 @@ class Profile(Base):
     is_admin = Column(Boolean, default=False, nullable=False)
     status = Column(String(50), default="active", nullable=False)
     oauth_provider = Column(String(50), nullable=False)
-    provider_user_id = Column(String(255), nullable=False, unique=True)
-    email = Column(String(255), nullable=False, unique=True)
+    provider_user_id = Column(String(255), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
     full_name = Column(String(255))
     avatar_url = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
