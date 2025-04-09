@@ -132,74 +132,97 @@
 
 .document-card {
   position: relative;
-  padding: 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: white;
-  cursor: pointer;
-  transition: box-shadow 0.2s;
+  padding: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background-color: var(--secondary-color);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 200px;
 }
 
 .document-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .document-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #1890ff;
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .document-info {
-  margin-bottom: 10px;
+  flex: 1;
+  margin-bottom: 16px;
 }
 
 .document-info h3 {
-  margin: 0 0 5px 0;
-  font-size: 1rem;
-  color: #333;
+  margin: 0 0 12px 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .document-type,
 .document-size,
 .document-date {
-  margin: 2px 0;
-  font-size: 0.8rem;
-  color: #666;
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .document-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
 }
 
 .download-button,
 .delete-button {
-  padding: 4px 8px;
+  padding: 8px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .download-button {
-  background-color: #52c41a;
+  background-color: var(--accent-color);
   color: white;
+  flex: 1;
 }
 
 .download-button:hover {
-  background-color: #73d13d;
+  background-color: #4a8ed0;
 }
 
 .delete-button {
-  background-color: #ff4d4f;
-  color: white;
+  background-color: transparent;
+  color: #ff4d4f;
+  border: 1px solid #ff4d4f;
+  padding: 8px;
 }
 
 .delete-button:hover {
-  background-color: #ff7875;
+  background-color: #fff1f0;
+  border-color: #ff7875;
+  color: #ff7875;
 }
 
 .empty-state {
