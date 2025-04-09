@@ -9,8 +9,8 @@ from fastapi.responses import FileResponse
 from db import get_db
 from models.models import Document, DocumentChunk
 from ..schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
+from ...api.auth import get_current_user
 from models.models import Profile
-from api.admin.auth import get_current_admin
 from ..services.file_service import save_uploaded_file
 from ..components.documents.document_service import process_document_content
 
@@ -24,7 +24,7 @@ async def get_documents(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Получить список документов пользователя
@@ -48,7 +48,7 @@ async def get_documents(
 @router.get("/documents/stats")
 async def get_document_stats(
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Получить статистику по документам пользователя
@@ -84,7 +84,7 @@ async def create_document(
     document: DocumentCreate,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Создание нового документа
@@ -129,7 +129,7 @@ async def update_document(
     document_id: int,
     document: DocumentUpdate,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Обновление существующего документа
@@ -172,7 +172,7 @@ async def update_document(
 async def delete_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Удаление документа (мягкое удаление)
@@ -210,7 +210,7 @@ async def delete_document(
 async def download_document(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Скачивание документа
@@ -254,7 +254,7 @@ async def download_document(
 async def get_document_vectorization(
     document_id: int,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_admin)
+    current_user: Profile = Depends(get_current_user)
 ):
     """
     Получить информацию о векторизации документа
