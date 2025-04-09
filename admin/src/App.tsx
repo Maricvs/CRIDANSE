@@ -10,6 +10,7 @@ import {
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Box } from '@mui/material';
+import { authService } from './services/auth';
 
 // Компоненты для админ-панели
 import Dashboard from './components/Dashboard/Dashboard';
@@ -111,7 +112,7 @@ const Layout = () => {
 
 // Защищенный маршрут
 const ProtectedRoute = () => {
-  const isAuthenticated = localStorage.getItem('admin_authenticated') === 'true';
+  const isAuthenticated = authService.isAuthenticated();
   const location = useLocation();
 
   if (!isAuthenticated) {
@@ -124,7 +125,7 @@ const ProtectedRoute = () => {
 const App = () => {
   return (
     <Routes>
-      <Route path="/login" element={<Login onLogin={handleLogin} />} />
+      <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UsersList />} />

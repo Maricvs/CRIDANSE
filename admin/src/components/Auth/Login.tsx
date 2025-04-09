@@ -14,29 +14,40 @@ import {
   MdVisibility as VisibilityIcon,
   MdVisibilityOff as VisibilityOffIcon 
 } from 'react-icons/md';
+import { authService } from '../../services/auth';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginProps {
-  onLogin: (username: string, password: string) => boolean;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     if (!username.trim() || !password.trim()) {
       setError('Пожалуйста, введите имя пользователя и пароль');
+      setIsLoading(false);
       return;
     }
 
-    const success = onLogin(username, password);
-    if (!success) {
-      setError('Неверное имя пользователя или пароль');
+    try {
+      const success = await authService.login(username, password);
+      if (success) {
+        navigate('/dashboard');
+      } else {
+        setError('Неверное имя пользователя или пароль');
+      }
+    } catch (err) {
+      setError('Ошибка при входе в систему');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,6 +80,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
             />
             <TextField
               label="Пароль"
@@ -78,12 +90,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={toggleShowPassword}
                       edge="end"
+                      disabled={isLoading}
                     >
                       {showPassword ? <VisibilityOffIcon size="1.2em" /> : <VisibilityIcon size="1.2em" />}
                     </IconButton>
@@ -98,12 +112,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               fullWidth
               size="large"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
             >
-              Войти
+              {isLoading ? 'Вход...' : 'Войти'}
             </Button>
           </form>
-          
-
         </Paper>
       </Container>
     </Box>

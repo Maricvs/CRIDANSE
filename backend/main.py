@@ -12,6 +12,7 @@ from api import notify_form
 from api import logs
 from api import users
 from fastapi.middleware.cors import CORSMiddleware
+from api.admin import auth as admin_auth
 
 _ = Profile
 _ = Document
@@ -40,3 +41,4 @@ app.include_router(document_router.router, prefix="/api/document_search")
 app.include_router(notify_form.router)
 app.include_router(logs.router, prefix="/api/logs")
 app.include_router(users.router, prefix="/api/users")
+app.include_router(admin_auth.router, prefix="/api/admin/auth", tags=["admin-auth"])
