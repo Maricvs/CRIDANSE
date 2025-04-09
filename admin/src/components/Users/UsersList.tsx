@@ -296,6 +296,9 @@ const UsersList: React.FC = () => {
             pagination: {
               paginationModel: { pageSize: 10, page: 0 },
             },
+            sorting: {
+              sortModel: [{ field: 'created_at', sort: 'desc' }],
+            },
           }}
           pageSizeOptions={[10, 25, 50]}
           disableRowSelectionOnClick

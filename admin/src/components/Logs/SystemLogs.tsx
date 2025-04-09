@@ -22,6 +22,7 @@ import {
   Tooltip,
   CircularProgress,
   Button,
+  TableSortLabel,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material';
 import {
@@ -29,6 +30,8 @@ import {
   MdSearch as SearchIcon,
   MdDeleteSweep as ClearIcon,
   MdFileDownload as DownloadIcon,
+  MdInfo as InfoIcon,
+  MdDelete as DeleteIcon,
 } from 'react-icons/md';
 
 // Интерфейс для лого
@@ -41,6 +44,8 @@ interface LogEntry {
   details?: string;
 }
 
+type Order = 'asc' | 'desc';
+
 const SystemLogs: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -50,6 +55,8 @@ const SystemLogs: React.FC = () => {
   const [logLevelFilter, setLogLevelFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+  const [orderBy, setOrderBy] = useState<keyof LogEntry>('timestamp');
+  const [order, setOrder] = useState<Order>('desc');
 
   // Получение логов при монтировании компонента
   useEffect(() => {
@@ -59,7 +66,7 @@ const SystemLogs: React.FC = () => {
   // Фильтрация логов при изменении поисковой строки или фильтров
   useEffect(() => {
     filterLogs();
-  }, [logs, searchText, logLevelFilter, sourceFilter]);
+  }, [logs, searchText, logLevelFilter, sourceFilter, orderBy, order]);
 
   const fetchLogs = async () => {
     try {
@@ -113,6 +120,30 @@ const SystemLogs: React.FC = () => {
     }
   };
 
+  const handleRequestSort = (property: keyof LogEntry) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortLogs = (logs: LogEntry[]) => {
+    return [...logs].sort((a, b) => {
+      if (orderBy === 'timestamp') {
+        return order === 'desc' 
+          ? new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          : new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      }
+      
+      const aValue = a[orderBy] || '';
+      const bValue = b[orderBy] || '';
+      
+      if (order === 'desc') {
+        return String(bValue).localeCompare(String(aValue));
+      }
+      return String(aValue).localeCompare(String(bValue));
+    });
+  };
+
   const filterLogs = () => {
     let filtered = [...logs];
     
@@ -135,6 +166,9 @@ const SystemLogs: React.FC = () => {
     if (sourceFilter !== 'all') {
       filtered = filtered.filter(log => log.source === sourceFilter);
     }
+    
+    // Сортировка
+    filtered = sortLogs(filtered);
     
     setFilteredLogs(filtered);
   };
@@ -355,10 +389,44 @@ const SystemLogs: React.FC = () => {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell width={180}>Время</TableCell>
-                  <TableCell width={100}>Уровень</TableCell>
-                  <TableCell width={120}>Источник</TableCell>
-                  <TableCell>Сообщение</TableCell>
+                  <TableCell width={180}>
+                    <TableSortLabel
+                      active={orderBy === 'timestamp'}
+                      direction={orderBy === 'timestamp' ? order : 'asc'}
+                      onClick={() => handleRequestSort('timestamp')}
+                    >
+                      Время
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell width={100}>
+                    <TableSortLabel
+                      active={orderBy === 'level'}
+                      direction={orderBy === 'level' ? order : 'asc'}
+                      onClick={() => handleRequestSort('level')}
+                    >
+                      Уровень
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell width={120}>
+                    <TableSortLabel
+                      active={orderBy === 'source'}
+                      direction={orderBy === 'source' ? order : 'asc'}
+                      onClick={() => handleRequestSort('source')}
+                    >
+                      Источник
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'message'}
+                      direction={orderBy === 'message' ? order : 'asc'}
+                      onClick={() => handleRequestSort('message')}
+                    >
+                      Сообщение
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell width={100}>Детали</TableCell>
+                  <TableCell width={100}>Действия</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -386,6 +454,24 @@ const SystemLogs: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell>{log.message}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleLogClick(log)}
+                        color="primary"
+                      >
+                        <InfoIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteLog(log.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

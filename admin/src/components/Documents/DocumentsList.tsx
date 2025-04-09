@@ -28,6 +28,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  TableSortLabel,
 } from '@mui/material';
 import {
   MdRefresh as RefreshIcon,
@@ -57,6 +58,8 @@ interface Document {
   userAvatar?: string;
 }
 
+type Order = 'asc' | 'desc';
+
 const DocumentsList: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
@@ -65,6 +68,8 @@ const DocumentsList: React.FC = () => {
   const [fileTypeFilter, setFileTypeFilter] = useState<string>('all');
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [orderBy, setOrderBy] = useState<keyof Document>('createdAt');
+  const [order, setOrder] = useState<Order>('desc');
 
   // Статистика
   const [stats, setStats] = useState({
@@ -81,7 +86,7 @@ const DocumentsList: React.FC = () => {
 
   useEffect(() => {
     filterDocuments();
-  }, [documents, searchText, fileTypeFilter]);
+  }, [documents, searchText, fileTypeFilter, orderBy, order]);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -138,6 +143,36 @@ const DocumentsList: React.FC = () => {
     }
   };
 
+  const handleRequestSort = (property: keyof Document) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortDocuments = (docs: Document[]) => {
+    return [...docs].sort((a, b) => {
+      if (orderBy === 'createdAt' || orderBy === 'updatedAt') {
+        return order === 'desc' 
+          ? new Date(b[orderBy]).getTime() - new Date(a[orderBy]).getTime()
+          : new Date(a[orderBy]).getTime() - new Date(b[orderBy]).getTime();
+      }
+      
+      if (orderBy === 'fileSize') {
+        return order === 'desc' 
+          ? b.fileSize - a.fileSize
+          : a.fileSize - b.fileSize;
+      }
+      
+      const aValue = a[orderBy] || '';
+      const bValue = b[orderBy] || '';
+      
+      if (order === 'desc') {
+        return String(bValue).localeCompare(String(aValue));
+      }
+      return String(aValue).localeCompare(String(bValue));
+    });
+  };
+
   const filterDocuments = () => {
     let filtered = [...documents];
     
@@ -159,6 +194,9 @@ const DocumentsList: React.FC = () => {
         filtered = filtered.filter(doc => doc.fileType === fileTypeFilter);
       }
     }
+    
+    // Сортировка
+    filtered = sortDocuments(filtered);
     
     setFilteredDocuments(filtered);
   };
@@ -407,10 +445,42 @@ const DocumentsList: React.FC = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>ID</TableCell>
-                  <TableCell>Название</TableCell>
-                  <TableCell>Тип</TableCell>
-                  <TableCell>Размер</TableCell>
-                  <TableCell>Загружен</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'title'}
+                      direction={orderBy === 'title' ? order : 'asc'}
+                      onClick={() => handleRequestSort('title')}
+                    >
+                      Название
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'fileType'}
+                      direction={orderBy === 'fileType' ? order : 'asc'}
+                      onClick={() => handleRequestSort('fileType')}
+                    >
+                      Тип
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'fileSize'}
+                      direction={orderBy === 'fileSize' ? order : 'asc'}
+                      onClick={() => handleRequestSort('fileSize')}
+                    >
+                      Размер
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'createdAt'}
+                      direction={orderBy === 'createdAt' ? order : 'asc'}
+                      onClick={() => handleRequestSort('createdAt')}
+                    >
+                      Загружен
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell>Пользователь</TableCell>
                   <TableCell>Действия</TableCell>
                 </TableRow>
