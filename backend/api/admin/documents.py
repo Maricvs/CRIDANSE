@@ -64,7 +64,7 @@ async def get_documents(
         enriched_documents.append(doc_dict)
         
     print(enriched_documents)
-    return enriched_documents
+    return [DocumentResponse(**doc_dict) for doc_dict in enriched_documents]
 
 @router.get("/stats")
 async def get_documents_stats(
