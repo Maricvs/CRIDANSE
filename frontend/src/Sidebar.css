@@ -39,7 +39,6 @@ a:hover {
 .sidebar-section li,
 .chat-link,
 .subscription-link,
-.user-greeting,
 .new-chat-button {
   display: flex;
   align-items: center;
@@ -430,7 +429,7 @@ a.active-chat {
     margin-bottom: 0;
     padding-bottom: 0;
   }
-  
+
   .new-chat-button {
     width: auto;
     padding: 12px 20px;
@@ -550,7 +549,7 @@ a.active-chat {
 
 .subscription-link a,
 .user-greeting a {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 12px;
   width: 100%;
