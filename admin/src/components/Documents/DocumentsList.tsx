@@ -107,17 +107,23 @@ const DocumentsList: React.FC = () => {
     filterDocuments();
   }, [documents, searchText, fileTypeFilter, orderBy, order]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchDocuments = async () => {
     setLoading(true);
+    setError(null);
     try {
       const user = authService.getUser();
-      const userId = user?.id;
+      if (!user?.id) {
+        throw new Error('Пользователь не авторизован');
+      }
       const response = await axios.get('/api/admin/documents', {
-        params: { user_id: userId }
+        params: { user_id: user.id }
       });
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
+      setError('Не удалось загрузить документы. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);
     }
@@ -450,6 +456,18 @@ const DocumentsList: React.FC = () => {
       <Typography variant="subtitle1" style={{ marginBottom: '16px' }}>
         Найдено: {filteredDocuments.length} документов
       </Typography>
+
+      {error && (
+        <Box style={{ 
+          padding: '16px', 
+          marginBottom: '16px',
+          backgroundColor: '#ffebee',
+          borderRadius: '4px',
+          border: '1px solid #ef5350'
+        }}>
+          <Typography color="error">{error}</Typography>
+        </Box>
+      )}
 
       <Paper style={{ width: '100%', overflow: 'hidden' }}>
         {loading ? (
