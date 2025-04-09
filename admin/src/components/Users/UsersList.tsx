@@ -12,6 +12,7 @@ import {
   InputAdornment,
   CircularProgress,
   Avatar,
+  MenuItem,
 } from '@mui/material';
 import {
   MdRefresh as RefreshIcon,
@@ -112,6 +113,7 @@ const UsersList: React.FC = () => {
         throw new Error('Failed to save user');
       }
 
+      setDialogOpen(false);
       await fetchUsers();
     } catch (error) {
       console.error('Error saving user:', error);
