@@ -11,6 +11,7 @@ from models.models import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
 from app.components.documents.document_service import process_document_content
+from app.services.file_service import save_uploaded_file
 
 router = APIRouter()
 
@@ -51,42 +52,17 @@ async def upload_document(
     Загрузка документа
     """
     try:
-        # Валидация файла
-        validate_file(file)
-        
-        # Создаем директорию по текущей дате
-        current_date = datetime.now()
-        year_dir = UPLOAD_DIR / str(current_date.year)
-        month_dir = year_dir / f"{current_date.month:02d}"
-        
-        month_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Читаем содержимое файла для проверки размера
-        content = await file.read()
-        if len(content) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail=f"File size exceeds maximum allowed size of {MAX_FILE_SIZE/1024/1024}MB"
-            )
-        
-        # Генерируем безопасное имя файла
-        original_filename = sanitize_filename(file.filename)
-        file_extension = os.path.splitext(original_filename)[1]
-        unique_filename = f"{uuid.uuid4()}_{int(datetime.now().timestamp())}{file_extension}"
-        file_path = month_dir / unique_filename
-        
-        # Сохраняем файл
-        with open(file_path, "wb") as buffer:
-            buffer.write(content)
+        # Сохраняем файл через единый сервис
+        file_path, original_filename, file_size = await save_uploaded_file(file)
         
         # Создаем запись в БД
         document = DocumentModel(
             title=title,
             description=description,
-            file_path=str(file_path),
+            file_path=file_path,
             file_name=original_filename,
             file_type=file.content_type,
-            file_size=len(content),
+            file_size=file_size,
             user_id=user_id
         )
         
@@ -96,76 +72,101 @@ async def upload_document(
         
         # Векторизация документа
         try:
-            # Обрабатываем и векторизуем содержимое документа
             await process_document_content(document.id, db)
             print(f"✅ [INFO] Документ успешно векторизован: id={document.id}, title={document.title}")
         except Exception as process_err:
             print(f"⚠️ [WARNING] Ошибка при векторизации документа: {str(process_err)}")
-            # Не вызываем исключение, чтобы документ сохранился даже если векторизация не удалась
         
         return document
         
     except Exception as e:
-        import traceback
-        print("❌ Ошибка при загрузке документа:", e)
-        traceback.print_exc()
-
-        # Безопасно удалить файл, если он уже был создан
-        #if 'file_path' in locals() and os.path.exists(file_path):
-        #    try:
-        #        os.remove(file_path)
-        #    except Exception as remove_err:
-        #        print("⚠️ Не удалось удалить файл при ошибке:", remove_err)
-
-        raise HTTPException(status_code=500, detail="Internal Server Error (check logs)")
+        print(f"❌ [ERROR] Ошибка при загрузке документа: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при загрузке документа"
+        )
 
 @router.get("/list/user/{user_id}", response_model=list[DocumentSchema])
 async def get_user_documents(user_id: int, db: Session = Depends(get_db)):
-    print(f"📥 [DEBUG] get_user_documents triggered for user_id={user_id}")
     """
     Получить все документы пользователя
     """
     try:
-        documents = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).all()
-        print(f"📦 [DEBUG] Found {len(documents)} documents for user {user_id}")
-        for doc in documents:
-            print(f"📄 [DEBUG] Document: id={doc.id}, title={doc.title}, user_id={doc.user_id}")
+        documents = db.query(DocumentModel).filter(
+            DocumentModel.user_id == user_id,
+            DocumentModel.is_deleted == False
+        ).all()
+        
+        print(f"📦 [INFO] Найдено {len(documents)} документов для пользователя {user_id}")
         return documents
+        
     except Exception as e:
-        print(f"❌ [ERROR] Error fetching documents: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ [ERROR] Ошибка при получении документов: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при получении списка документов"
+        )
 
 @router.get("/single/document/{document_id}", response_model=DocumentSchema)
 async def get_document(document_id: int, db: Session = Depends(get_db)):
     """
     Получить конкретный документ по ID
     """
-    document = db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-    return document
+    try:
+        document = db.query(DocumentModel).filter(
+            DocumentModel.id == document_id,
+            DocumentModel.is_deleted == False
+        ).first()
+        
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Документ не найден"
+            )
+            
+        return document
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при получении документа: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при получении документа"
+        )
 
 @router.delete("/remove/document/{document_id}")
 async def delete_document(document_id: int, db: Session = Depends(get_db)):
     """
-    Удалить документ
+    Удалить документ (мягкое удаление)
     """
-    document = db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found")
-    
     try:
-        # Удаляем физический файл
-        if os.path.exists(document.file_path):
-            os.remove(document.file_path)
+        document = db.query(DocumentModel).filter(
+            DocumentModel.id == document_id,
+            DocumentModel.is_deleted == False
+        ).first()
         
-        # Удаляем запись из БД
-        db.delete(document)
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Документ не найден"
+            )
+        
+        document.is_deleted = True
+        document.updated_at = datetime.now()
         db.commit()
         
-        return {"message": "Document deleted successfully"}
+        print(f"✅ [INFO] Документ успешно удален: id={document_id}")
+        return {"message": "Документ успешно удален"}
+        
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"❌ [ERROR] Ошибка при удалении документа: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при удалении документа"
+        )
 
 @router.post("/cleanup")
 async def cleanup_documents(db: Session = Depends(get_db)):
@@ -174,11 +175,15 @@ async def cleanup_documents(db: Session = Depends(get_db)):
     """
     try:
         deleted_count = cleanup_missing_files(db)
+        print(f"✅ [INFO] Удалено {deleted_count} несуществующих документов")
+        
         return {
             "status": "success",
             "message": f"Удалено {deleted_count} несуществующих документов"
         }
+        
     except Exception as e:
+        print(f"❌ [ERROR] Ошибка при очистке документов: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail=f"Ошибка при очистке документов: {str(e)}"
