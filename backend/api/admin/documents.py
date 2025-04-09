@@ -57,7 +57,8 @@ async def get_documents(
         doc_dict = doc.__dict__.copy()
         doc_dict["user_name"] = user_name
         enriched_documents.append(doc_dict)
-
+        
+    print(enriched_documents)
     return enriched_documents
 
 @router.get("/stats")
