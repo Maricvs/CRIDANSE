@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy import func
 from typing import List, Optional
 from datetime import datetime
@@ -44,14 +44,17 @@ async def get_documents(
     if file_type:
         query = query.filter(Document.file_type == file_type)
 
+    UserProfile = aliased(Profile, name="users_profile")
+
     documents = (
-    db.query(Document, Profile.full_name.label("user_name"))
-    .join(Profile, Document.user_id == Profile.id)
-    .order_by(Document.created_at.desc())
-    .offset(skip)
-    .limit(limit)
-    .all()
-)
+        db.query(Document, UserProfile.full_name.label("user_name"))
+        .join(UserProfile, Document.user_id == UserProfile.id)
+        .order_by(Document.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
     enriched_documents = []
     for doc, user_name in documents:
         doc_dict = {
