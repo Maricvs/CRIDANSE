@@ -13,6 +13,7 @@ from openai import OpenAI
 import numpy as np
 import json
 from datetime import datetime
+from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
 # Константы
 UPLOAD_DIR = "uploads"
@@ -112,63 +113,64 @@ async def upload_document(
     title: str
 ) -> Document:
     """Загружает документ, сохраняет его и создает эмбеддинги"""
-    # Создаем директорию для загрузки
-    ensure_upload_dir()
-    
-    # Генерируем уникальное имя файла
-    file_extension = file.filename.split(".")[-1].lower()
-    file_name = f"{uuid.uuid4()}.{file_extension}"
-    file_path = os.path.join(UPLOAD_DIR, file_name)
-    
-    # Сохраняем файл
-    with open(file_path, "wb") as buffer:
-        buffer.write(await file.read())
-    
-    # Создаем запись о документе в БД
-    document_data = DocumentCreate(
-        title=title,
-        file_type=file_extension
-    )
-    
-    db_document = Document(
-        user_id=user.id,
-        title=document_data.title,
-        file_path=file_path,
-        file_type=document_data.file_type
-    )
-    
-    db.add(db_document)
-    db.commit()
-    db.refresh(db_document)
-    
-    # Извлекаем текст из документа
-    text = extract_text_from_file(file_path, file_extension)
-    
-    # Разбиваем текст на чанки
-    chunks = split_text_into_chunks(text)
-    
-    # Создаем эмбеддинги для каждого чанка
-    for i, chunk_text in enumerate(chunks):
-        embedding = await get_embedding(chunk_text)
+    try:
+        # Сохраняем файл через единый сервис
+        file_path, original_filename, file_size = await save_uploaded_file(file)
         
-        # Сохраняем чанк в БД
-        chunk_data = DocumentChunkCreate(
-            content=chunk_text,
-            chunk_index=i,
-            embedding=embedding
+        # Создаем запись о документе в БД
+        document_data = DocumentCreate(
+            title=title,
+            file_type=os.path.splitext(original_filename)[1].lower().lstrip('.')
         )
         
-        db_chunk = DocumentChunk(
-            document_id=db_document.id,
-            content=chunk_data.content,
-            embedding=json.dumps(embedding),  # Сохраняем как JSON
-            chunk_index=chunk_data.chunk_index
+        db_document = Document(
+            user_id=user.id,
+            title=document_data.title,
+            file_path=file_path,
+            file_type=document_data.file_type,
+            file_size=file_size,
+            file_name=original_filename
         )
         
-        db.add(db_chunk)
-    
-    db.commit()
-    return db_document
+        db.add(db_document)
+        db.commit()
+        db.refresh(db_document)
+        
+        # Извлекаем текст из документа
+        text = extract_text_from_file(file_path, document_data.file_type)
+        
+        # Разбиваем текст на чанки
+        chunks = split_text_into_chunks(text)
+        
+        # Создаем эмбеддинги для каждого чанка
+        for i, chunk_text in enumerate(chunks):
+            embedding = await get_embedding(chunk_text)
+            
+            # Сохраняем чанк в БД
+            chunk_data = DocumentChunkCreate(
+                content=chunk_text,
+                chunk_index=i,
+                embedding=embedding
+            )
+            
+            db_chunk = DocumentChunk(
+                document_id=db_document.id,
+                content=chunk_data.content,
+                embedding=json.dumps(embedding),  # Сохраняем как JSON
+                chunk_index=chunk_data.chunk_index
+            )
+            
+            db.add(db_chunk)
+        
+        db.commit()
+        return db_document
+        
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при загрузке документа: {str(e)}")
+        # Если файл был сохранен, удаляем его
+        if 'file_path' in locals():
+            await delete_file(file_path)
+        raise e
 
 async def get_user_documents(
     db: Session,
@@ -189,11 +191,8 @@ async def delete_document(
     ).first()
     
     if document:
-        # Удаляем физический файл
-        try:
-            os.remove(document.file_path)
-        except FileNotFoundError:
-            pass
+        # Удаляем физический файл через единый сервис
+        await delete_file(document.file_path)
         
         # Удаляем запись из БД
         db.delete(document)

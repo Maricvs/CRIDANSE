@@ -46,33 +46,36 @@ import {
   MdClose as CloseIcon,
 } from 'react-icons/md';
 import axios from 'axios';
+import { authService } from '../../services/auth';
 
 // Интерфейс для документа
 interface Document {
   id: number;
   title: string;
   description: string;
-  fileType: string;
-  fileSize: number;
-  createdAt: string;
-  updatedAt: string;
-  userId: number;
-  userName: string;
-  userAvatar?: string;
-  isDeleted: boolean;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+  updated_at: string;
+  user_id: number;
+  user_name: string;
+  user_avatar?: string;
+  is_deleted: boolean;
   vectorization?: {
-    totalChunks: number;
+    total_chunks: number;
     chunks: Array<{
       id: number;
       index: number;
-      contentPreview: string;
-      embeddingSize: number;
-      createdAt: string;
+      content_preview: string;
+      embedding_size: number;
+      created_at: string;
     }>;
   };
 }
 
 type Order = 'asc' | 'desc';
+
+const currentUser = authService.getUser();
 
 const DocumentsList: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -83,7 +86,7 @@ const DocumentsList: React.FC = () => {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [vectorizationDialogOpen, setVectorizationDialogOpen] = useState(false);
-  const [orderBy, setOrderBy] = useState<keyof Document>('createdAt');
+  const [orderBy, setOrderBy] = useState<keyof Document>('created_at');
   const [order, setOrder] = useState<Order>('desc');
 
   // Статистика
@@ -104,13 +107,23 @@ const DocumentsList: React.FC = () => {
     filterDocuments();
   }, [documents, searchText, fileTypeFilter, orderBy, order]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const fetchDocuments = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await axios.get('/api/admin/documents');
+      const user = authService.getUser();
+      if (!user?.id) {
+        throw new Error('Пользователь не авторизован');
+      }
+      const response = await axios.get('/api/admin/documents', {
+        params: { user_id: user.id }
+      });
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
+      setError('Не удалось загрузить документы. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);
     }
@@ -118,7 +131,11 @@ const DocumentsList: React.FC = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get('/api/admin/documents/stats');
+      const user = authService.getUser();
+      const userId = user?.id;
+      const response = await axios.get('/api/admin/documents/stats', {
+        params: { user_id: userId }
+      });
       setStats(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке статистики:', error);
@@ -133,16 +150,16 @@ const DocumentsList: React.FC = () => {
 
   const sortDocuments = (docs: Document[]) => {
     return [...docs].sort((a, b) => {
-      if (orderBy === 'createdAt' || orderBy === 'updatedAt') {
+      if (orderBy === 'created_at' || orderBy === 'updated_at') {
         return order === 'desc' 
           ? new Date(b[orderBy]).getTime() - new Date(a[orderBy]).getTime()
           : new Date(a[orderBy]).getTime() - new Date(b[orderBy]).getTime();
       }
       
-      if (orderBy === 'fileSize') {
+      if (orderBy === 'file_size') {
         return order === 'desc' 
-          ? b.fileSize - a.fileSize
-          : a.fileSize - b.fileSize;
+          ? b.file_size - a.file_size
+          : a.file_size - b.file_size;
       }
       
       const aValue = a[orderBy] || '';
@@ -163,17 +180,17 @@ const DocumentsList: React.FC = () => {
       filtered = filtered.filter(doc => 
         doc.title.toLowerCase().includes(lowerCaseSearch) ||
         doc.description.toLowerCase().includes(lowerCaseSearch) ||
-        doc.userName.toLowerCase().includes(lowerCaseSearch)
+        doc.user_name.toLowerCase().includes(lowerCaseSearch)
       );
     }
     
     if (fileTypeFilter !== 'all') {
       if (fileTypeFilter === 'images') {
-        filtered = filtered.filter(doc => ['jpg', 'png', 'gif'].includes(doc.fileType));
+        filtered = filtered.filter(doc => ['jpg', 'png', 'gif'].includes(doc.file_type));
       } else if (fileTypeFilter === 'documents') {
-        filtered = filtered.filter(doc => ['doc', 'docx', 'pdf', 'txt'].includes(doc.fileType));
+        filtered = filtered.filter(doc => ['doc', 'docx', 'pdf', 'txt'].includes(doc.file_type));
       } else {
-        filtered = filtered.filter(doc => doc.fileType === fileTypeFilter);
+        filtered = filtered.filter(doc => doc.file_type === fileTypeFilter);
       }
     }
     
@@ -440,6 +457,18 @@ const DocumentsList: React.FC = () => {
         Найдено: {filteredDocuments.length} документов
       </Typography>
 
+      {error && (
+        <Box style={{ 
+          padding: '16px', 
+          marginBottom: '16px',
+          backgroundColor: '#ffebee',
+          borderRadius: '4px',
+          border: '1px solid #ef5350'
+        }}>
+          <Typography color="error">{error}</Typography>
+        </Box>
+      )}
+
       <Paper style={{ width: '100%', overflow: 'hidden' }}>
         {loading ? (
           <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
@@ -461,27 +490,27 @@ const DocumentsList: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'fileType'}
-                      direction={orderBy === 'fileType' ? order : 'asc'}
-                      onClick={() => handleRequestSort('fileType')}
+                      active={orderBy === 'file_type'}
+                      direction={orderBy === 'file_type' ? order : 'asc'}
+                      onClick={() => handleRequestSort('file_type')}
                     >
                       Тип
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'fileSize'}
-                      direction={orderBy === 'fileSize' ? order : 'asc'}
-                      onClick={() => handleRequestSort('fileSize')}
+                      active={orderBy === 'file_size'}
+                      direction={orderBy === 'file_size' ? order : 'asc'}
+                      onClick={() => handleRequestSort('file_size')}
                     >
                       Размер
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'createdAt'}
-                      direction={orderBy === 'createdAt' ? order : 'asc'}
-                      onClick={() => handleRequestSort('createdAt')}
+                      active={orderBy === 'created_at'}
+                      direction={orderBy === 'created_at' ? order : 'asc'}
+                      onClick={() => handleRequestSort('created_at')}
                     >
                       Загружен
                     </TableSortLabel>
@@ -495,7 +524,7 @@ const DocumentsList: React.FC = () => {
                   <TableRow key={doc.id} hover>
                     <TableCell>
                       <Box style={{ display: 'flex', alignItems: 'center' }}>
-                        {getFileIcon(doc.fileType)}
+                        {getFileIcon(doc.file_type)}
                         <Typography style={{ marginLeft: '8px' }}>{doc.title}</Typography>
                       </Box>
                       <Typography variant="caption" color="textSecondary">
@@ -504,21 +533,21 @@ const DocumentsList: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Chip
-                        label={doc.fileType.toUpperCase()}
+                        label={doc.file_type.toUpperCase()}
                         size="small"
                         variant="outlined"
                       />
                     </TableCell>
-                    <TableCell>{formatFileSize(doc.fileSize)}</TableCell>
-                    <TableCell>{formatDate(doc.createdAt)}</TableCell>
+                    <TableCell>{formatFileSize(doc.file_size)}</TableCell>
+                    <TableCell>{formatDate(doc.created_at)}</TableCell>
                     <TableCell>
                       <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
-                          src={doc.userAvatar}
-                          alt={doc.userName}
+                          src={doc.user_avatar}
+                          alt={doc.user_name}
                           style={{ width: 30, height: 30, marginRight: '8px' }}
                         />
-                        {doc.userName}
+                        {doc.user_name}
                       </Box>
                     </TableCell>
                     <TableCell>
@@ -576,7 +605,7 @@ const DocumentsList: React.FC = () => {
           <>
             <DialogTitle>
               <Box style={{ display: 'flex', alignItems: 'center' }}>
-                {getFileIcon(selectedDocument.fileType)}
+                {getFileIcon(selectedDocument.file_type)}
                 <Typography variant="h6" style={{ marginLeft: '8px' }}>
                   {selectedDocument.title}
                 </Typography>
@@ -591,30 +620,30 @@ const DocumentsList: React.FC = () => {
                   <Typography variant="subtitle2" color="textSecondary">Тип файла</Typography>
                   <Typography variant="body1">
                     <Chip
-                      label={selectedDocument.fileType.toUpperCase()}
+                      label={selectedDocument.file_type.toUpperCase()}
                       size="small"
                       variant="outlined"
                       style={{ marginRight: '8px' }}
                     />
-                    {formatFileSize(selectedDocument.fileSize)}
+                    {formatFileSize(selectedDocument.file_size)}
                   </Typography>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <Typography variant="subtitle2" color="textSecondary">Загружен</Typography>
-                  <Typography variant="body1">{formatDate(selectedDocument.createdAt)}</Typography>
+                  <Typography variant="body1">{formatDate(selectedDocument.created_at)}</Typography>
                   
                   <Typography variant="subtitle2" color="textSecondary" style={{ marginTop: '8px' }}>Последнее обновление</Typography>
-                  <Typography variant="body1">{formatDate(selectedDocument.updatedAt)}</Typography>
+                  <Typography variant="body1">{formatDate(selectedDocument.updated_at)}</Typography>
                   
                   <Typography variant="subtitle2" color="textSecondary" style={{ marginTop: '8px' }}>Пользователь</Typography>
                   <Box style={{ display: 'flex', alignItems: 'center' }}>
                     <Avatar
-                      src={selectedDocument.userAvatar}
-                      alt={selectedDocument.userName}
+                      src={selectedDocument.user_avatar}
+                      alt={selectedDocument.user_name}
                       style={{ width: 24, height: 24, marginRight: '8px' }}
                     />
                     <Typography variant="body1">
-                      {selectedDocument.userName} (ID: {selectedDocument.userId})
+                      {selectedDocument.user_name} (ID: {selectedDocument.user_id})
                     </Typography>
                   </Box>
                 </Grid>
@@ -631,7 +660,7 @@ const DocumentsList: React.FC = () => {
                     justifyContent: 'center',
                     minHeight: 200
                   }}>
-                    {['jpg', 'png', 'gif'].includes(selectedDocument.fileType) ? (
+                    {['jpg', 'png', 'gif'].includes(selectedDocument.file_type) ? (
                       <Box component="img" 
                         src={`/api/admin/documents/${selectedDocument.id}/download`} 
                         alt={selectedDocument.title}
@@ -640,7 +669,7 @@ const DocumentsList: React.FC = () => {
                     ) : (
                       <>
                         <Typography variant="body1" style={{ marginBottom: '16px' }}>
-                          Предпросмотр для файла типа {selectedDocument.fileType.toUpperCase()} недоступен
+                          Предпросмотр для файла типа {selectedDocument.file_type.toUpperCase()} недоступен
                         </Typography>
                         <Button
                           variant="contained"
@@ -692,7 +721,7 @@ const DocumentsList: React.FC = () => {
                 {selectedDocument.title}
               </Typography>
               <Typography variant="subtitle1" gutterBottom>
-                Всего чанков: {selectedDocument.vectorization.totalChunks}
+                Всего чанков: {selectedDocument.vectorization.total_chunks}
               </Typography>
               
               <TableContainer component={Paper} sx={{ mt: 2 }}>
@@ -709,10 +738,10 @@ const DocumentsList: React.FC = () => {
                     {selectedDocument.vectorization.chunks.map((chunk) => (
                       <TableRow key={chunk.id}>
                         <TableCell>{chunk.index}</TableCell>
-                        <TableCell>{chunk.contentPreview}</TableCell>
-                        <TableCell>{chunk.embeddingSize}</TableCell>
+                        <TableCell>{chunk.content_preview}</TableCell>
+                        <TableCell>{chunk.embedding_size}</TableCell>
                         <TableCell>
-                          {new Date(chunk.createdAt).toLocaleString()}
+                          {new Date(chunk.created_at).toLocaleString()}
                         </TableCell>
                       </TableRow>
                     ))}

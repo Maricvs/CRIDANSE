@@ -4,7 +4,8 @@ import os
 import uuid
 from datetime import datetime
 import re
-from typing import Optional
+from typing import Optional, Tuple
+import shutil
 
 # Конфигурация
 UPLOAD_DIR = Path("/var/www/uploads/documents")
@@ -31,10 +32,14 @@ def validate_file(file: UploadFile) -> bool:
     
     return True
 
+def ensure_upload_dir() -> None:
+    """Создает директорию для загрузки, если она не существует"""
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
 async def save_uploaded_file(
     file: UploadFile,
     subdirectory: Optional[str] = None
-) -> tuple[str, str, int]:
+) -> Tuple[str, str, int]:
     """
     Сохраняет загруженный файл и возвращает информацию о нем
     
@@ -92,4 +97,52 @@ async def save_uploaded_file(
         raise HTTPException(
             status_code=500,
             detail=f"Ошибка при сохранении файла: {str(e)}"
+        )
+
+async def delete_file(file_path: str) -> bool:
+    """
+    Удаляет файл с диска
+    
+    Args:
+        file_path: Путь к файлу
+        
+    Returns:
+        bool: True если файл успешно удален, False если файл не найден
+    """
+    try:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"✅ [INFO] Файл успешно удален: {file_path}")
+            return True
+        return False
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при удалении файла {file_path}: {str(e)}")
+        return False
+
+def get_file_info(file_path: str) -> dict:
+    """
+    Получает информацию о файле
+    
+    Args:
+        file_path: Путь к файлу
+        
+    Returns:
+        dict: Информация о файле (размер, тип, дата создания)
+    """
+    try:
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail="Файл не найден")
+            
+        stats = os.stat(file_path)
+        return {
+            "size": stats.st_size,
+            "created_at": datetime.fromtimestamp(stats.st_ctime),
+            "modified_at": datetime.fromtimestamp(stats.st_mtime),
+            "file_type": os.path.splitext(file_path)[1].lower().lstrip('.')
+        }
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при получении информации о файле {file_path}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ошибка при получении информации о файле: {str(e)}"
         ) 
