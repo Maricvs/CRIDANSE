@@ -86,6 +86,7 @@ jobs:
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
               exit 1
             fi
+            python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "✅ Админка успешно собрана и развёрнута по /admin"
 
       - name: Уведомление об окончании деплоя
         run: |

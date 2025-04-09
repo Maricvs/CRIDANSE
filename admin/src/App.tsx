@@ -91,7 +91,7 @@ const Layout = () => {
           sx={{ 
             flexGrow: 1, 
             p: 3, 
-            width: { sm: `calc(100% - ${sidebarOpen ? 240 : 60}px)` },
+            width: { sm: `calc(100% - ${sidebarOpen ? 200 : 50}px)` },
             transition: 'margin 0.2s ease-in-out, width 0.2s ease-in-out'
           }}
         >
