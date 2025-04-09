@@ -147,10 +147,9 @@ const UsersList: React.FC = () => {
       ),
     },
     {
-      field: 'email',
-      headerName: 'Email',
-      flex: 1,
-      minWidth: 200,
+      field: 'id',
+      headerName: 'ID',
+      width: 80,
     },
     {
       field: 'full_name',
@@ -158,6 +157,12 @@ const UsersList: React.FC = () => {
       flex: 1,
       minWidth: 200,
       valueGetter: (params) => params.row.full_name || 'Не указано',
+    },
+    {
+      field: 'email',
+      headerName: 'Email',
+      flex: 1,
+      minWidth: 200,
     },
     {
       field: 'oauth_provider',
@@ -170,6 +175,12 @@ const UsersList: React.FC = () => {
           color={params.value === 'google' ? 'primary' : 'default'}
         />
       ),
+    },
+    {
+      field: 'created_at',
+      headerName: 'Дата регистрации',
+      width: 180,
+      valueGetter: (params) => new Date(params.value).toLocaleString(),
     },
     {
       field: 'status',
@@ -194,12 +205,6 @@ const UsersList: React.FC = () => {
           </Tooltip>
         ) : null
       ),
-    },
-    {
-      field: 'created_at',
-      headerName: 'Дата регистрации',
-      width: 180,
-      valueGetter: (params) => new Date(params.value).toLocaleString(),
     },
     {
       field: 'actions',
