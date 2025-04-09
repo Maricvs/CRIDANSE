@@ -232,7 +232,7 @@ const DocumentsList: React.FC = () => {
     }
     
     try {
-      await axios.delete(`/api/admin/documents/${doc.id}`);
+      await axios.delete(`/api/documents/${doc.id}`);
       fetchDocuments();
       fetchStats();
     } catch (error) {
@@ -295,6 +295,27 @@ const DocumentsList: React.FC = () => {
     }
   };
 
+  const handleUploadClick = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', file.name);
+    formData.append('description', '');
+    formData.append('user_id', currentUser.id.toString());
+
+    try {
+      await axios.post('/api/documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      fetchDocuments();
+      fetchStats();
+    } catch (error) {
+      console.error('Ошибка при загрузке документа:', error);
+      alert('Произошла ошибка при загрузке документа');
+    }
+  };
+
   return (
     <Box style={{ padding: '16px' }}>
       <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -316,21 +337,7 @@ const DocumentsList: React.FC = () => {
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('title', file.name);
-                    try {
-                      await axios.post('/api/admin/documents/upload', formData, {
-                        headers: {
-                          'Content-Type': 'multipart/form-data',
-                        },
-                      });
-                      fetchDocuments();
-                      fetchStats();
-                    } catch (error) {
-                      console.error('Ошибка при загрузке документа:', error);
-                      alert('Произошла ошибка при загрузке документа');
-                    }
+                    await handleUploadClick(file);
                   }
                 }}
               />

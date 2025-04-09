@@ -9,10 +9,11 @@ interface Document {
   description: string;
   created_at: string;
   updated_at: string;
-  file_url: string;
+  file_path: string;
   file_type: string;
   file_size: number;
   user_id: number;
+  is_deleted: boolean;
 }
 
 const DocumentList: React.FC = () => {
@@ -35,7 +36,7 @@ const DocumentList: React.FC = () => {
         throw new Error('Failed to fetch documents');
       }
       const data = await response.json();
-      setDocuments(data);
+      setDocuments(data.filter((doc: Document) => !doc.is_deleted));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -79,28 +80,59 @@ const DocumentList: React.FC = () => {
     navigate('/mylibrary/upload');
   };
 
+  const handleDownloadDocument = async (documentId: number, fileName: string) => {
+    try {
+      const response = await fetch(`/api/documents/${documentId}/download`);
+      if (!response.ok) {
+        throw new Error('Failed to download document');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to download document');
+    }
+  };
+
   const getFileIcon = (fileType: string) => {
-    const type = fileType.toLowerCase();
-    if (type.includes('pdf')) {
-      return <FaFilePdf />;
+    switch (fileType.toLowerCase()) {
+      case 'pdf':
+        return <FaFilePdf />;
+      case 'doc':
+      case 'docx':
+        return <FaFileWord />;
+      case 'xls':
+      case 'xlsx':
+        return <FaFileExcel />;
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return <FaFileImage />;
+      case 'txt':
+        return <FaFileAlt />;
+      default:
+        return <FaFile />;
     }
-    if (type.includes('doc') || type.includes('word')) {
-      return <FaFileWord />;
-    }
-    if (type.includes('xls') || type.includes('excel') || type.includes('sheet')) {
-      return <FaFileExcel />;
-    }
-    if (type.includes('jpg') || type.includes('jpeg') || type.includes('png') || type.includes('gif')) {
-      return <FaFileImage />;
-    }
-    if (type.includes('txt') || type.includes('text')) {
-      return <FaFileAlt />;
-    }
-    return <FaFile />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   if (loading) {
-    return <div className="loading">Загрузка...</div>;
+    return <div className="loading">Загрузка документов...</div>;
   }
 
   if (error) {
@@ -108,50 +140,61 @@ const DocumentList: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="documents-header">
+    <div className="document-list">
+      <div className="document-list-header">
         <h2>Мои документы</h2>
+        <button className="upload-button" onClick={handleUploadClick}>
+          <FaUpload /> Загрузить документ
+        </button>
       </div>
-      <div className="documents-grid">
-        {/* Поле для загрузки файла */}
-        <div className="document-card upload-card" onClick={handleUploadClick}>
-          <div className="upload-placeholder">
-            <div className="icon">
-              <FaUpload />
-            </div>
-            <p>Загрузить новый документ</p>
-          </div>
-        </div>
 
-        {/* Список документов */}
-        {documents.map((doc) => (
-          <div
-            key={doc.id}
-            className="document-card"
-            onClick={(e) => handleDocumentClick(doc.id, e)}
-          >
-            <div className="document-card-header">
-              <div className="file-icon">
+      {documents.length === 0 ? (
+        <div className="empty-state">
+          <p>У вас пока нет документов</p>
+          <button className="upload-button" onClick={handleUploadClick}>
+            <FaUpload /> Загрузить первый документ
+          </button>
+        </div>
+      ) : (
+        <div className="documents-grid">
+          {documents.map((doc) => (
+            <div
+              key={doc.id}
+              className="document-card"
+              onClick={(e) => handleDocumentClick(doc.id, e)}
+            >
+              <div className="document-icon">
                 {getFileIcon(doc.file_type)}
               </div>
-              <h3>{doc.title}</h3>
-              <button 
-                className="delete-button"
-                onClick={(e) => handleDeleteDocument(doc.id, e)}
-                title="Удалить документ"
-              >
-                <FaTrash />
-              </button>
+              <div className="document-info">
+                <h3>{doc.title}</h3>
+                <p className="document-type">{doc.file_type.toUpperCase()}</p>
+                <p className="document-size">{formatFileSize(doc.file_size)}</p>
+                <p className="document-date">
+                  {new Date(doc.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="document-actions">
+                <button
+                  className="download-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownloadDocument(doc.id, doc.title);
+                  }}
+                >
+                  Скачать
+                </button>
+                <button
+                  className="delete-button"
+                  onClick={(e) => handleDeleteDocument(doc.id, e)}
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </div>
-            <p>{doc.description}</p>
-            <div className="document-meta">
-              <span>Тип: {doc.file_type}</span>
-              <span>Размер: {(doc.file_size / 1024 / 1024).toFixed(2)} MB</span>
-              <span>Создан: {new Date(doc.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
