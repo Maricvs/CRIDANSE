@@ -11,7 +11,7 @@ from models.models import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
 from app.components.documents.document_service import process_document_content
-from app.services.file_service import save_uploaded_file
+from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
 router = APIRouter()
 
@@ -76,6 +76,11 @@ async def upload_document(
             print(f"✅ [INFO] Документ успешно векторизован: id={document.id}, title={document.title}")
         except Exception as process_err:
             print(f"⚠️ [WARNING] Ошибка при векторизации документа: {str(process_err)}")
+            # Если векторизация не удалась, удаляем файл и запись
+            await delete_file(file_path)
+            db.delete(document)
+            db.commit()
+            raise process_err
         
         return document
         
@@ -135,32 +140,28 @@ async def get_document(document_id: int, db: Session = Depends(get_db)):
             detail="Ошибка при получении документа"
         )
 
-@router.delete("/remove/document/{document_id}")
-async def delete_document(document_id: int, db: Session = Depends(get_db)):
+@router.delete("/{document_id}")
+async def delete_document(
+    document_id: int,
+    db: Session = Depends(get_db)
+):
     """
-    Удалить документ (мягкое удаление)
+    Удаление документа
     """
     try:
-        document = db.query(DocumentModel).filter(
-            DocumentModel.id == document_id,
-            DocumentModel.is_deleted == False
-        ).first()
-        
+        document = db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
         if not document:
-            raise HTTPException(
-                status_code=404,
-                detail="Документ не найден"
-            )
+            raise HTTPException(status_code=404, detail="Документ не найден")
+            
+        # Удаляем файл через единый сервис
+        await delete_file(document.file_path)
         
-        document.is_deleted = True
-        document.updated_at = datetime.now()
+        # Удаляем запись из БД
+        db.delete(document)
         db.commit()
         
-        print(f"✅ [INFO] Документ успешно удален: id={document_id}")
         return {"message": "Документ успешно удален"}
         
-    except HTTPException as e:
-        raise e
     except Exception as e:
         print(f"❌ [ERROR] Ошибка при удалении документа: {str(e)}")
         raise HTTPException(

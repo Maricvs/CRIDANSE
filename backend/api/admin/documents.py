@@ -2,20 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
-import os
-import shutil
-from pathlib import Path
+from fastapi.responses import FileResponse
 
 from db import get_db
 from models.models import Document, Profile
 from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
 from auth import get_current_user
+from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
 router = APIRouter(prefix="/api/admin/documents", tags=["admin-documents"])
-
-# Конфигурация для загрузки файлов
-UPLOAD_DIR = Path("uploads/documents")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 @router.get("/", response_model=List[DocumentResponse])
 async def get_documents(
@@ -113,31 +108,33 @@ async def upload_document(
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
-    # Создаем уникальное имя файла
-    file_ext = os.path.splitext(file.filename)[1]
-    unique_filename = f"{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}"
-    file_path = UPLOAD_DIR / unique_filename
+    try:
+        # Сохраняем файл через единый сервис
+        file_path, original_filename, file_size = await save_uploaded_file(file)
+        
+        # Создаем запись в БД
+        document = Document(
+            user_id=current_user.id,
+            title=title or original_filename,
+            description=description,
+            file_name=original_filename,
+            file_type=file.content_type,
+            file_size=file_size,
+            file_path=file_path
+        )
 
-    # Сохраняем файл
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        db.add(document)
+        db.commit()
+        db.refresh(document)
 
-    # Создаем запись в БД
-    document = Document(
-        user_id=current_user.id,
-        title=title or file.filename,
-        description=description,
-        file_name=file.filename,
-        file_type=file_ext[1:].lower(),
-        file_size=os.path.getsize(file_path),
-        file_path=str(file_path)
-    )
-
-    db.add(document)
-    db.commit()
-    db.refresh(document)
-
-    return document
+        return document
+        
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при загрузке документа: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при загрузке документа"
+        )
 
 @router.delete("/{document_id}")
 async def delete_document(
@@ -178,11 +175,21 @@ async def download_document(
     if not document:
         raise HTTPException(status_code=404, detail="Документ не найден")
 
-    if not os.path.exists(document.file_path):
-        raise HTTPException(status_code=404, detail="Файл не найден на сервере")
-
-    return FileResponse(
-        document.file_path,
-        filename=document.file_name,
-        media_type=f"application/{document.file_type}"
-    ) 
+    try:
+        # Проверяем существование файла через единый сервис
+        file_info = get_file_info(document.file_path)
+        
+        return FileResponse(
+            document.file_path,
+            filename=document.file_name,
+            media_type=f"application/{document.file_type}"
+        )
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при скачивании документа: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при скачивании документа"
+        ) 
