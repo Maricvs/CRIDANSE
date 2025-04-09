@@ -47,8 +47,8 @@ async def get_documents(
     UserProfile = aliased(Profile, name="users_profile")
 
     documents = (
-        db.query(Document, UserProfile.full_name.label("user_name"))
-        .join(UserProfile, Document.user_id == UserProfile.id)
+        db.query(Document, Profile.full_name.label("user_name"))
+        .join(Profile, Document.user_id == Profile.id)
         .order_by(Document.created_at.desc())
         .offset(skip)
         .limit(limit)
