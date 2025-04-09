@@ -416,7 +416,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                       </button>
                     </>
                   ) : (
-                    <Link to="/auth" onClick={handleLinkClick}><FaSignInAlt className="icon" /><span>Войти</span></Link>
+                    <Link to="/auth" onClick={handleLinkClick} className="flex-container">
+                      <FaSignInAlt className="icon" />
+                      <span>Войти</span>
+                    </Link>
                   )}
                 </div>
               </div>
