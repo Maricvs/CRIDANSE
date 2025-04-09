@@ -47,7 +47,7 @@ const UsersList: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/users?search=${searchText}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/?search=${searchText}`);
       if (!response.ok) {
         throw new Error('Failed to fetch users');
       }
