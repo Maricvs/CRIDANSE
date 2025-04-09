@@ -7,12 +7,11 @@ from datetime import datetime
 from fastapi.responses import FileResponse
 
 from db import get_db
-from models.models import Document, DocumentChunk
-from ..schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
-from ...api.auth import get_current_user
-from models.models import Profile
-from ..services.file_service import save_uploaded_file
-from ..components.documents.document_service import process_document_content
+from models.models import Document, DocumentChunk, Profile
+from app.schemas.document_schema import DocumentCreate, DocumentResponse, DocumentUpdate
+from api.auth import get_current_user
+from app.services.file_service import save_uploaded_file
+from app.components.documents.document_service import process_document_content
 
 router = APIRouter()
 
@@ -248,57 +247,4 @@ async def download_document(
         raise HTTPException(
             status_code=500,
             detail="Ошибка при скачивании документа"
-        )
-
-@router.get("/documents/{document_id}/vectorization", response_model=dict)
-async def get_document_vectorization(
-    document_id: int,
-    db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
-):
-    """
-    Получить информацию о векторизации документа
-    """
-    try:
-        document = db.query(Document).filter(
-            Document.id == document_id,
-            Document.user_id == current_user.id,
-            Document.is_deleted == False
-        ).first()
-        
-        if not document:
-            raise HTTPException(
-                status_code=404,
-                detail="Документ не найден или у вас нет прав на его просмотр"
-            )
-        
-        chunks = db.query(DocumentChunk).filter(
-            DocumentChunk.document_id == document_id
-        ).all()
-        
-        print(f"✅ [INFO] Получена информация о векторизации документа: id={document_id}")
-        
-        return {
-            "document_id": document.id,
-            "title": document.title,
-            "total_chunks": len(chunks),
-            "chunks": [
-                {
-                    "id": chunk.id,
-                    "index": chunk.chunk_index,
-                    "content_preview": chunk.content[:200] + "..." if len(chunk.content) > 200 else chunk.content,
-                    "embedding_size": len(chunk.embedding) if chunk.embedding else 0,
-                    "created_at": chunk.created_at
-                }
-                for chunk in chunks
-            ]
-        }
-        
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        print(f"❌ [ERROR] Ошибка при получении информации о векторизации: {str(e)}")
-        raise HTTPException(
-            status_code=500,
-            detail="Ошибка при получении информации о векторизации"
         ) 
