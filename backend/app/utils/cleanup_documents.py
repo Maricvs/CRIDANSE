@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from pathlib import Path
-import os
 from models.models import Document
 from db import get_db
 
