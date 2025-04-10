@@ -58,7 +58,7 @@ interface Document {
   created_at: string;
   updated_at: string;
   user_id: number;
-  user_name: string;
+  user_name?: string | null;
   user_avatar?: string;
   is_deleted: boolean;
   vectorization?: {
@@ -117,12 +117,21 @@ const DocumentsList: React.FC = () => {
       if (!user?.id) {
         throw new Error('Пользователь не авторизован');
       }
-      const response = await axios.get('/api/admin/documents', {
+      console.log('Отправляем запрос с user_id:', user.id);
+      const response = await axios.get('/api/admin/documents/documents', {
         params: { user_id: user.id }
       });
+      console.log('Получены данные с бэкенда:', response.data);
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
+      if (axios.isAxiosError(error)) {
+        console.log('Детали ошибки:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       setError('Не удалось загрузить документы. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);
@@ -180,7 +189,7 @@ const DocumentsList: React.FC = () => {
       filtered = filtered.filter(doc => 
         doc.title.toLowerCase().includes(lowerCaseSearch) ||
         doc.description.toLowerCase().includes(lowerCaseSearch) ||
-        doc.user_name.toLowerCase().includes(lowerCaseSearch)
+        (doc.user_name?.toLowerCase() || '').includes(lowerCaseSearch)
       );
     }
     
@@ -544,10 +553,12 @@ const DocumentsList: React.FC = () => {
                       <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           src={doc.user_avatar}
-                          alt={doc.user_name}
+                          alt={doc.user_name || 'Пользователь'}
                           style={{ width: 30, height: 30, marginRight: '8px' }}
                         />
-                        {doc.user_name}
+                        <Typography variant="body1">
+                          {doc.user_name || 'Пользователь'} (ID: {doc.user_id})
+                        </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>

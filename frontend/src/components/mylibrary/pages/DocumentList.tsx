@@ -21,17 +21,19 @@ const DocumentList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const userId = localStorage.getItem('user_id');
 
   useEffect(() => {
     fetchDocuments();
-  }, [userId]);
+  }, []);
 
   const fetchDocuments = async () => {
-    if (!userId) return;
-    
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
     try {
-      const response = await fetch('/api/documents');
+      const response = await fetch(`/api/documents/list/user/${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch documents');
       }

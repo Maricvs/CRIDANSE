@@ -30,7 +30,6 @@ async def get_documents(
     """
     try:
         documents = db.query(Document).filter(
-            Document.user_id == current_user.id,
             Document.is_deleted == False
         ).offset(skip).limit(limit).all()
         
