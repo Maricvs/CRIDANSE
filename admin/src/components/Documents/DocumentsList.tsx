@@ -117,12 +117,21 @@ const DocumentsList: React.FC = () => {
       if (!user?.id) {
         throw new Error('Пользователь не авторизован');
       }
+      console.log('Отправляем запрос с user_id:', user.id);
       const response = await axios.get('/api/admin/documents/documents', {
         params: { user_id: user.id }
       });
+      console.log('Получены данные с бэкенда:', response.data);
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
+      if (axios.isAxiosError(error)) {
+        console.log('Детали ошибки:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+      }
       setError('Не удалось загрузить документы. Пожалуйста, попробуйте позже.');
     } finally {
       setLoading(false);
