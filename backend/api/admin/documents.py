@@ -46,16 +46,18 @@ async def get_documents(
 
     UserProfile = aliased(Profile, name="users_profile")
 
-    documents = (
+    query = (
         db.query(Document, UserProfile.full_name.label("user_name"))
         .join(UserProfile, Document.user_id == UserProfile.id)
         .order_by(Document.created_at.desc())
         .offset(skip)
         .limit(limit)
-        .all()
     )
     
-    print("DEBUG: Raw documents query result:", documents)
+    print("DEBUG SQL:", str(query.statement))  # Выведет SQL-запрос
+    documents = query.all()
+    
+    print("DEBUG Results:", [(doc.id, name) for doc, name in documents])  # Выведет результаты
     
     enriched_documents = []
     for doc, user_name in documents:
