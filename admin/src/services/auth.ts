@@ -2,6 +2,7 @@ import axios from 'axios';
 
 interface AuthResponse {
   token: string;
+  refresh_token: string;
   user: {
     id: number;
     email: string;
@@ -13,6 +14,7 @@ class AuthService {
   private static instance: AuthService;
   private token: string | null = null;
   private user: any | null = null;
+  private refreshToken: string | null = null;
 
   private constructor() {
     // Восстанавливаем сессию из localStorage при инициализации
@@ -40,12 +42,13 @@ class AuthService {
 
       if (response.data.user.is_admin) {
         this.token = response.data.token;
+        this.refreshToken = response.data.refresh_token;
         this.user = response.data.user;
         
         // Сохраняем данные в localStorage
         localStorage.setItem('admin_token', this.token);
         localStorage.setItem('admin_user', JSON.stringify(this.user));
-        
+        localStorage.setItem('admin_refresh_token', this.refreshToken);
         // Устанавливаем токен для всех последующих запросов
         axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
         
