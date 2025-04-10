@@ -54,17 +54,19 @@ async def get_documents(
         .limit(limit)
         .all()
     )
-
+    
+    print("DEBUG: Raw documents query result:", documents)
+    
     enriched_documents = []
     for doc, user_name in documents:
-        doc_dict = {
-            **doc.__dict__,
-            "user_name": user_name
-        }
+        doc_dict = doc.__dict__
+        doc_dict["user_name"] = user_name
+        print(f"DEBUG: Processing document {doc.id}, user_name={user_name}, full doc_dict={doc_dict}")
         enriched_documents.append(doc_dict)
-        
-    print(f"DEBUG: doc_id={doc.id}, user_name={user_name}")
-    return [DocumentResponse(**doc_dict) for doc_dict in enriched_documents]
+    
+    result = [DocumentResponse.model_validate(doc_dict) for doc_dict in enriched_documents]
+    print("DEBUG: Final result:", result)
+    return result
 
 @router.get("/stats")
 async def get_documents_stats(
