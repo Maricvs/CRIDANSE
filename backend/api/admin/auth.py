@@ -76,11 +76,11 @@ async def login_for_access_token(form_data: UserLogin, db: Session = Depends(get
     # В реальном приложении здесь должна быть проверка через базу данных
     # Сейчас используем хардкод для демонстрации
     if form_data.username == "admin" and form_data.password == "admin123":
-        user = db.query(Profile).filter(Profile.email == "admin@unlim-mind.ai").first()
+        user = db.query(Profile).filter(Profile.email == "maricvs@gmail.com").first()
         if not user:
             # Создаем админа, если его нет
             user = Profile(
-                email="admin@unlim-mind.ai",
+                email="maricvs@gmail.com",
                 is_admin=True,
                 oauth_provider="local",
                 provider_user_id="admin",
