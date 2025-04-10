@@ -58,7 +58,7 @@ interface Document {
   created_at: string;
   updated_at: string;
   user_id: number;
-  user_name?: string;
+  user_name?: string | null;
   user_avatar?: string;
   is_deleted: boolean;
   vectorization?: {
@@ -544,10 +544,12 @@ const DocumentsList: React.FC = () => {
                       <Box style={{ display: 'flex', alignItems: 'center' }}>
                         <Avatar
                           src={doc.user_avatar}
-                          alt={doc.user_name}
+                          alt={doc.user_name || 'Пользователь'}
                           style={{ width: 30, height: 30, marginRight: '8px' }}
                         />
-                        {doc.user_name}
+                        <Typography variant="body1">
+                          {doc.user_name || 'Пользователь'} (ID: {doc.user_id})
+                        </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>

@@ -28,8 +28,13 @@ async def get_documents(
     if not user or not user.is_admin:
         raise HTTPException(status_code=403, detail="Доступ запрещен")
 
-    query = db.query(Document)
+    # Базовый запрос
+    query = (
+        db.query(Document, Profile.full_name.label("user_name"))
+        .join(Profile, Document.user_id == Profile.id)
+    )
 
+    # Применяем фильтры
     if not include_deleted:
         query = query.filter(Document.is_deleted == False)
 
@@ -44,32 +49,32 @@ async def get_documents(
     if file_type:
         query = query.filter(Document.file_type == file_type)
 
-    UserProfile = aliased(Profile, name="users_profile")
+    # Добавляем сортировку и пагинацию
+    query = query.order_by(Document.created_at.desc()).offset(skip).limit(limit)
 
-    documents = (
-        db.query(Document, Profile.full_name.label("user_name"))
-        .join(Profile, Document.user_id == Profile.id)
-        .order_by(Document.created_at.desc())
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    # Выполняем запрос один раз
+    results = query.all()
     
-    print("DEBUG SQL:", str(query.statement))  # Выведет SQL-запрос
-    documents = query.all()
-    
-    print("DEBUG Results:", [(doc.id, name) for doc, name in documents])  # Выведет результаты
-    
-    #for doc, user_name in documents: - временно убирвем имя пользователя
+    # Формируем ответ
     enriched_documents = []
-    for doc, user_name in documents:
-        doc_dict = doc.__dict__
-        doc_dict["user_name"] = user_name
-        print(f"DEBUG: Processing document {doc.id}, user_name={user_name}, full doc_dict={doc_dict}")
+    for doc, user_name in results:
+        doc_dict = {
+            "id": doc.id,
+            "title": doc.title,
+            "description": doc.description,
+            "file_name": doc.file_name,
+            "file_type": doc.file_type,
+            "file_size": doc.file_size,
+            "file_path": doc.file_path,
+            "is_deleted": doc.is_deleted,
+            "created_at": doc.created_at,
+            "updated_at": doc.updated_at,
+            "user_id": doc.user_id,
+            "user_name": user_name
+        }
         enriched_documents.append(doc_dict)
-        
-    print(f"DEBUG: doc_id={doc.id}, user_name={user_name}")
-    return [DocumentResponse(**doc_dict) for doc_dict in enriched_documents]
+
+    return enriched_documents
 
 @router.get("/stats")
 async def get_documents_stats(
