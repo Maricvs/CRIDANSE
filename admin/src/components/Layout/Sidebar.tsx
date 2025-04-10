@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -31,7 +31,6 @@ const drawerWidth = 240;
 const closedDrawerWidth = 60;
 
 const Sidebar: React.FC<SidebarProps> = ({ open }) => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
@@ -99,7 +98,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
                     bgcolor: isActive(item.path) ? 'rgba(25, 118, 210, 0.2)' : 'rgba(0, 0, 0, 0.04)',
                   },
                 }}
-                onClick={() => navigate(item.path)}
               >
                 <ListItemIcon
                   sx={{
