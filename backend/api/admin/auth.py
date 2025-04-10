@@ -22,6 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
     token: str
+    refresh_token: str
     user: dict
 
 class TokenData(BaseModel):
@@ -127,9 +128,10 @@ async def login_for_access_token(form_data: UserLogin, db: Session = Depends(get
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-@router.post("/refresh")
+@router.post("/refresh", response_model=Token)
 def refresh_access_token(
     refresh_token: str = Body(..., embed=True),
+    db: Session = Depends(get_db)
 ):
     try:
         # Декодируем refresh-токен
@@ -138,13 +140,32 @@ def refresh_access_token(
         if email is None:
             raise HTTPException(status_code=401, detail="Invalid refresh token")
         
+        # Проверяем существование пользователя
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if user is None or not user.is_admin:
+            raise HTTPException(status_code=401, detail="User not found or not admin")
+
         # Генерируем новый access_token
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         new_access_token = create_access_token(
             data={"sub": email}, expires_delta=access_token_expires
         )
+
+        # Генерируем новый refresh_token
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        new_refresh_token = create_refresh_token(
+            data={"sub": email}, expires_delta=refresh_token_expires
+        )
         
-        return {"token": new_access_token}
+        return {
+            "token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "is_admin": user.is_admin
+            }
+        }
     
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
