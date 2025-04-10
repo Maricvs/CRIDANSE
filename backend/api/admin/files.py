@@ -16,8 +16,6 @@ router = APIRouter(prefix="/api/admin/files", tags=["admin-files"])
 # Базовый путь для хранения файлов
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 
-# Создаем директорию, если она не существует
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # Интерфейс для файла
 class FileItem:
