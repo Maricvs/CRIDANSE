@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -19,6 +19,7 @@ import {
   MdError as LogsIcon,
   MdSettings as SettingsIcon,
   MdTranslate as TranslateIcon,
+  MdFolder as FolderIcon,
   MdDns as SystemIcon,
 } from 'react-icons/md';
 
@@ -41,6 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
     { title: 'Логи системы', path: '/logs', icon: <LogsIcon /> },
     { title: 'Переводы', path: '/translations', icon: <TranslateIcon /> },
     { title: 'Мониторинг', path: '/monitoring', icon: <SystemIcon /> },
+    { title: 'File Manager', path: '/files', icon: <FolderIcon /> },
     { title: 'Настройки', path: '/settings', icon: <SettingsIcon /> },
   ];
 
@@ -83,6 +85,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
           <ListItem key={item.path} disablePadding sx={{ display: 'block', mb: 0.5 }}>
             <Tooltip title={open ? '' : item.title} placement="right">
               <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={location.pathname === item.path}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
