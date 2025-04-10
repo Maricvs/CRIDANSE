@@ -20,8 +20,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    token: str
+    user: dict
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -94,7 +94,16 @@ async def login_for_access_token(form_data: UserLogin, db: Session = Depends(get
         access_token = create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+        
+        # Возвращаем и токен, и информацию о пользователе
+        return {
+            "token": access_token,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "is_admin": user.is_admin
+            }
+        }
     
     raise HTTPException(
         status_code=401,

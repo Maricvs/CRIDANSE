@@ -72,7 +72,7 @@ jobs:
               exit 1
             fi
 
-            cd admin
+            cd ../admin
 
             export NODE_OPTIONS="--max_old_space_size=3072"
 
