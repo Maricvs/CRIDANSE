@@ -117,7 +117,9 @@ const DocumentsList: React.FC = () => {
       if (!user?.id) {
         throw new Error('Пользователь не авторизован');
       }
-      const response = await axios.get('/api/admin/documents/documents');
+      const response = await axios.get('/api/admin/documents/documents', {
+        params: { user_id: user.id }
+      });
       setDocuments(response.data);
     } catch (error) {
       console.error('Ошибка при загрузке документов:', error);
@@ -178,7 +180,7 @@ const DocumentsList: React.FC = () => {
       filtered = filtered.filter(doc => 
         doc.title.toLowerCase().includes(lowerCaseSearch) ||
         doc.description.toLowerCase().includes(lowerCaseSearch) ||
-        doc.user_name.toLowerCase().includes(lowerCaseSearch)
+        (doc.user_name?.toLowerCase() || '').includes(lowerCaseSearch)
       );
     }
     
