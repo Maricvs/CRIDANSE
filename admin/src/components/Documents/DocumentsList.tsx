@@ -58,7 +58,6 @@ interface Document {
   created_at: string;
   updated_at: string;
   user_id: number;
-  user_name: string;
   user_avatar?: string;
   is_deleted: boolean;
   vectorization?: {
@@ -177,8 +176,7 @@ const DocumentsList: React.FC = () => {
       const lowerCaseSearch = searchText.toLowerCase();
       filtered = filtered.filter(doc => 
         doc.title.toLowerCase().includes(lowerCaseSearch) ||
-        doc.description.toLowerCase().includes(lowerCaseSearch) ||
-        doc.user_name.toLowerCase().includes(lowerCaseSearch)
+        doc.description.toLowerCase().includes(lowerCaseSearch)
       );
     }
     
@@ -539,14 +537,7 @@ const DocumentsList: React.FC = () => {
                     <TableCell>{formatFileSize(doc.file_size)}</TableCell>
                     <TableCell>{formatDate(doc.created_at)}</TableCell>
                     <TableCell>
-                      <Box style={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar
-                          src={doc.user_avatar}
-                          alt={doc.user_name}
-                          style={{ width: 30, height: 30, marginRight: '8px' }}
-                        />
-                        {doc.user_name}
-                      </Box>
+                      <Typography variant="body2" color="textSecondary">–</Typography>
                     </TableCell>
                     <TableCell>
                       <Tooltip title="Информация о векторизации">
@@ -634,16 +625,7 @@ const DocumentsList: React.FC = () => {
                   <Typography variant="body1">{formatDate(selectedDocument.updated_at)}</Typography>
                   
                   <Typography variant="subtitle2" color="textSecondary" style={{ marginTop: '8px' }}>Пользователь</Typography>
-                  <Box style={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar
-                      src={selectedDocument.user_avatar}
-                      alt={selectedDocument.user_name}
-                      style={{ width: 24, height: 24, marginRight: '8px' }}
-                    />
-                    <Typography variant="body1">
-                      {selectedDocument.user_name} (ID: {selectedDocument.user_id})
-                    </Typography>
-                  </Box>
+                  <Typography variant="body1">ID: {selectedDocument.user_id}</Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <Box style={{ 
