@@ -46,26 +46,20 @@ async def get_documents(
 
     UserProfile = aliased(Profile, name="users_profile")
 
-    query = (
-        db.query(Document)
-        .join(Profile, Document.user_id == Profile.id)
-        .with_entities(
-            Document,
-            Profile.full_name.label("user_name")
-        )
+    documents = (
+        db.query(Document, UserProfile.full_name.label("user_name"))
+        .join(UserProfile, Document.user_id == UserProfile.id)
         .order_by(Document.created_at.desc())
         .offset(skip)
         .limit(limit)
+        .all()
     )
-    
-    print("DEBUG SQL:", str(query))  # Выведет SQL-запрос
-    documents = query.all()
 
     enriched_documents = []
     for doc, user_name in documents:
         doc_dict = {
             **doc.__dict__,
-            "user_name": user_name or "Неизвестный пользователь"
+            "user_name": user_name
         }
         enriched_documents.append(doc_dict)
         
