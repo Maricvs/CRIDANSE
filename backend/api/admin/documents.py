@@ -44,31 +44,26 @@ async def get_documents(
     if file_type:
         query = query.filter(Document.file_type == file_type)
 
-    UserProfile = aliased(Profile, name="users_profile")
+    # UserProfile = aliased(Profile, name="users_profile")
 
-    query = (
-        db.query(Document, UserProfile.full_name.label("user_name"))
-        .join(UserProfile, Document.user_id == UserProfile.id)
+    documents = (
+        db.query(Document)
+        # .join(UserProfile, Document.user_id == UserProfile.id)
         .order_by(Document.created_at.desc())
         .offset(skip)
         .limit(limit)
+        .all()
     )
     
-    print("DEBUG SQL:", str(query.statement))  # Выведет SQL-запрос
-    documents = query.all()
     
-    print("DEBUG Results:", [(doc.id, name) for doc, name in documents])  # Выведет результаты
-    
+    #for doc, user_name in documents: - временно убирвем имя пользователя
     enriched_documents = []
-    for doc, user_name in documents:
+    for doc in documents:
         doc_dict = doc.__dict__
-        doc_dict["user_name"] = user_name
-        print(f"DEBUG: Processing document {doc.id}, user_name={user_name}, full doc_dict={doc_dict}")
+        # doc_dict["user_name"] = user_name  # Закомментировал присвоение user_name
         enriched_documents.append(doc_dict)
     
-    result = [DocumentResponse.model_validate(doc_dict) for doc_dict in enriched_documents]
-    print("DEBUG: Final result:", result)
-    return result
+    return [DocumentResponse.model_validate(doc_dict) for doc_dict in enriched_documents]
 
 @router.get("/stats")
 async def get_documents_stats(
