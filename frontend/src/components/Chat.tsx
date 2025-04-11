@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from "react";
 import ChatField from './ChatField';
+import AnimatedText from './AnimatedText';
 import './Chat.css';
 
 interface Message {
@@ -73,7 +74,11 @@ export default function Chat() {
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.message}
+            {msg.role === "user" ? (
+              msg.message
+            ) : (
+              <AnimatedText text={msg.message} speed={30} />
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} className="messages-end-anchor" />
