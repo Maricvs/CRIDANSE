@@ -289,9 +289,9 @@ a.active-chat {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  max-height: calc(100vh - 380px);
+  max-height: none;
   margin-bottom: 0;
-  padding-bottom: 120px;
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -427,14 +427,13 @@ a.active-chat {
   }
 
   .chat-scrollable {
-    max-height: calc(100vh - 300px);
-    max-height: calc(-webkit-fill-available - 300px);
+    max-height: none;
     flex: 1;
     overflow-y: auto;
     position: relative;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 0;
-    padding-bottom: 120px;
+    padding-bottom: 0;
   }
 
   .new-chat-button {
@@ -465,7 +464,6 @@ a.active-chat {
     position: relative;
     z-index: 2;
     background-color: #2c2c2c;
-    margin-top: auto;
   }
 }
 
@@ -548,7 +546,6 @@ a.active-chat {
   z-index: 2;
   box-sizing: border-box;
   flex-shrink: 0;
-  margin-top: auto;
 }
 
 .subscription-link,
