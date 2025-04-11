@@ -3,7 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   FaComments, FaCreditCard, FaUser, FaFile,
   FaBook, FaSignInAlt, FaBars, FaChevronLeft,
-  FaSignOutAlt, FaPlus, FaComment, FaTrash, FaEdit
+  FaSignOutAlt, FaPlus, FaComment, FaTrash, FaEdit,
+  FaGlobe, FaQuestionCircle
 } from 'react-icons/fa';
 import '../Sidebar.css';
 
@@ -28,6 +29,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('user_id');
@@ -82,6 +85,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
     }
   }, [userId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const migrateTemporaryChats = async () => {
     const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
@@ -318,6 +332,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     onCollapse?.(collapsed);
   };
 
+  const toggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu);
+  };
+
   return (
     <>
       {isCollapsed && (
@@ -405,15 +423,28 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                 <div className="subscription-link">
                   <Link to="/subscriptions" onClick={handleLinkClick}><FaCreditCard className="icon" /><span>Подписка</span></Link>
                 </div>
-                <div className="user-greeting">
+                <div className="user-greeting" ref={userMenuRef}>
                   {userName ? (
                     <>
-                      <div className="flex-container">
+                      <div className="flex-container" onClick={toggleUserMenu} style={{ cursor: 'pointer' }}>
                         <FaUser className="icon" /><span>{userName}</span>
                       </div>
-                      <button className="logout-button" onClick={handleLogout}>
-                        <FaSignOutAlt /> Выйти
-                      </button>
+                      {showUserMenu && (
+                        <div className="user-menu">
+                          <div className="user-menu-item" onClick={handleLogout}>
+                            <FaSignOutAlt className="icon" />
+                            <span>Выйти</span>
+                          </div>
+                          <div className="user-menu-item">
+                            <FaGlobe className="icon" />
+                            <span>Язык</span>
+                          </div>
+                          <div className="user-menu-item">
+                            <FaQuestionCircle className="icon" />
+                            <span>Поддержка</span>
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <Link to="/auth" onClick={handleLinkClick} className="flex-container">

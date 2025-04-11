@@ -2,10 +2,12 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: -webkit-fill-available;
   background-color: #1e1e1e;
   color: #e1e6f2;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .messages-container {
@@ -15,6 +17,8 @@
   padding-bottom: 100px;
   scrollbar-width: thin;
   scrollbar-color: #666 #1e1e1e;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
 }
 
 .messages-container::-webkit-scrollbar {
@@ -34,4 +38,16 @@
 
 .messages-container::-webkit-scrollbar-thumb:hover {
   background-color: #888;
+}
+
+@media (max-width: 767px) {
+  .chat-container {
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
+  }
+
+  .messages-container {
+    padding-bottom: 120px; /* Увеличиваем отступ для мобильных устройств */
+  }
 } 

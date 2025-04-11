@@ -280,28 +280,42 @@
     padding-left: 0;
     transition: padding-left 0.3s ease;
     min-height: 100vh;
-    height: auto; /* Позволяет контенту расти при необходимости */
-    padding-bottom: 80px; /* Дополнительный отступ снизу для мобильных устройств */
+    height: -webkit-fill-available;
+    padding-bottom: 80px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-color);
+    z-index: 1000;
   }
 
   .chat-input-container {
-    padding: 0 0.75rem; /* Уменьшаем боковые отступы для мобильных устройств */
+    padding: 0 0.75rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-color);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .chat-input {
     padding: 12px 14px;
     padding-right: 50px;
     padding-left: 50px;
-    font-size: 16px; /* Сохраняем минимальный размер шрифта 11pt для читаемости */
+    font-size: 16px;
+    margin-bottom: env(safe-area-inset-bottom);
   }
 
   .message {
-    max-width: 90%; /* Увеличиваем максимальную ширину сообщений на мобильных устройствах */
-    padding: 12px 14px; /* Немного уменьшаем отступы */
+    max-width: 90%;
+    padding: 12px 14px;
   }
 
   .chat-messages {
-    padding: 0 0.75rem 4rem; /* Увеличиваем отступ снизу для лучшей прокрутки */
+    padding: 0 0.75rem 4rem;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 
   .send-button {
