@@ -291,7 +291,7 @@ a.active-chat {
   min-height: 0;
   max-height: calc(100vh - 380px);
   margin-bottom: 0;
-  padding-bottom: 0;
+  padding-bottom: 120px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -434,7 +434,7 @@ a.active-chat {
     position: relative;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 0;
-    padding-bottom: 0;
+    padding-bottom: 120px;
   }
 
   .new-chat-button {
@@ -465,6 +465,7 @@ a.active-chat {
     position: relative;
     z-index: 2;
     background-color: #2c2c2c;
+    margin-top: auto;
   }
 }
 
@@ -547,6 +548,7 @@ a.active-chat {
   z-index: 2;
   box-sizing: border-box;
   flex-shrink: 0;
+  margin-top: auto;
 }
 
 .subscription-link,
