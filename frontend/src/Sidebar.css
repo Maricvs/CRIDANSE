@@ -86,6 +86,10 @@ a:hover {
 .sidebar-content {
   opacity: 1;
   transition: opacity 0.25s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
 }
 
 .sidebar.collapsed .sidebar-content {
@@ -289,6 +293,8 @@ a.active-chat {
   padding-bottom: 0;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
 /* Добавь в Sidebar.css или global css */
@@ -533,9 +539,10 @@ a.active-chat {
   bottom: 0;
   left: 0;
   width: 100%;
-  z-index: 100;
+  z-index: 2;
   box-sizing: border-box;
   flex-shrink: 0;
+  margin-top: auto;
 }
 
 .subscription-link,
