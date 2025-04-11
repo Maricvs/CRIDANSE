@@ -22,6 +22,7 @@ import DocumentsList from './components/Documents/DocumentsList';
 import SystemLogs from './components/Logs/SystemLogs';
 import Settings from './components/Settings/Settings';
 import Login from './components/Auth/Login';
+import FileManager from './components/FileManager/FileManager';
 
 // Стили
 import './App.css';
@@ -127,11 +128,13 @@ const App = () => {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/users" element={<UsersList />} />
         <Route path="/chats" element={<ChatsList />} />
         <Route path="/documents" element={<DocumentsList />} />
         <Route path="/logs" element={<SystemLogs />} />
+        <Route path="/files" element={<FileManager />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

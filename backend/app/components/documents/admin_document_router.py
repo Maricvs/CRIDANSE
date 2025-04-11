@@ -246,4 +246,54 @@ async def download_document(
         raise HTTPException(
             status_code=500,
             detail="Ошибка при скачивании документа"
+        )
+
+@router.get("/documents/{document_id}/vectorization")
+async def get_document_vectorization(
+    document_id: int,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    """
+    Получить информацию о векторизации документа
+    """
+    try:
+        # Получаем документ
+        document = db.query(Document).filter(
+            Document.id == document_id,
+            Document.is_deleted == False
+        ).first()
+        
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail="Документ не найден"
+            )
+        
+        # Получаем чанки документа
+        chunks = db.query(DocumentChunk).filter(
+            DocumentChunk.document_id == document_id
+        ).order_by(DocumentChunk.chunk_index).all()
+        
+        return {
+            "total_chunks": len(chunks),
+            "chunks": [
+                {
+                    "id": chunk.id,
+                    "index": chunk.chunk_index,
+                    "content_preview": chunk.content[:200] + "..." if len(chunk.content) > 200 else chunk.content,
+                    "embedding_size": len(chunk.embedding) if chunk.embedding else 0,
+                    "created_at": chunk.created_at
+                }
+                for chunk in chunks
+            ]
+        }
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при получении информации о векторизации: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Ошибка при получении информации о векторизации документа"
         ) 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
@@ -15,13 +15,15 @@ router = APIRouter()
 SECRET_KEY = "your-secret-key-here"  # В продакшене использовать безопасный ключ из env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str
+    token: str
+    refresh_token: str
+    user: dict
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -42,6 +44,16 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -94,13 +106,69 @@ async def login_for_access_token(form_data: UserLogin, db: Session = Depends(get
         access_token = create_access_token(
             data={"sub": user.email}, expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        refresh_token = create_refresh_token(
+            data={"sub": user.email}, expires_delta=refresh_token_expires
+        )
+        
+        # Возвращаем и токен, и информацию о пользователе
+        return {
+            "token": access_token,
+            "refresh_token": refresh_token,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "is_admin": user.is_admin
+            }
+        }
     
     raise HTTPException(
         status_code=401,
         detail="Incorrect username or password",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+@router.post("/refresh", response_model=Token)
+def refresh_access_token(
+    refresh_token: str = Body(..., embed=True),
+    db: Session = Depends(get_db)
+):
+    try:
+        # Декодируем refresh-токен
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+        
+        # Проверяем существование пользователя
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if user is None or not user.is_admin:
+            raise HTTPException(status_code=401, detail="User not found or not admin")
+
+        # Генерируем новый access_token
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_access_token = create_access_token(
+            data={"sub": email}, expires_delta=access_token_expires
+        )
+
+        # Генерируем новый refresh_token
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        new_refresh_token = create_refresh_token(
+            data={"sub": email}, expires_delta=refresh_token_expires
+        )
+        
+        return {
+            "token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "is_admin": user.is_admin
+            }
+        }
+    
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
 
 @router.get("/me")
 async def read_users_me(current_user: Profile = Depends(get_current_admin)):
