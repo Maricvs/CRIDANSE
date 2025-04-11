@@ -42,8 +42,8 @@
   display: flex;
   overflow-y: auto;
   flex-direction: column;
-  gap: 16px; /* Увеличение отступа между сообщениями */
-  padding: 0 1rem 1.5rem; /* Увеличение нижнего отступа */
+  gap: 16px;
+  padding: 0 1rem;
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
@@ -51,7 +51,10 @@
   transition: margin-left 0.3s ease;
   position: relative;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 80px; /* Добавление отступа снизу, чтобы нижние сообщения не уходили под ввод */
+  padding-top: 80px; /* Добавляем отступ сверху */
+  padding-bottom: 120px; /* Добавляем отступ снизу */
+  min-height: 100vh; /* Минимальная высота на весь экран */
+  height: auto; /* Автоматическая высота */
 }
 
 .chat-messages,
@@ -70,11 +73,11 @@
   padding: 1rem;
   box-sizing: border-box;
   background-color: #1e1e1e;
-  position: sticky;
+  position: fixed;
   bottom: 0;
   z-index: 10;
   border-top: 1px solid #333;
-  align-items: stretch; /* Изменено на stretch */
+  align-items: stretch;
 }
 
 /* Общее сообщение */
@@ -84,13 +87,23 @@
   white-space: pre-wrap;
   word-break: break-word;
   border-radius: 12px;
-  max-width: 85%; /* Немного увеличили ширину */
-  padding: 14px 16px; /* Увеличение внутренних отступов для лучшей читаемости */
+  max-width: 85%;
+  padding: 14px 16px;
   box-sizing: border-box;
   font-family: 'Figtree', sans-serif;
-  margin: 4px 0; /* Равномерные отступы сверху и снизу */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Легкая тень для выделения */
-  letter-spacing: 0.2px; /* Улучшение читаемости */
+  margin: 4px 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.2px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: messageAppear 0.3s ease forwards;
+}
+
+@keyframes messageAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Сообщение пользователя — справа */
@@ -98,7 +111,8 @@
   align-self: flex-end;
   background-color: #3a3a3a;
   color: white;
-  border-bottom-right-radius: 4px; /* Меньший радиус для лучшего визуального стиля */
+  border-bottom-right-radius: 4px;
+  margin-left: auto;
 }
 
 /* Ответ от ИИ — слева */
@@ -106,8 +120,9 @@
   align-self: flex-start;
   background-color: #2a2a2a;
   color: white;
-  border-bottom-left-radius: 4px; /* Меньший радиус для лучшего визуального стиля */
-  width: auto; /* Вместо 100%, чтобы сообщение было по размеру контента */
+  border-bottom-left-radius: 4px;
+  width: auto;
+  margin-right: auto;
 }
 
 .chat-input-container {
@@ -300,7 +315,8 @@
   }
 
   .chat-messages {
-    padding: 0 0.75rem 4rem; /* Увеличиваем отступ снизу для лучшей прокрутки */
+    padding-top: 60px;
+    padding-bottom: 100px;
   }
 
   .send-button {
@@ -309,6 +325,10 @@
 
   .chat-input-tools {
     left: 0.75rem;
+  }
+
+  .chat-input-wrapper {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   }
 }
 
