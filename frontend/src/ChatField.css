@@ -52,6 +52,7 @@
   position: relative;
   -webkit-overflow-scrolling: touch;
   padding-bottom: 80px; /* Добавление отступа снизу, чтобы нижние сообщения не уходили под ввод */
+  padding-top: 2rem; /* Добавляем отступ сверху для первого сообщения */
 }
 
 .chat-messages,
@@ -374,5 +375,10 @@ textarea::placeholder {
   gap: 8px;
   margin-top: 0.5rem;
   width: 100%;
+}
+
+/* Стиль для первого сообщения в чате */
+.chat-messages > .message:first-child {
+  margin-top: 2rem; /* Дополнительный отступ для первого сообщения */
 }
 
