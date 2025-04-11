@@ -429,22 +429,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                       <div className="flex-container" onClick={toggleUserMenu} style={{ cursor: 'pointer' }}>
                         <FaUser className="icon" /><span>{userName}</span>
                       </div>
-                      {showUserMenu && (
-                        <div className="user-menu">
-                          <div className="user-menu-item" onClick={handleLogout}>
-                            <FaSignOutAlt className="icon" />
-                            <span>Выйти</span>
-                          </div>
-                          <div className="user-menu-item">
-                            <FaGlobe className="icon" />
-                            <span>Язык</span>
-                          </div>
-                          <div className="user-menu-item">
-                            <FaQuestionCircle className="icon" />
-                            <span>Поддержка</span>
-                          </div>
+                      <div className={`user-menu ${showUserMenu ? 'active' : ''}`}>
+                        <div className="user-menu-item" onClick={handleLogout}>
+                          <FaSignOutAlt className="icon" />
+                          <span>Выйти</span>
                         </div>
-                      )}
+                        <div className="user-menu-item">
+                          <FaGlobe className="icon" />
+                          <span>Язык</span>
+                        </div>
+                        <div className="user-menu-item">
+                          <FaQuestionCircle className="icon" />
+                          <span>Поддержка</span>
+                        </div>
+                      </div>
                     </>
                   ) : (
                     <Link to="/auth" onClick={handleLinkClick} className="flex-container">

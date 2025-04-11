@@ -608,6 +608,10 @@ a.active-chat {
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
 }
 
+.user-menu.active {
+  display: block;
+}
+
 .user-greeting:hover .user-menu {
   display: block;
 }
