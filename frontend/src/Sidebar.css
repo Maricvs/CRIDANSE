@@ -612,10 +612,6 @@ a.active-chat {
   display: block;
 }
 
-.user-greeting:hover .user-menu {
-  display: block;
-}
-
 .user-menu-item {
   display: flex;
   align-items: center;
