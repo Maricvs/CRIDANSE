@@ -94,6 +94,15 @@ a:hover {
   flex: 1;
 }
 
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+}
+
 .sidebar.collapsed .sidebar-content {
   opacity: 0;
   pointer-events: none;
@@ -295,7 +304,7 @@ a.active-chat {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  max-height: calc(100vh - 60px - 80px);
+  max-height: none;
   margin-bottom: 0;
   padding-bottom: 0;
   display: flex;
@@ -458,13 +467,12 @@ a.active-chat {
 
   .chat-scrollable {
     max-height: none;
-    max-height: calc(-webkit-fill-available - 300px);
     flex: 1;
     overflow-y: auto;
     position: relative;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 0;
-    padding-bottom: 120px;
+    padding-bottom: 0;
     transform: translateZ(0);
     will-change: transform;
   }
@@ -580,7 +588,6 @@ a.active-chat {
   z-index: 2;
   box-sizing: border-box;
   flex-shrink: 0;
-  margin-top: auto;
 }
 
 .subscription-link,
