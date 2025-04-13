@@ -98,7 +98,6 @@ a:hover {
   min-height: 0;
   position: relative;
   overflow: hidden;
-  margin-bottom: auto;
 }
 
 .sidebar.collapsed .sidebar-content {
@@ -304,15 +303,19 @@ a.active-chat {
 
 .chat-scrollable::-webkit-scrollbar {
   width: 6px;
+  position: fixed;
+  right: 0;
 }
 
 .chat-scrollable::-webkit-scrollbar-track {
   background: #1e1e1e;
+  border-radius: 3px;
 }
 
 .chat-scrollable::-webkit-scrollbar-thumb {
   background-color: #444;
   border-radius: 3px;
+  border: 2px solid #1e1e1e;
 }
 
 .chat-scrollable::-webkit-scrollbar-thumb:hover {
@@ -455,7 +458,6 @@ a.active-chat {
     position: relative;
     margin-bottom: 0;
     padding-bottom: 0;
-    -webkit-overflow-scrolling: touch;
   }
 
   .new-chat-button {
@@ -569,7 +571,6 @@ a.active-chat {
   z-index: 2;
   box-sizing: border-box;
   flex-shrink: 0;
-  margin-top: auto;
 }
 
 .subscription-link,
