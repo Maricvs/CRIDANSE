@@ -497,6 +497,38 @@ a:hover {
     background-color: #2c2c2c;
     margin-top: auto;
   }
+
+  /* Глобальные отступы для всего контента */
+  .chat-field,
+  .content-wrapper,
+  .main-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* Сброс отступов для сайдбара */
+  .sidebar,
+  .sidebar * {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Восстанавливаем оригинальные паддинги для элементов сайдбара */
+  .sidebar-section li {
+    padding: 8px 20px;
+  }
+
+  .chat-link {
+    padding: 12px 16px;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+  }
+
+  .chat-list li a {
+    padding: 8px 16px;
+  }
 }
 
 .migration-prompt {
