@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  FaComments, FaCreditCard, FaUser, FaFile,
+  FaCreditCard, FaUser, FaFile,
   FaBook, FaSignInAlt, FaBars, FaChevronLeft,
   FaSignOutAlt, FaPlus, FaComment, FaTrash, FaEdit,
   FaGlobe, FaQuestionCircle
@@ -359,10 +359,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
               <div className="sidebar-section">
                 <ul>
-                  <li><Link to="/support" onClick={handleLinkClick}><FaComments className="icon" /> <span>Поддержка</span></Link></li>
-                  <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
-                  <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>
                   <li><Link to="/mylibrary" onClick={handleLinkClick}><FaFile className="icon" /> <span>Моя Библиотека</span></Link></li>
+                  <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
+                  <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>                  
                 </ul>
               </div>
 
