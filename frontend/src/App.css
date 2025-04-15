@@ -130,14 +130,9 @@ html, body, #root {
 
   .chat-wrapper {
     width: 100%;
-    padding: 0;
     margin: 0;
     height: 100%;
     position: relative;
-    overflow: hidden;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
     flex: 1;
   }
 
