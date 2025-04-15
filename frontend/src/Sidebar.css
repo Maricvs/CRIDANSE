@@ -72,7 +72,7 @@ a:hover {
   color: #e1e6f2;
   line-height: 1;
   display: flex;
-  align-items: center;
+  align-items: end;
 }
 
 .sidebar.collapsed .chat-list,
@@ -88,8 +88,7 @@ a:hover {
   flex-direction: column;
   height: 100%;
   position: relative;
-  overflow-y: auto; /* добавляем прокрутку по вертикали */
-  overflow-x: hidden;
+  overflow: hidden;
   flex: 1;
 }
 
@@ -161,21 +160,29 @@ a:hover {
 .sidebar-nav {
   flex: 1;
   list-style: none;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-bottom: 0;
+  margin: 0;
   position: relative;
-}
-
-.sidebar-nav > ul > li {
-  list-style: none;
+  overflow: hidden;
 }
 
 .sidebar-nav > ul {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+.sidebar-nav > ul > li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  list-style: none;
 }
 
 .sidebar-section ul {
@@ -291,7 +298,6 @@ a.active-chat {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 200px);
   min-height: 0;
   padding-right: 4px;
   scrollbar-width: thin;
@@ -542,7 +548,6 @@ a.active-chat {
 
 .flex-container {
   display: flex;
-  align-items: center;
   gap: 8px;
 }
 
@@ -572,20 +577,10 @@ a.active-chat {
   flex-shrink: 0;
 }
 
-.subscription-link,
-.user-greeting {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-  padding: 4px 0;
-}
 
 .subscription-link a,
 .user-greeting a {
   display: inline-flex;
-  align-items: center;
-  gap: 14px;
   width: 100%;
 }
 
@@ -612,7 +607,6 @@ a.active-chat {
 .user-greeting {
   display: flex;
   align-items: center;
-  gap: 12px;
   font-size: 14px;
   padding: 4px 0;
   position: relative;
