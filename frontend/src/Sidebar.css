@@ -245,7 +245,6 @@ a:hover {
 }
 
 .chat-list li a {
-  background-color: #414040;
   display: flex;
   align-items: center;
   padding: 4px 14px;
@@ -257,7 +256,11 @@ a:hover {
   letter-spacing: 0.2px;
 }
 
-a.active-chat {
+.chat-list li a:not(.active-chat) {
+  background-color: #414040;
+}
+
+.chat-list li a.active-chat {
   background-color: #3c3c3c;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
