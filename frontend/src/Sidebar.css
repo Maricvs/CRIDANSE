@@ -245,14 +245,13 @@ a:hover {
 }
 
 .chat-list li a {
+  background-color: #414040;
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  color: #e1e6f2;
+  padding: 4px 14px;
   text-decoration: none;
   border-radius: 6px;
   transition: all 0.2s ease;
-  background-color: transparent;
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: 0.2px;
@@ -266,7 +265,7 @@ a.active-chat {
 
 .chat-list li a:hover {
   background-color: #2c2c2c;
-  padding-left: 5px;
+  /* padding-left: 5px; */
   transform: translateX(2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -299,6 +298,7 @@ a.active-chat {
   overflow-x: hidden;
   min-height: 0;
   padding-right: 4px;
+  padding-left: 10px;
   scrollbar-width: thin;
   scrollbar-color: #444 #1e1e1e;
   -webkit-overflow-scrolling: touch;
