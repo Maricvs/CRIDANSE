@@ -257,11 +257,11 @@ a:hover {
 }
 
 .chat-list li a:not(.active-chat) {
-  background-color: #414040;
+  background-color: transparent;
 }
 
 .chat-list li a.active-chat {
-  background-color: #3c3c3c;
+  background-color: #414040;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
