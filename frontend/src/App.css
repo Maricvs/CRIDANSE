@@ -1,32 +1,32 @@
 html, body, #root {
-  height: 100%;
   margin: 0;
   padding: 0;
-  /*overflow-x: hidden;*/
-  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
-  width: 100%;
   box-sizing: border-box;
 }
 
 .app-container {
   display: flex;
-  height: 100vh;
-  background-color: var(--bg-color);
+  flex-direction: row;
+  height: 100%;
   width: 100%;
-  position: relative;
-  /*overflow: hidden;*/
-  box-sizing: border-box;
+  overflow: hidden;
+  position: fixed;
+  background-color: var(--bg-color);
 }
 
 .app-layout {
   display: flex;
+  flex-direction: row;
+  height: 100%;
   width: 100%;
-  height: 100vh;
-  position: relative;
-  /*overflow: hidden;*/ 
-  box-sizing: border-box;
+  overflow: hidden;
+  position: fixed;
 }
 
 .auth-container {
@@ -67,14 +67,15 @@ html, body, #root {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  /*overflow: hidden;*/ 
+  overflow: hidden;
   background-color: var(--bg-color);
   width: calc(100% - 260px);
   margin-left: 260px;
   flex-direction: column;
   transition: margin-left 0.3s ease, width 0.3s ease;
-  height: 100vh;
+  height: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .main-content.sidebar-collapsed {
@@ -89,38 +90,36 @@ html, body, #root {
   align-items: center;
   padding: 1rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   max-width: 768px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
     width: 100%;
-    position: relative;
-    /*overflow: hidden;*/   
-    height: 100vh;
-    height: -webkit-fill-available;
-    box-sizing: border-box;
+    position: fixed;
+    height: 100%;
+    overflow: hidden;
   }
 
   .app-layout {
     width: 100%;
-    position: relative;
-    height: 100vh;
-    height: -webkit-fill-available;
-    box-sizing: border-box;
+    position: fixed;
+    height: 100%;
+    overflow: hidden;
   }
 
   .main-content {
     width: 100%;
     margin-left: 0;
     position: relative;
-    height: 100vh;
-    height: -webkit-fill-available;
-    /*overflow: hidden;*/
+    height: 100%;
+    overflow: hidden;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -132,6 +131,8 @@ html, body, #root {
     height: 100%;
     position: relative;
     flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .auth-container {
