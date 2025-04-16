@@ -145,12 +145,21 @@ a:hover {
   font-size: 20px;
   z-index: 2000;
   display: none;
-  padding: 0;
-  margin: 0;
 }
 
-.sidebar-toggle-fixed:hover {
-  color: white;
+@media (min-width: 768px) {
+  .sidebar-toggle-fixed {
+    display: block;
+    background: none;
+    box-shadow: none;
+    width: auto;
+    height: auto;
+    color: #ccc;
+  }
+
+  .sidebar-toggle-fixed:hover {
+    color: white;
+  }
 }
 
 .sidebar-section {

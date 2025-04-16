@@ -280,6 +280,27 @@
     display: flex;
     flex-direction: column;
   }
+
+  .chat-action-button {
+    background-color: rgba(30, 30, 30, 0.8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+  }
+
+  .chat-action-button.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .action-buttons {
+    position: fixed;
+    bottom: 80px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1000;
+  }
 }
 
 @media (max-width: 767px) {
@@ -334,24 +355,11 @@
   }
 
   .chat-action-button {
-    background-color: rgba(30, 30, 30, 0.8);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-  }
-
-  .chat-action-button.visible {
-    opacity: 1;
-    visibility: visible;
+    display: none;
   }
 
   .action-buttons {
-    position: fixed;
-    bottom: 80px;
-    right: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 1000;
+    display: none;
   }
 }
 
