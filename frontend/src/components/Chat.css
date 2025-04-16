@@ -32,29 +32,6 @@
   position: relative;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #666 #1e1e1e;
-}
-
-.chat-messages::-webkit-scrollbar {
-  width: 8px;
-  position: absolute;
-  right: 0;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-  background: #1e1e1e;
-  border-radius: 4px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-  background-color: #666;
-  border-radius: 4px;
-  border: 2px solid #1e1e1e;
-}
-
-.chat-messages::-webkit-scrollbar-thumb:hover {
-  background-color: #888;
 }
 
 .messages-end-anchor {
@@ -67,40 +44,13 @@
 @media (min-width: 768px) {
   .chat-wrapper.with-sidebar {
     width: calc(100% - 260px);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .chat-messages {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding-right: 8px; /* Компенсация ширины скроллбара */
-    box-sizing: border-box;
   }
 }
 
 @media (max-width: 767px) {
   .chat-error, 
   .chat-loading {
-    padding-top: 60px;
-  }
-
-  .chat-wrapper {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .chat-messages {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding-right: 8px;
-    box-sizing: border-box;
+    padding-top: 60px; /* Учитываем верхнюю панель */
   }
 }
 
