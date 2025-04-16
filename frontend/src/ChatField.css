@@ -279,10 +279,15 @@
   .chat-wrapper {
     padding-left: 0;
     transition: padding-left 0.3s ease;
-    height: 100%;
-    padding-bottom: 0;
-    position: relative;
+    min-height: 100vh;
+    height: -webkit-fill-available;
+    padding-bottom: 80px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background-color: var(--bg-color);
+    z-index: 1000;
   }
 
   .chat-input-container {
@@ -293,7 +298,6 @@
     right: 0;
     background-color: var(--bg-color);
     padding-bottom: env(safe-area-inset-bottom);
-    z-index: 1000;
   }
 
   .chat-input {
@@ -310,10 +314,41 @@
   }
 
   .chat-messages {
-    padding: 0 0.75rem;
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    padding-top: 2rem;
-    margin-bottom: 0;
+    padding: 0 0.75rem 4rem;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  .action-buttons {
+    position: fixed;
+    bottom: 0;
+    right: 0.75rem;
+    display: flex;
+    gap: 8px;
+    margin-top: 0.5rem;
+    z-index: 1001;
+  }
+
+  .chat-action-button {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 24px;
+    margin-top: 0.5rem;
+    position: relative;
+    z-index: 1002;
+  }
+
+  .chat-action-button:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
   .send-button {
