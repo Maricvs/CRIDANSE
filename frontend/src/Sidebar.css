@@ -462,7 +462,8 @@ a:hover {
   }
 
   .chat-scrollable {
-    padding-bottom: 80px; /* Оставляем отступ только для мобильной версии */
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   .new-chat-button {
