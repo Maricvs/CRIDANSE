@@ -51,7 +51,10 @@ export default function Chat() {
 
   useEffect(() => {
     if (id) {
-      fetchMessages();
+      fetchMessages().then(() => {
+        // Принудительная прокрутка после загрузки сообщений
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      });
       prevMessagesLengthRef.current = 0;
     }
   }, [id]);
