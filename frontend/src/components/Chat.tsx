@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from "react";
 import ChatField from './ChatField';
-import AnimatedMessage from './AnimatedMessage';
+import AnimatedText from './AnimatedText';
 import './Chat.css';
 
 interface Message {
@@ -110,14 +110,20 @@ export default function Chat() {
             Начните новую беседу, отправив сообщение
           </div>
         )}
-        {messages.map((msg, index) => (
-          <AnimatedMessage
+        {messages.map((msg) => (
+          <div
             key={msg.id}
-            message={msg.message}
-            role={msg.role as 'user' | 'bot'}
-            isNew={msg.id === lastMessageIdRef.current}
-            animateText={msg.role !== "user" && msg.id === lastMessageIdRef.current}
-          />
+            className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+          >
+            {msg.role === "user" || msg.id === lastMessageIdRef.current ? (
+              msg.message
+            ) : (
+              <AnimatedText 
+                text={msg.message} 
+                isNew={false}
+              />
+            )}
+          </div>
         ))}
         <div ref={messagesEndRef} className="messages-end-anchor" />
       </div>
