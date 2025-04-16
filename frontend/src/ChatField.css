@@ -281,13 +281,9 @@
     transition: padding-left 0.3s ease;
     min-height: 100vh;
     height: -webkit-fill-available;
-    padding-bottom: 80px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    padding-bottom: 120px; /* Увеличиваем отступ снизу */
+    position: relative; /* Меняем на relative */
     background-color: var(--bg-color);
-    z-index: 1000;
   }
 
   .chat-field {
@@ -302,6 +298,7 @@
     border-radius: 0;
     margin: 0;
     max-width: 100%;
+    height: auto; /* Добавляем автоматическую высоту */
   }
 
   .chat-input {
@@ -313,15 +310,11 @@
     background-color: #2a2a2a;
     border: 1px solid #444;
     border-radius: 12px;
-  }
-
-  .message {
-    max-width: 90%;
-    padding: 12px 14px;
+    min-height: 44px; /* Минимальная высота для удобного тапа */
   }
 
   .chat-messages {
-    padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(120px + env(safe-area-inset-bottom)); /* Увеличиваем отступ */
   }
 
   .action-buttons {
