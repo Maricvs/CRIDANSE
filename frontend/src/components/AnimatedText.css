@@ -1,22 +1,33 @@
 .animated-text {
   display: inline;
   white-space: pre-wrap;
-  line-height: 1.5;
-  transition: opacity 0.3s ease-in-out;
+  line-height: 1.6;
+  transition: all 0.3s ease-in-out;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: textAppear 0.5s ease-out forwards;
 }
 
-.animated-text.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+@keyframes textAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .cursor {
   display: inline-block;
   width: 2px;
-  height: 1em;
+  height: 1.2em;
   background-color: currentColor;
   margin-left: 2px;
-  animation: blink 1s step-end infinite;
+  animation: blink 1s step-end infinite, cursorPulse 1s ease-in-out infinite;
   vertical-align: middle;
+  border-radius: 1px;
 }
 
 @keyframes blink {
@@ -28,14 +39,12 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
+@keyframes cursorPulse {
+  0%, 100% {
+    transform: scaleY(1);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: scaleY(0.8);
   }
 }
 
@@ -54,5 +63,21 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.message-container {
+  animation: messageSlideIn 0.5s ease-out forwards;
+  transform-origin: top;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 } 
