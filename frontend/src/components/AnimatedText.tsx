@@ -4,32 +4,39 @@ import './AnimatedText.css';
 interface AnimatedTextProps {
   text: string;
   speed?: number;
+  isNew?: boolean;
 }
 
-const AnimatedText: React.FC<AnimatedTextProps> = ({ text, speed = 30 }) => {
+const AnimatedText: React.FC<AnimatedTextProps> = ({ text, speed = 100, isNew = true }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const words = text.split(' ');
 
   useEffect(() => {
-    if (currentIndex < text.length) {
+    if (currentIndex < words.length && isNew) {
       const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
+        setDisplayedText(prev => prev + (prev ? ' ' : '') + words[currentIndex]);
         setCurrentIndex(prev => prev + 1);
       }, speed);
 
       return () => clearTimeout(timeout);
     }
-  }, [currentIndex, text, speed]);
+  }, [currentIndex, words, speed, isNew]);
 
   useEffect(() => {
-    setDisplayedText('');
-    setCurrentIndex(0);
-  }, [text]);
+    if (!isNew) {
+      setDisplayedText(text);
+      setCurrentIndex(words.length);
+    } else {
+      setDisplayedText('');
+      setCurrentIndex(0);
+    }
+  }, [text, isNew, words.length]);
 
   return (
     <span className="animated-text">
       {displayedText}
-      {currentIndex < text.length && <span className="cursor">|</span>}
+      {currentIndex < words.length && isNew && <span className="cursor">|</span>}
     </span>
   );
 };

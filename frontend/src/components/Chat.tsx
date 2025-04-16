@@ -18,6 +18,7 @@ export default function Chat() {
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef<number>(0);
+  const lastMessageIdRef = useRef<number | null>(null);
 
   const scrollToBottom = useCallback(() => {
     if (messages.length > prevMessagesLengthRef.current) {
@@ -33,9 +34,14 @@ export default function Chat() {
   const fetchMessages = async () => {
     try {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
-      if (!res.ok) throw new Error("Ошибка при заг рузке сообщений");
+      if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
       const data = await res.json();
       setMessages(data);
+      
+      // Обновляем ID последнего сообщения
+      if (data.length > 0) {
+        lastMessageIdRef.current = data[data.length - 1].id;
+      }
     } catch (err) {
       setError("Не удалось загрузить сообщения");
     } finally {
@@ -74,7 +80,14 @@ export default function Chat() {
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.role === "user" ? msg.message : <AnimatedText text={msg.message} />}
+            {msg.role === "user" ? (
+              msg.message
+            ) : (
+              <AnimatedText 
+                text={msg.message} 
+                isNew={msg.id === lastMessageIdRef.current}
+              />
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} className="messages-end-anchor" />
