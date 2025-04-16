@@ -42,8 +42,8 @@
   display: flex;
   overflow-y: auto;
   flex-direction: column;
-  gap: 16px;
-  padding: 0 1rem;
+  gap: 16px; /* Увеличение отступа между сообщениями */
+  padding: 0 1rem 1.5rem; /* Увеличение нижнего отступа */
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
@@ -51,8 +51,8 @@
   transition: margin-left 0.3s ease;
   position: relative;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 20px;
-  padding-top: 1rem;
+  padding-bottom: 80px; /* Добавление отступа снизу, чтобы нижние сообщения не уходили под ввод */
+  padding-top: 2rem; /* Добавляем отступ сверху для первого сообщения */
 }
 
 .chat-messages,
@@ -120,9 +120,8 @@
   box-sizing: border-box;
   padding: 0 1rem;
   background-color: #1e1e1e;
-  min-height: 56px;
-  flex-direction: column;
-  margin-top: auto;
+  min-height: 56px; /* Минимальная высота для хорошего тапа */
+  flex-direction: column; /* Изменено на column */
 }
 
 /* Инструменты ввода чата */
@@ -237,7 +236,8 @@
   color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 20px;
+  font-size: 40px;
+  margin-top: 0.5rem;
 }
 
 .chat-action-button:hover {
@@ -281,14 +281,13 @@
     transition: padding-left 0.3s ease;
     min-height: 100vh;
     height: -webkit-fill-available;
+    padding-bottom: 80px;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     background-color: var(--bg-color);
     z-index: 1000;
-    display: flex;
-    flex-direction: column;
   }
 
   .chat-input-container {
@@ -299,12 +298,11 @@
     right: 0;
     background-color: var(--bg-color);
     padding-bottom: env(safe-area-inset-bottom);
-    margin-top: 0;
   }
 
   .chat-input {
     padding: 12px 14px;
-    padding-right: 100px;
+    padding-right: 100px; /* Увеличиваем отступ для кнопок */
     padding-left: 14px;
     font-size: 16px;
     margin-bottom: env(safe-area-inset-bottom);
@@ -316,10 +314,8 @@
   }
 
   .chat-messages {
-    padding: 0 0.75rem;
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-    padding-top: 1rem;
-    margin-bottom: 80px;
+    padding: 0 0.75rem 4rem;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 
   .action-buttons {
@@ -330,7 +326,27 @@
     display: flex;
     gap: 8px;
     z-index: 10;
-    margin-top: 0;
+  }
+
+  .chat-action-button {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 20px;
+    opacity: 1; /* Всегда видимые */
+    visibility: visible; /* Всегда видимые */
+  }
+
+  .chat-action-button:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 
