@@ -14,7 +14,8 @@
   flex: 1;
   overflow-y: auto;
   padding: 20px;
-  padding-bottom: 100px;
+  padding-bottom: 50px;
+  padding-top: 50px;
   scrollbar-width: thin;
   scrollbar-color: #666 #1e1e1e;
   -webkit-overflow-scrolling: touch;
