@@ -420,6 +420,9 @@ a:hover {
     position: fixed;
     z-index: 1000;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    height: 100vh;
+    height: -webkit-fill-available;
+    background-color: #1e1e1e;
   }
 
   .sidebar.expanded {
@@ -439,11 +442,23 @@ a:hover {
   .sidebar-content {
     position: relative;
     z-index: 1000;
+    height: 100%;
+    background-color: #1e1e1e;
   }
 
   .chat-container {
     position: relative;
     z-index: 1;
+  }
+
+  .sidebar.collapsed .sidebar-content {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sidebar.expanded .sidebar-content {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .sidebar-toggle-fixed {
