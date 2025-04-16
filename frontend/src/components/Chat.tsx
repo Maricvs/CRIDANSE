@@ -95,23 +95,21 @@ export default function Chat() {
 
   return (
     <div className={wrapperClass}>
-      <div className="main-content">
-        <div className="chat-messages">
-          {messages.length === 0 && (
-            <div className="empty-chat-message">
-              Начните новую беседу, отправив сообщение
-            </div>
-          )}
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-            >
-              {msg.message}
-            </div>
-          ))}
-          <div ref={messagesEndRef} className="messages-end-anchor" />
-        </div>
+      <div className="chat-messages">
+        {messages.length === 0 && (
+          <div className="empty-chat-message">
+            Начните новую беседу, отправив сообщение
+          </div>
+        )}
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
+          >
+            {msg.message}
+          </div>
+        ))}
+        <div ref={messagesEndRef} className="messages-end-anchor" />
       </div>
 
       <ChatField onMessageSent={fetchMessages} />
