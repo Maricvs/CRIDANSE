@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from "react";
 import ChatField from './ChatField';
-import AnimatedText from './AnimatedText';
 import './Chat.css';
 
 interface Message {
@@ -20,7 +19,6 @@ export default function Chat() {
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<number | null>(null);
   const initialScrollDoneRef = useRef<boolean>(false);
-  const isNewMessageRef = useRef<boolean>(false);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (messagesEndRef.current) {
@@ -35,24 +33,16 @@ export default function Chat() {
   // Прокрутка при изменении сообщений
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current) {
-      // Прокручиваем только если новые сообщения появились в конце
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage && lastMessage.id > (lastMessageIdRef.current || 0)) {
-        scrollToBottom();
-        lastMessageIdRef.current = lastMessage.id;
-      }
+      scrollToBottom();
       prevMessagesLengthRef.current = messages.length;
     }
-  }, [messages, scrollToBottom]);
+  }, [messages.length, scrollToBottom]);
 
   // Начальная прокрутка после загрузки
   useEffect(() => {
     if (!loading && messages.length > 0 && !initialScrollDoneRef.current) {
-      // Используем setTimeout для гарантированной прокрутки после рендеринга
-      setTimeout(() => {
-        scrollToBottom("auto");
-        initialScrollDoneRef.current = true;
-      }, 100);
+      scrollToBottom("auto");
+      initialScrollDoneRef.current = true;
     }
   }, [loading, messages.length, scrollToBottom]);
 
@@ -72,11 +62,6 @@ export default function Chat() {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
       if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
       const data = await res.json();
-      
-      // Определяем, является ли это новым сообщением
-      const isNewMessage = data.length > messages.length;
-      isNewMessageRef.current = isNewMessage;
-      
       setMessages(data);
       
       if (data.length > 0) {
@@ -116,19 +101,12 @@ export default function Chat() {
             Начните новую беседу, отправив сообщение
           </div>
         )}
-        {messages.map((msg, index) => (
+        {messages.map((msg) => (
           <div
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.role === "user" ? (
-              msg.message
-            ) : (
-              <AnimatedText 
-                text={msg.message} 
-                isNew={isNewMessageRef.current && index === messages.length - 1}
-              />
-            )}
+            {msg.message}
           </div>
         ))}
         <div ref={messagesEndRef} className="messages-end-anchor" />
