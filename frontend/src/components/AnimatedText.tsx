@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AnimatedText.css';
 
 interface AnimatedTextProps {
@@ -10,9 +10,7 @@ interface AnimatedTextProps {
 const AnimatedText: React.FC<AnimatedTextProps> = ({ text, speed = 100, isNew = true }) => {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
   const words = text.split(' ');
-  const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (currentIndex < words.length && isNew) {
@@ -29,34 +27,15 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({ text, speed = 100, isNew = 
     if (!isNew) {
       setDisplayedText(text);
       setCurrentIndex(words.length);
-      setIsVisible(true);
     } else {
       setDisplayedText('');
       setCurrentIndex(0);
-      setIsVisible(false);
     }
   }, [text, isNew, words.length]);
 
-  useEffect(() => {
-    if (displayedText && isNew) {
-      setIsVisible(true);
-    }
-  }, [displayedText, isNew]);
-
-  const renderWords = () => {
-    return displayedText.split(' ').map((word, index) => (
-      <span key={index} className="word" style={{ animationDelay: `${index * 0.1}s` }}>
-        {word}{' '}
-      </span>
-    ));
-  };
-
   return (
-    <span 
-      ref={containerRef}
-      className={`animated-text ${isVisible ? 'fade-in' : ''}`}
-    >
-      {renderWords()}
+    <span className="animated-text">
+      {displayedText}
       {currentIndex < words.length && isNew && <span className="cursor">|</span>}
     </span>
   );
