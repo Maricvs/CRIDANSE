@@ -16,16 +16,16 @@ export default function Chat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mainContentRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<number | null>(null);
   const initialScrollDoneRef = useRef<boolean>(false);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
-    if (messagesEndRef.current && mainContentRef.current) {
-      mainContentRef.current.scrollTo({
-        top: messagesEndRef.current.offsetTop,
-        behavior
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior,
+        block: "end",
+        inline: "nearest"
       });
     }
   }, []);
@@ -94,7 +94,7 @@ export default function Chat() {
   if (loading) return <div className="chat-loading">Загрузка сообщений...</div>;
 
   return (
-    <div className={wrapperClass} ref={mainContentRef}>
+    <div className={wrapperClass}>
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="empty-chat-message">
