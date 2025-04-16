@@ -305,7 +305,7 @@ a:hover {
   scrollbar-width: thin;
   scrollbar-color: #444 #1e1e1e;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 0; /* Убираем фиксированный отступ */
+  padding-bottom: 80px; /* Убираем фиксированный отступ */
   margin-bottom: auto; /* Добавляем автоматический отступ снизу */
 }
 
