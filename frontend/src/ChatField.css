@@ -236,8 +236,7 @@
   color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 40px;
-  margin-top: 0.5rem;
+  font-size: 20px;
 }
 
 .chat-action-button:hover {
@@ -302,7 +301,7 @@
 
   .chat-input {
     padding: 12px 14px;
-    padding-right: 100px; /* Увеличиваем отступ для кнопок */
+    padding-right: 100px;
     padding-left: 14px;
     font-size: 16px;
     margin-bottom: env(safe-area-inset-bottom);
@@ -326,27 +325,7 @@
     display: flex;
     gap: 8px;
     z-index: 10;
-  }
-
-  .chat-action-button {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 20px;
-    opacity: 1; /* Всегда видимые */
-    visibility: visible; /* Всегда видимые */
-  }
-
-  .chat-action-button:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+    margin-top: 0;
   }
 }
 
