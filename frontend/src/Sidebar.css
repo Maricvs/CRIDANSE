@@ -145,6 +145,8 @@ a:hover {
   font-size: 20px;
   z-index: 2000;
   display: none;
+  padding: 0;
+  margin: 0;
 }
 
 .sidebar-toggle-fixed:hover {
@@ -446,19 +448,17 @@ a:hover {
   .sidebar-toggle-fixed {
     display: block;
     z-index: 2001;
-    background-color: rgba(30, 30, 30, 0.8);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: none;
+    box-shadow: none;
+    width: auto;
+    height: auto;
+    color: #ccc;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
   }
 
   .sidebar-toggle-fixed:hover {
     color: white;
-    background-color: rgba(30, 30, 30, 0.9);
+    background: none;
   }
 
   .sidebar-content {
