@@ -143,7 +143,8 @@ a:hover {
   color: #ccc;
   cursor: pointer;
   font-size: 20px;
-  z-index: 1000;
+  z-index: 2000;
+  display: none;
 }
 
 .sidebar-toggle-fixed:hover {
@@ -305,6 +306,7 @@ a:hover {
   scrollbar-width: thin;
   scrollbar-color: #444 #1e1e1e;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 80px; /* или больше, если снизу есть кнопки/меню */
 }
 
 .chat-scrollable::-webkit-scrollbar {
@@ -429,7 +431,6 @@ a:hover {
     left: 0;
     right: 0;
     top: 0;
-    z-index: 9999;
   }
 
   .sidebar.expanded {
@@ -442,6 +443,20 @@ a:hover {
 
   .sidebar-toggle-fixed {
     display: block;
+    z-index: 2000;
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .sidebar-toggle-fixed:hover {
+    color: white;
+    background-color: rgba(30, 30, 30, 0.9);
   }
 
   .sidebar-content {
