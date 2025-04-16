@@ -1,8 +1,7 @@
 .chat-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: -webkit-fill-available;
+  height: 100%;
   background-color: #1e1e1e;
   color: #e1e6f2;
   position: relative;
@@ -19,6 +18,7 @@
   scrollbar-color: #666 #1e1e1e;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
+  position: relative;
 }
 
 .messages-container::-webkit-scrollbar {
@@ -42,12 +42,12 @@
 
 @media (max-width: 767px) {
   .chat-container {
-    height: 100vh;
-    height: -webkit-fill-available;
-    /*overflow: hidden;*/
+    height: 100%;
   }
 
   .messages-container {
-    padding-bottom: 120px; /* Увеличиваем отступ для мобильных устройств */
+    padding: 20px;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    padding-top: 2rem;
   }
 } 

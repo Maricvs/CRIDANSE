@@ -3,10 +3,6 @@ html, body, #root {
   padding: 0;
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  position: fixed;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
 }
 
@@ -15,8 +11,6 @@ html, body, #root {
   flex-direction: row;
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  position: fixed;
   background-color: var(--bg-color);
 }
 
@@ -25,8 +19,6 @@ html, body, #root {
   flex-direction: row;
   height: 100%;
   width: 100%;
-  overflow: hidden;
-  position: fixed;
 }
 
 .auth-container {

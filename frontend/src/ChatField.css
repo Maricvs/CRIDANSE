@@ -279,15 +279,10 @@
   .chat-wrapper {
     padding-left: 0;
     transition: padding-left 0.3s ease;
-    min-height: 100vh;
-    height: -webkit-fill-available;
-    padding-bottom: 80px;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    height: 100%;
+    padding-bottom: 0;
+    position: relative;
     background-color: var(--bg-color);
-    z-index: 1000;
   }
 
   .chat-input-container {
@@ -298,6 +293,7 @@
     right: 0;
     background-color: var(--bg-color);
     padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
   }
 
   .chat-input {
@@ -314,8 +310,10 @@
   }
 
   .chat-messages {
-    padding: 0 0.75rem 4rem;
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    padding: 0 0.75rem;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    padding-top: 2rem;
+    margin-bottom: 0;
   }
 
   .send-button {
