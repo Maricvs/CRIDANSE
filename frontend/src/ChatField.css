@@ -308,6 +308,42 @@
     margin-bottom: env(safe-area-inset-bottom);
   }
 
+  .action-buttons {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 0.75rem;
+    z-index: 1001;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chat-action-button {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: #2a2a2a;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 20px;
+    margin: 0;
+  }
+
+  .chat-action-button.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .chat-action-button:hover {
+    color: #fff;
+    background-color: #3a3a3a;
+  }
+
   .message {
     max-width: 90%;
     padding: 12px 14px;
