@@ -34,18 +34,37 @@ export default function Chat() {
   // Прокрутка при изменении сообщений
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current) {
-      scrollToBottom();
+      // Прокручиваем только если новые сообщения появились в конце
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && lastMessage.id > (lastMessageIdRef.current || 0)) {
+        scrollToBottom();
+        lastMessageIdRef.current = lastMessage.id;
+      }
       prevMessagesLengthRef.current = messages.length;
     }
-  }, [messages.length, scrollToBottom]);
+  }, [messages, scrollToBottom]);
 
   // Начальная прокрутка после загрузки
   useEffect(() => {
     if (!loading && messages.length > 0 && !initialScrollDoneRef.current) {
-      scrollToBottom("auto");
-      initialScrollDoneRef.current = true;
+      // Используем setTimeout для гарантированной прокрутки после рендеринга
+      setTimeout(() => {
+        scrollToBottom("auto");
+        initialScrollDoneRef.current = true;
+      }, 100);
     }
   }, [loading, messages.length, scrollToBottom]);
+
+  // Прокрутка при изменении размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      if (messages.length > 0) {
+        scrollToBottom("auto");
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [messages.length, scrollToBottom]);
 
   const fetchMessages = async () => {
     try {
