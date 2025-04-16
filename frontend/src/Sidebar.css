@@ -147,19 +147,8 @@ a:hover {
   display: none;
 }
 
-@media (min-width: 768px) {
-  .sidebar-toggle-fixed {
-    display: block;
-    background: none;
-    box-shadow: none;
-    width: auto;
-    height: auto;
-    color: #ccc;
-  }
-
-  .sidebar-toggle-fixed:hover {
-    color: white;
-  }
+.sidebar-toggle-fixed:hover {
+  color: white;
 }
 
 .sidebar-section {
@@ -442,12 +431,10 @@ a:hover {
     left: 0;
     right: 0;
     top: 0;
-    z-index: 2000;
   }
 
   .sidebar.expanded {
     transform: translateX(0);
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.collapsed {
@@ -456,18 +443,20 @@ a:hover {
 
   .sidebar-toggle-fixed {
     display: block;
-    z-index: 2001;
-    background: none;
-    box-shadow: none;
-    width: auto;
-    height: auto;
-    color: #ccc;
-    text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    background-color: rgba(30, 30, 30, 0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar-toggle-fixed:hover {
     color: white;
-    background: none;
+    background-color: rgba(30, 30, 30, 0.9);
   }
 
   .sidebar-content {
@@ -478,7 +467,6 @@ a:hover {
     flex-direction: column;
     overflow-y: auto;
     position: relative;
-    background-color: #1e1e1e;
   }
 
   .chat-container {
@@ -510,7 +498,7 @@ a:hover {
     background-color: var(--bg-color);
     padding: 16px;
     border-top: 1px solid var(--border-color);
-    z-index: 2002;
+    z-index: 1001;
     display: flex;
     flex-direction: column;
     gap: 12px;

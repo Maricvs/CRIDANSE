@@ -123,8 +123,6 @@ html, body, #root {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    z-index: 1;
-    padding-top: 0;
   }
 
   .chat-wrapper {
@@ -135,7 +133,6 @@ html, body, #root {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    z-index: 1;
   }
 
   .auth-container {
