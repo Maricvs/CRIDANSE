@@ -419,23 +419,26 @@ a:hover {
   .sidebar {
     position: fixed;
     z-index: 1000;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
   }
 
   .sidebar.expanded {
     transform: translateX(0);
     width: 260px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.collapsed {
     transform: translateX(-100%);
+    width: 0;
+  }
+
+  .sidebar-toggle-fixed {
+    z-index: 1001;
   }
 
   .sidebar-content {
     position: relative;
-    z-index: 1001;
+    z-index: 1000;
   }
 
   .chat-container {
@@ -455,6 +458,10 @@ a:hover {
     flex-direction: column;
     overflow-y: auto;
     position: relative;
+  }
+
+  .chat-container {
+    margin-bottom: 0;
   }
 
   .chat-scrollable {
