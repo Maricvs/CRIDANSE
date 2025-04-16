@@ -143,11 +143,20 @@ a:hover {
   color: #ccc;
   cursor: pointer;
   font-size: 20px;
-  z-index: 2000; /* Повышаем уровень */
+  z-index: 1001; /* Повышаем уровень */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar-toggle-fixed:hover {
   color: white;
+  background-color: rgba(30, 30, 30, 0.9);
 }
 
 .sidebar-section {
