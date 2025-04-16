@@ -30,6 +30,7 @@
   height: 100%;
   position: relative;
   scroll-behavior: smooth;
+  padding-bottom: 120px; /* Отступ для chat-input */
 }
 
 .messages-end-anchor {
@@ -49,6 +50,9 @@
   .chat-error, 
   .chat-loading {
     padding-top: 60px; /* Учитываем верхнюю панель */
+  }
+  .chat-messages {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
 }
 

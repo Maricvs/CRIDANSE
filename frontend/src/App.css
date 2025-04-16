@@ -80,6 +80,7 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: #666 #1e1e1e;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 0;
 }
 
 .main-content::-webkit-scrollbar {
@@ -112,11 +113,13 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
+  padding-bottom: 0;
   max-width: 768px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
   position: relative;
+  min-height: 0;
 }
 
 @media (max-width: 768px) {
@@ -145,6 +148,7 @@ html, body, #root {
     display: flex;
     flex-direction: column;
     z-index: 1;
+    padding-bottom: 0;
   }
 
   .chat-wrapper {
@@ -153,8 +157,8 @@ html, body, #root {
     height: 100%;
     position: relative;
     flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    min-height: 0;
+    padding-bottom: 0;
   }
 
   .auth-container {
