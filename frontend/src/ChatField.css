@@ -40,19 +40,17 @@
 .chat-messages {
   flex: 1;
   display: flex;
-  overflow-y: auto;
   flex-direction: column;
-  gap: 16px; /* Увеличение отступа между сообщениями */
-  padding: 0 1rem 1.5rem; /* Увеличение нижнего отступа */
+  gap: 16px;
+  padding: 0 1rem 1.5rem;
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
   box-sizing: border-box;
   transition: margin-left 0.3s ease;
   position: relative;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 80px; /* Добавление отступа снизу, чтобы нижние сообщения не уходили под ввод */
-  padding-top: 2rem; /* Добавляем отступ сверху для первого сообщения */
+  padding-bottom: 80px;
+  padding-top: 2rem;
 }
 
 .chat-messages,
