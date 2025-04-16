@@ -309,13 +309,12 @@
   }
 
   .action-buttons {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    padding: 0.75rem;
-    z-index: 1001;
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
     display: flex;
     gap: 8px;
+    z-index: 10;
   }
 
   .chat-action-button {
@@ -326,12 +325,14 @@
     justify-content: center;
     border: none;
     border-radius: 50%;
-    background: #2a2a2a;
+    background: transparent;
     color: #888;
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 20px;
     margin: 0;
+    opacity: 0;
+    transform: translateY(20px);
   }
 
   .chat-action-button.visible {
@@ -341,7 +342,7 @@
 
   .chat-action-button:hover {
     color: #fff;
-    background-color: #3a3a3a;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
   .message {
@@ -352,14 +353,6 @@
   .chat-messages {
     padding: 0 0.75rem 4rem;
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
-  }
-
-  .send-button {
-    right: 0.75rem;
-  }
-
-  .chat-input-tools {
-    left: 0.75rem;
   }
 }
 
