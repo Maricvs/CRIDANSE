@@ -302,8 +302,8 @@
 
   .chat-input {
     padding: 12px 14px;
-    padding-right: 50px;
-    padding-left: 50px;
+    padding-right: 100px; /* Увеличиваем отступ для кнопок */
+    padding-left: 14px;
     font-size: 16px;
     margin-bottom: env(safe-area-inset-bottom);
   }
@@ -340,6 +340,8 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 20px;
+    opacity: 1; /* Всегда видимые */
+    visibility: visible; /* Всегда видимые */
   }
 
   .chat-action-button:hover {
