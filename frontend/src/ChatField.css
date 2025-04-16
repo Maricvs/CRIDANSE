@@ -308,43 +308,6 @@
     margin-bottom: env(safe-area-inset-bottom);
   }
 
-  .action-buttons {
-    position: absolute;
-    right: 0.75rem;
-    bottom: 0.75rem;
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-  }
-
-  .chat-action-button {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    color: #888;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 20px;
-    margin: 0;
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  .chat-action-button.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .chat-action-button:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
   .message {
     max-width: 90%;
     padding: 12px 14px;
@@ -353,6 +316,14 @@
   .chat-messages {
     padding: 0 0.75rem 4rem;
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  .send-button {
+    right: 0.75rem;
+  }
+
+  .chat-input-tools {
+    left: 0.75rem;
   }
 }
 
