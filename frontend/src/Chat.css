@@ -41,6 +41,16 @@
   background-color: #888;
 }
 
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  position: relative;
+  padding: 20px;
+  padding-bottom: 100px;
+}
+
 @media (max-width: 767px) {
   .chat-container {
     height: 100vh;
@@ -50,5 +60,9 @@
 
   .messages-container {
     padding-bottom: 120px; /* Увеличиваем отступ для мобильных устройств */
+  }
+
+  .chat-messages {
+    padding-bottom: 120px;
   }
 } 
