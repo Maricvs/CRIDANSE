@@ -281,9 +281,11 @@
     transition: padding-left 0.3s ease;
     min-height: 100vh;
     height: -webkit-fill-available;
-    padding-bottom: 120px; /* Увеличиваем отступ снизу */
-    position: relative; /* Меняем на relative */
+    padding-bottom: 120px;
+    position: relative;
     background-color: var(--bg-color);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .chat-field {
@@ -291,61 +293,60 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0.75rem;
-    background-color: var(--bg-color);
+    padding: 12px;
+    background-color: #1e1e1e;
     z-index: 1000;
     border-top: 1px solid #333;
     border-radius: 0;
     margin: 0;
-    max-width: 100%;
-    height: auto; /* Добавляем автоматическую высоту */
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  .chat-input {
-    padding: 12px 14px;
-    padding-right: 100px;
-    padding-left: 14px;
+  .input-container {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 80px 10px 12px;
     font-size: 16px;
-    margin-bottom: env(safe-area-inset-bottom);
-    background-color: #2a2a2a;
+    line-height: 1.25;
     border: 1px solid #444;
     border-radius: 12px;
-    min-height: 44px; /* Минимальная высота для удобного тапа */
-  }
-
-  .chat-messages {
-    padding-bottom: calc(120px + env(safe-area-inset-bottom)); /* Увеличиваем отступ */
+    background-color: #2a2a2a;
+    color: white;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
   }
 
   .action-buttons {
     position: absolute;
-    right: 0.75rem;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     gap: 8px;
-    z-index: 10;
+    margin: 0;
   }
 
   .chat-action-button {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 18px;
     background: transparent;
-    border: none;
     color: #888;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 20px;
-    opacity: 1; /* Всегда видимые */
-    visibility: visible; /* Всегда видимые */
   }
 
-  .chat-action-button:hover {
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.1);
+  .chat-messages {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    margin-bottom: env(safe-area-inset-bottom);
   }
 }
 
