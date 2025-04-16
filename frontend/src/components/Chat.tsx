@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef, useCallback } from "react";
 import ChatField from './ChatField';
+import AnimatedText from './AnimatedText';
 import './Chat.css';
 
 interface Message {
@@ -32,7 +33,7 @@ export default function Chat() {
   const fetchMessages = async () => {
     try {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
-      if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
+      if (!res.ok) throw new Error("Ошибка при заг рузке сообщений");
       const data = await res.json();
       setMessages(data);
     } catch (err) {
@@ -73,7 +74,7 @@ export default function Chat() {
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.message}
+            {msg.role === "user" ? msg.message : <AnimatedText text={msg.message} />}
           </div>
         ))}
         <div ref={messagesEndRef} className="messages-end-anchor" />
