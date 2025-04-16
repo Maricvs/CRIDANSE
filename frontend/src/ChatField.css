@@ -290,19 +290,19 @@
     z-index: 1000;
   }
 
-  .chat-input-container {
-    padding: 0 0.75rem;
+  .chat-field {
     position: fixed;
-    bottom: 0;
+    bottom: 20px; /* Изменено с 0 на 20px */
     left: 0;
     right: 0;
+    padding: 0 1rem;
     background-color: var(--bg-color);
-    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 1000;
   }
 
   .chat-input {
     padding: 12px 14px;
-    padding-right: 100px; /* Увеличиваем отступ для кнопок */
+    padding-right: 100px;
     padding-left: 14px;
     font-size: 16px;
     margin-bottom: env(safe-area-inset-bottom);
@@ -314,8 +314,7 @@
   }
 
   .chat-messages {
-    padding: 0 0.75rem 4rem;
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom)); /* Увеличено с 4rem на 6rem */
   }
 
   .action-buttons {
