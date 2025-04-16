@@ -96,12 +96,12 @@ export default function Chat() {
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.role === "user" ? (
+            {msg.role === "user" || msg.id === lastMessageIdRef.current ? (
               msg.message
             ) : (
               <AnimatedText 
                 text={msg.message} 
-                isNew={msg.id === lastMessageIdRef.current}
+                isNew={false}
               />
             )}
           </div>
