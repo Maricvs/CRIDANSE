@@ -225,8 +225,8 @@
 
 /* Кнопка отправки */
 .chat-action-button {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -236,12 +236,13 @@
   color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .chat-action-button:hover {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
 .send-button {
@@ -301,7 +302,7 @@
 
   .chat-input {
     padding: 12px 14px;
-    padding-right: 100px;
+    padding-right: 120px; /* Увеличиваем отступ для больших кнопок */
     padding-left: 14px;
     font-size: 16px;
     margin-bottom: env(safe-area-inset-bottom);
@@ -326,6 +327,12 @@
     gap: 8px;
     z-index: 10;
     margin-top: 0;
+  }
+
+  .chat-action-button {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
   }
 }
 
