@@ -19,17 +19,33 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<number | null>(null);
+  const initialScrollDoneRef = useRef<boolean>(false);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior,
+        block: "end",
+        inline: "nearest"
+      });
+    }
+  }, []);
+
+  // Прокрутка при изменении сообщений
+  useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollToBottom();
       prevMessagesLengthRef.current = messages.length;
     }
-  }, [messages.length]);
+  }, [messages.length, scrollToBottom]);
 
+  // Начальная прокрутка после загрузки
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    if (!loading && messages.length > 0 && !initialScrollDoneRef.current) {
+      scrollToBottom("auto");
+      initialScrollDoneRef.current = true;
+    }
+  }, [loading, messages.length, scrollToBottom]);
 
   const fetchMessages = async () => {
     try {
@@ -38,7 +54,6 @@ export default function Chat() {
       const data = await res.json();
       setMessages(data);
       
-      // Обновляем ID последнего сообщения
       if (data.length > 0) {
         lastMessageIdRef.current = data[data.length - 1].id;
       }
@@ -51,10 +66,8 @@ export default function Chat() {
 
   useEffect(() => {
     if (id) {
-      fetchMessages().then(() => {
-        // Принудительная прокрутка после загрузки сообщений
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-      });
+      initialScrollDoneRef.current = false;
+      fetchMessages();
       prevMessagesLengthRef.current = 0;
     }
   }, [id]);

@@ -372,6 +372,9 @@
   border: 1px solid #444;
   border-radius: 12px;
   background-color: #2a2a2a;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .input-container {
