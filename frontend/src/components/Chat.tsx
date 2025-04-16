@@ -20,6 +20,7 @@ export default function Chat() {
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<number | null>(null);
   const initialScrollDoneRef = useRef<boolean>(false);
+  const isNewMessageRef = useRef<boolean>(false);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (messagesEndRef.current) {
@@ -71,6 +72,11 @@ export default function Chat() {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
       if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
       const data = await res.json();
+      
+      // Определяем, является ли это новым сообщением
+      const isNewMessage = data.length > messages.length;
+      isNewMessageRef.current = isNewMessage;
+      
       setMessages(data);
       
       if (data.length > 0) {
@@ -110,17 +116,17 @@ export default function Chat() {
             Начните новую беседу, отправив сообщение
           </div>
         )}
-        {messages.map((msg) => (
+        {messages.map((msg, index) => (
           <div
             key={msg.id}
             className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
           >
-            {msg.role === "user" || msg.id === lastMessageIdRef.current ? (
+            {msg.role === "user" ? (
               msg.message
             ) : (
               <AnimatedText 
                 text={msg.message} 
-                isNew={false}
+                isNew={isNewMessageRef.current && index === messages.length - 1}
               />
             )}
           </div>
