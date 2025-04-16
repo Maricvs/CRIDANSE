@@ -418,26 +418,29 @@ a:hover {
 @media (max-width: 767px) {
   .sidebar {
     position: fixed;
+    z-index: 1000;
     transform: translateX(-100%);
-    width: 100%;
-    max-width: 100vw;
-    height: 100vh;
-    height: -webkit-fill-available;
-    touch-action: none;
-    overflow-y: auto;
-    overflow-x: hidden;
-    background-color: #1e1e1e;
-    left: 0;
-    right: 0;
-    top: 0;
+    transition: transform 0.3s ease-in-out;
   }
 
   .sidebar.expanded {
     transform: translateX(0);
+    width: 260px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.collapsed {
     transform: translateX(-100%);
+  }
+
+  .sidebar-content {
+    position: relative;
+    z-index: 1001;
+  }
+
+  .chat-container {
+    position: relative;
+    z-index: 1;
   }
 
   .sidebar-toggle-fixed {
@@ -452,10 +455,6 @@ a:hover {
     flex-direction: column;
     overflow-y: auto;
     position: relative;
-  }
-
-  .chat-container {
-    margin-bottom: 0;
   }
 
   .chat-scrollable {
