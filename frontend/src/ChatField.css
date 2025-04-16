@@ -318,12 +318,33 @@
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 
-  .send-button {
+  .action-buttons {
+    position: absolute;
     right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
   }
 
-  .chat-input-tools {
-    left: 0.75rem;
+  .chat-action-button {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 20px;
+  }
+
+  .chat-action-button:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 

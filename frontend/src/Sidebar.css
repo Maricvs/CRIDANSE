@@ -137,7 +137,6 @@ a:hover {
 .sidebar-toggle-fixed {
   position: fixed;
   top: 14px;
-  left: 3px;
   background: none;
   border: none;
   color: #ccc;
