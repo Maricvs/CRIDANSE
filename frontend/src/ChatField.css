@@ -289,7 +289,7 @@
     background-color: var(--bg-color);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 60px; /* Уменьшаем отступ еще больше */
+    padding-bottom: 60px;
   }
 
   .chat-field {
@@ -297,7 +297,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 6px; /* Уменьшаем отступы еще больше */
+    padding: 6px;
     background-color: #1e1e1e;
     z-index: 1000;
     border-top: 1px solid #333;
@@ -305,18 +305,9 @@
     margin: 0;
     width: 100%;
     box-sizing: border-box;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom)); /* Уменьшаем отступ снизу */
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
-  }
-
-  .chat-messages {
-    padding-bottom: calc(60px + env(safe-area-inset-bottom)); /* Уменьшаем отступ снизу */
-    margin-bottom: env(safe-area-inset-bottom);
-    height: calc(100% - 60px); /* Уменьшаем высоту с учетом нового отступа */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    position: relative;
   }
 
   .input-container {
@@ -329,7 +320,7 @@
   textarea {
     width: 100%;
     min-height: 44px;
-    padding: 10px 80px 10px 12px;
+    padding: 10px 12px; /* Уменьшаем отступы справа и слева */
     font-size: 16px;
     line-height: 1.25;
     border: 1px solid #444;
@@ -343,21 +334,36 @@
 
   .action-buttons {
     position: absolute;
-    right: 8px;
+    right: 0;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     gap: 8px;
     margin: 0;
+    width: 100%;
+    justify-content: center; /* Центрируем кнопки */
+    padding: 0 12px; /* Добавляем отступы по бокам */
   }
 
   .chat-action-button {
-    width: 32px;
-    height: 32px;
+    width: 40px; /* Увеличиваем размер кнопок */
+    height: 40px;
     padding: 0;
-    font-size: 18px;
+    font-size: 24px; /* Увеличиваем размер иконок */
     background: transparent;
     color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-messages {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+    margin-bottom: env(safe-area-inset-bottom);
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
   }
 }
 
