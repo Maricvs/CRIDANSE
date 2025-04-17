@@ -32,15 +32,15 @@
   position: relative;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 120px;
+  padding-bottom: 80px;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
 
 .messages-end-anchor {
   height: 1px;
-  margin-bottom: 20px;
-  scroll-margin-bottom: 100px;
+  margin-bottom: 10px;
+  scroll-margin-bottom: 80px;
 }
 
 /* Стили для адаптивного дизайна */
@@ -72,8 +72,8 @@
   }
 
   .chat-messages {
-    height: calc(100% - 120px);
-    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    height: calc(100% - 80px);
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
     -webkit-overflow-scrolling: touch;
     overflow-y: auto;
   }
