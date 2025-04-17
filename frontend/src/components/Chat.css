@@ -32,6 +32,7 @@
   position: relative;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 120px;
 }
 
 .messages-end-anchor {
@@ -50,7 +51,20 @@
 @media (max-width: 767px) {
   .chat-error, 
   .chat-loading {
-    padding-top: 60px; /* Учитываем верхнюю панель */
+    padding-top: 60px;
+  }
+
+  .chat-messages {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+
+  .chat-wrapper {
+    height: 100vh;
+    height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
   }
 }
 
