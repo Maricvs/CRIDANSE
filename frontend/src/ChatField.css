@@ -315,12 +315,14 @@
     width: 100%;
     margin: 0;
     padding: 0;
+    display: flex;
+    align-items: center;
   }
 
   textarea {
     width: 100%;
     min-height: 44px;
-    padding: 10px 12px; /* Уменьшаем отступы справа и слева */
+    padding: 10px 12px;
     font-size: 16px;
     line-height: 1.25;
     border: 1px solid #444;
@@ -335,21 +337,22 @@
   .action-buttons {
     position: absolute;
     right: 0;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
+    bottom: 0;
     display: flex;
     gap: 8px;
     margin: 0;
     width: 100%;
-    justify-content: center; /* Центрируем кнопки */
-    padding: 0 12px; /* Добавляем отступы по бокам */
+    justify-content: center;
+    padding: 0 12px;
+    align-items: center;
   }
 
   .chat-action-button {
-    width: 40px; /* Увеличиваем размер кнопок */
+    width: 40px;
     height: 40px;
     padding: 0;
-    font-size: 24px; /* Увеличиваем размер иконок */
+    font-size: 24px;
     background: transparent;
     color: #888;
     display: flex;
