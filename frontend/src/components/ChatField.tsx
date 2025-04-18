@@ -24,6 +24,24 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
   // const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
+  // Загружаем информацию о чате при монтировании
+  useEffect(() => {
+    const fetchChatInfo = async () => {
+      if (chatId) {
+        try {
+          const response = await fetch(`/api/chats/${chatId}`);
+          if (response.ok) {
+            const chat = await response.json();
+            setIsTeacherMode(chat.is_teacher_chat);
+          }
+        } catch (err) {
+          console.error('Ошибка при загрузке информации о чате:', err);
+        }
+      }
+    };
+    fetchChatInfo();
+  }, [chatId]);
+
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
     try {
       const suggestedTitle = aiResponse.split('\n')[0].slice(0, 50);
@@ -84,6 +102,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           body: JSON.stringify({
             user_id: parseInt(userId || '0', 10),
             title: 'Новый чат',
+            is_teacher_chat: isTeacherMode
           }),
         });
 
@@ -210,7 +229,14 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         <div className="action-buttons">
           <button 
             className={`chat-action-button ${isTeacherMode ? 'active' : ''}`} 
-            onClick={() => setIsTeacherMode(!isTeacherMode)}
+            onClick={() => {
+              // Если чат уже существует, не позволяем менять режим
+              if (chatId) {
+                alert('Режим учителя нельзя выключить в учебном чате.');
+                return;
+              }
+              setIsTeacherMode(!isTeacherMode);
+            }}
             title={isTeacherMode ? 'Выключить режим учителя' : 'Включить режим учителя'}
           >
             <LiaChalkboardTeacherSolid />

@@ -84,17 +84,23 @@ def get_messages_by_chat(chat_id: int, db: Session = Depends(get_db)):
 class ChatCreate(BaseModel):
     user_id: int
     title: str = "Новый чат"
+    is_teacher_chat: bool = False
 
 @router.post("/user")
 def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
-        new_chat = Chat(user_id=chat.user_id, title=chat.title)
+        new_chat = Chat(
+            user_id=chat.user_id, 
+            title=chat.title,
+            is_teacher_chat=chat.is_teacher_chat
+        )
         db.add(new_chat)
         db.commit()
         db.refresh(new_chat)
         return JSONResponse(status_code=201, content={
             "id": new_chat.id,
             "title": new_chat.title,
+            "is_teacher_chat": new_chat.is_teacher_chat,
             "created_at": new_chat.created_at.isoformat()
         })
     except Exception as e:
@@ -135,5 +141,21 @@ def get_last_message_time(chat_id: int, db: Session = Depends(get_db)):
         if not last_message:
             return {"created_at": None}
         return {"created_at": last_message.created_at.isoformat()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/{chat_id}")
+def get_chat(chat_id: int, db: Session = Depends(get_db)):
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        return {
+            "id": chat.id,
+            "title": chat.title,
+            "is_teacher_chat": chat.is_teacher_chat,
+            "created_at": chat.created_at.isoformat(),
+            "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat()
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
