@@ -63,7 +63,7 @@ def get_chats(user_id: int, db: Session = Depends(get_db)):
             })
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+       print("❌ error chat build:", chat.id, str(e))
 
 @router.get("/messages/by_chat/{chat_id}")
 def get_messages_by_chat(chat_id: int, db: Session = Depends(get_db)):
