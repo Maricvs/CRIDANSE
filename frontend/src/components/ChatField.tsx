@@ -145,7 +145,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         apiEndpoint = '/api/gpt/ask';
         requestData = {
           prompt,
-          user_id: userId,
+          user_id: parseInt(userId || '0', 10),
           chat_id: currentChatId
         };
       }
