@@ -8,6 +8,11 @@ interface ChatFieldProps {
   onMessageSent?: () => void;
 }
 
+interface TeacherResponse {
+  response: string;
+  session_id?: number;
+}
+
 const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   const params = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -16,6 +21,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
+  const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
   // const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
@@ -105,15 +111,25 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при сохранении сообщения');
       }
 
-      const apiEndpoint = isTeacherMode ? '/api/document_search/teacher/ask' : '/api/gpt/ask';
+      let apiEndpoint;
+      let requestData;
       
-      const requestData = isTeacherMode 
-        ? { query: prompt }
-        : {
-            prompt,
-            user_id: userId,
-            chat_id: currentChatId
-          };
+      if (isTeacherMode) {
+        // Используем расширенный режим учителя
+        apiEndpoint = '/api/teacher/ask';
+        requestData = {
+          prompt,
+          ...(teacherSessionId && { session_id: teacherSessionId })
+        };
+      } else {
+        // Обычный режим
+        apiEndpoint = '/api/gpt/ask';
+        requestData = {
+          prompt,
+          user_id: userId,
+          chat_id: currentChatId
+        };
+      }
 
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
@@ -125,10 +141,15 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при получении ответа от ИИ');
       }
 
-      const aiResponse = await aiResponseFetch.json();
+      const aiResponse: TeacherResponse = await aiResponseFetch.json();
+      
+      // Сохраняем ID сессии учителя, если он был возвращен
+      if (isTeacherMode && aiResponse.session_id) {
+        setTeacherSessionId(aiResponse.session_id);
+      }
       
       if (isNewChat && currentChatId) {
-        await autoRenameChat(currentChatId, aiResponse.response || aiResponse.message);
+        await autoRenameChat(currentChatId, aiResponse.response);
       }
 
       if (onMessageSent) {
@@ -152,6 +173,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   useEffect(() => {
     if (!chatId) return;
   }, [chatId]);
+
+  // Сбрасываем ID сессии учителя при выключении режима
+  useEffect(() => {
+    if (!isTeacherMode) {
+      setTeacherSessionId(null);
+    }
+  }, [isTeacherMode]);
 
   // const handleDocumentsSelected = (documentIds: number[]) => {
   //   setSelectedDocuments(documentIds);

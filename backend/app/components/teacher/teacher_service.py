@@ -8,6 +8,7 @@ from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
 from openai import OpenAI
 from models.models import Profile
 from app.components.documents.document_service import get_context_for_query
+from api.auth import get_current_user
 
 
 router = APIRouter()
@@ -119,16 +120,32 @@ async def create_teacher_session(
     user: Profile,
     session_data: TeacherSessionCreate
 ) -> TeacherSession:
-    # Implementation of create_teacher_session method
-    pass
+    """Создает новую сессию учителя для пользователя"""
+    db_session = TeacherSession(
+        user_id=user.id,
+        topic=session_data.topic,
+        level=session_data.level
+    )
+    db.add(db_session)
+    db.commit()
+    db.refresh(db_session)
+    return db_session
 
 async def get_teacher_session(
     db: Session,
     user: Profile,
     session_id: int
 ) -> TeacherSession:
-    # Implementation of get_teacher_session method
-    pass
+    """Получает сессию учителя по ID"""
+    session = db.query(TeacherSession).filter(
+        TeacherSession.id == session_id,
+        TeacherSession.user_id == user.id
+    ).first()
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Сессия учителя не найдена")
+    
+    return session
 
 async def send_teacher_message(
     db: Session,
@@ -136,5 +153,82 @@ async def send_teacher_message(
     session_id: int,
     message: str
 ) -> TeacherMessage:
-    # Implementation of send_teacher_message method
-    pass 
+    """Отправляет сообщение в сессию учителя и получает ответ"""
+    # Проверяем существование сессии
+    session = await get_teacher_session(db, user, session_id)
+    
+    # Сохраняем сообщение ученика
+    student_message = TeacherMessage(
+        session_id=session_id,
+        content=message,
+        role="student"
+    )
+    db.add(student_message)
+    
+    # Получаем историю сообщений
+    messages = db.query(TeacherMessage).filter(TeacherSession.id == session_id).all()
+    messages_history = [{"role": msg.role, "content": msg.content} for msg in messages]
+    
+    # Получаем ответ учителя
+    teacher_response = await get_teacher_response(
+        messages_history,
+        session.topic,
+        session.level,
+        user.id,
+        db
+    )
+    
+    # Сохраняем ответ учителя
+    teacher_message = TeacherMessage(
+        session_id=session_id,
+        content=teacher_response,
+        role="teacher"
+    )
+    db.add(teacher_message)
+    
+    db.commit()
+    db.refresh(teacher_message)
+    return teacher_message
+
+@router.post("/ask")
+async def ask_teacher_advanced(
+    request: dict,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    """
+    Продвинутый endpoint для режима учителя с параметрами topic и level
+    """
+    prompt = request.get("prompt")
+    session_id = request.get("session_id")
+    
+    # Если session_id не указан, создаем новую сессию
+    if not session_id:
+        # Определяем тему и уровень на основе первого сообщения
+        topic = "Общее обучение"
+        level = "intermediate"
+        
+        # Создаем новую сессию
+        session = await create_teacher_session(
+            db, 
+            current_user, 
+            TeacherSessionCreate(
+                user_id=current_user.id,
+                topic=topic,
+                level=level
+            )
+        )
+        session_id = session.id
+    
+    # Отправляем сообщение и получаем ответ
+    message = await send_teacher_message(
+        db,
+        current_user,
+        session_id,
+        prompt
+    )
+    
+    return {
+        "response": message.content,
+        "session_id": session_id
+    } 
