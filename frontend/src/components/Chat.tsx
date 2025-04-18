@@ -30,7 +30,7 @@ export default function Chat() {
     }
   }, []);
 
-  // Прокрутка при изменении сообщений
+  // Прокрутка при изменении сообщени
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current) {
       scrollToBottom();
