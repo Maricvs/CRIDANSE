@@ -15,6 +15,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
 
   const [inputValue, setInputValue] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
+  const [isTeacherMode, setIsTeacherMode] = useState(false);
   // const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
@@ -104,13 +105,15 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Ошибка при сохранении сообщения');
       }
 
-      const apiEndpoint = '/api/gpt/ask';
+      const apiEndpoint = isTeacherMode ? '/api/document_search/teacher/ask' : '/api/gpt/ask';
       
-      const requestData = {
-        prompt,
-        user_id: userId,
-        chat_id: currentChatId
-      };
+      const requestData = isTeacherMode 
+        ? { query: prompt }
+        : {
+            prompt,
+            user_id: userId,
+            chat_id: currentChatId
+          };
 
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
@@ -177,7 +180,11 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           ref={textareaRef}
         />
         <div className="action-buttons">
-          <button className="chat-action-button" onClick={handleSendMessage}>
+          <button 
+            className={`chat-action-button ${isTeacherMode ? 'active' : ''}`} 
+            onClick={() => setIsTeacherMode(!isTeacherMode)}
+            title={isTeacherMode ? 'Выключить режим учителя' : 'Включить режим учителя'}
+          >
             <LiaChalkboardTeacherSolid />
           </button>
           <button className="chat-action-button" onClick={handleSendMessage}>
