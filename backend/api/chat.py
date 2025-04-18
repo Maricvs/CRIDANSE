@@ -58,7 +58,8 @@ def get_chats(user_id: int, db: Session = Depends(get_db)):
                 "title": chat.title,
                 "created_at": chat.created_at.isoformat(),
                 "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat(),
-                "last_message_time": last_message.created_at.isoformat() if last_message else None
+                "last_message_time": last_message.created_at.isoformat() if last_message else None,
+                "is_teacher_chat": chat.is_teacher_chat
             })
         return result
     except Exception as e:
