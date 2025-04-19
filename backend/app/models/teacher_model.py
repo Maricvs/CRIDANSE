@@ -22,7 +22,7 @@ class TeacherMessage(Base):
     __table_args__ = {"schema": "teacher"}
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("teacher_sessions.id"))
+    session_id = Column(Integer, ForeignKey("teacher.teacher_sessions.id"))
     role = Column(String(50))  # teacher, student
     content = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
