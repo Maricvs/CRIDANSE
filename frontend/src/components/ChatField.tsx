@@ -230,8 +230,8 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           <button 
             className={`chat-action-button ${isTeacherMode ? 'active' : ''}`} 
             onClick={() => {
-              // Если чат уже существует, не позволяем менять режим
-              if (chatId) {
+              // Если чат существует и это учебный чат, не позволяем выключить режим
+              if (chatId && isTeacherMode) {
                 alert('Режим учителя нельзя выключить в учебном чате.');
                 return;
               }

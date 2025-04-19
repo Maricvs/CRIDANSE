@@ -6,6 +6,7 @@ from db import Base
 
 class TeacherSession(Base):
     __tablename__ = "teacher_sessions"
+    __table_args__ = {"schema": "teacher"}
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=True)
@@ -18,6 +19,7 @@ class TeacherSession(Base):
 
 class TeacherMessage(Base):
     __tablename__ = "teacher_messages"
+    __table_args__ = {"schema": "teacher"}
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("teacher_sessions.id"))
