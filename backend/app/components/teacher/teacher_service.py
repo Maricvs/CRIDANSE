@@ -201,6 +201,14 @@ async def ask_teacher_advanced(
     """
     prompt = request.get("prompt")
     session_id = request.get("session_id")
+    user_id = request.get("user_id")
+    
+    # Проверяем, что user_id совпадает с текущим пользователем
+    if user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Доступ запрещен"
+        )
     
     # Если session_id не указан, создаем новую сессию
     if not session_id:

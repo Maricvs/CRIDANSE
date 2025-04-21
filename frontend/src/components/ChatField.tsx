@@ -138,6 +138,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         apiEndpoint = '/api/teacher/ask';
         requestData = {
           prompt,
+          user_id: parseInt(userId || '0', 10),
           ...(teacherSessionId && { session_id: teacherSessionId })
         };
       } else {
