@@ -152,7 +152,10 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
 
       const aiResponseFetch = await fetch(apiEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(requestData),
       });
 
