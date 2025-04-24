@@ -55,7 +55,7 @@ const DocumentList: React.FC = () => {
 
   const handleDeleteDocument = async (documentId: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('Вы уверены, что хотите удалить этот документ?')) {
+    if (!confirm('Are you sure you want to delete this document?')) {
       return;
     }
 

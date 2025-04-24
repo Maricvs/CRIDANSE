@@ -9,7 +9,7 @@ const DevBanner: React.FC = () => {
     e.preventDefault();
 
     if (!email.includes("@")) {
-      setError("Введите корректный email");
+      setError("Please enter a valid email");
       return;
     }
 
@@ -25,10 +25,10 @@ const DevBanner: React.FC = () => {
         setEmail("");
         setError("");
       } else {
-        throw new Error("Ошибка при отправке");
+        throw new Error("Error sending");
       }
     } catch (err) {
-      setError("Не удалось отправить. Попробуйте позже.");
+      setError("Failed to send. Please try again later.");
     }
   };
 
@@ -43,16 +43,16 @@ const DevBanner: React.FC = () => {
       border: "1px solid #3e3e3d",
       textAlign: "center",
     }}>
-      <h3 style={{ marginBottom: "10px" }}>🚧 Проект в разработке</h3>
+      <h3 style={{ marginBottom: "10px" }}>🚧 Project in development</h3>
       <p style={{ marginBottom: "16px" }}>
-        Мы почти готовы! Оставьте свой email — и мы вас уведомим.
+        We're almost ready! Leave your email — and we'll notify you.
       </p>
 
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
           <input
             type="email"
-            placeholder="Ваш email"
+            placeholder="Your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={{ padding: "8px", width: "250px", borderRadius: "4px", background: "#b3b2b2", border: "1px solid #ccc" }}
@@ -64,11 +64,11 @@ const DevBanner: React.FC = () => {
             borderRadius: "4px",
             cursor: "pointer"
           }}>
-            Уведомить
+            Notify me
           </button>
         </form>
       ) : (
-        <p>✅ Спасибо! Мы уведомим вас, как только всё будет готово.</p>
+        <p>✅ Thank you! We'll notify you as soon as everything is ready.</p>
       )}
       {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
     </div>

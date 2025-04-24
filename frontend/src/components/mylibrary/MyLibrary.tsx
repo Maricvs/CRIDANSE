@@ -14,7 +14,7 @@ const MyLibrary: React.FC = () => {
     <div className="my-library">
       <div className="nav-bar">
         <button className="upload-button" onClick={handleUpload}>
-          Загрузить
+          Upload
         </button>
       </div>
       <DocumentList />

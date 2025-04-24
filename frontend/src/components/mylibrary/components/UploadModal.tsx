@@ -43,12 +43,12 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.file) {
-      setError('Пожалуйста, выберите файл');
+      setError('Please select a file');
       return;
     }
 
     if (!userId) {
-      setError('Пользователь не авторизован');
+      setError('User not authenticated');
       return;
     }
 
@@ -95,10 +95,10 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h2>Загрузка документа</h2>
+        <h2>Upload Document</h2>
         <form onSubmit={handleSubmit} className="upload-form">
           <div className="form-group">
-            <label htmlFor="title">Название</label>
+            <label htmlFor="title">Title</label>
             <input
               type="text"
               id="title"
@@ -110,7 +110,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="description">Описание</label>
+            <label htmlFor="description">Description</label>
             <textarea
               id="description"
               name="description"
@@ -121,7 +121,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="file">Файл</label>
+            <label htmlFor="file">File</label>
             <input
               type="file"
               id="file"
@@ -132,14 +132,14 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           {error && <div className="error-message">{error}</div>}
-          {success && <div className="success-message">Документ успешно загружен!</div>}
+          {success && <div className="success-message">Document uploaded successfully!</div>}
 
           <div className="modal-buttons">
             <button type="button" className="cancel-button" onClick={onClose}>
-              Отмена
+              Cancel
             </button>
             <button type="submit" className="submit-button" disabled={loading}>
-              {loading ? 'Загрузка...' : 'Загрузить'}
+              {loading ? 'Uploading...' : 'Upload'}
             </button>
           </div>
         </form>
