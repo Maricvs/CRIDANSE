@@ -134,7 +134,7 @@ const DocumentList: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="loading">Загрузка документов...</div>;
+    return <div className="loading">Loading documents...</div>;
   }
 
   if (error) {
@@ -144,17 +144,17 @@ const DocumentList: React.FC = () => {
   return (
     <div className="document-list">
       <div className="document-list-header">
-        <h2>Мои документы</h2>
+        <h2>My Documents</h2>
         <button className="upload-button" onClick={handleUploadClick}>
-          <FaUpload /> Загрузить документ
+          <FaUpload /> Upload document
         </button>
       </div>
 
       {documents.length === 0 ? (
         <div className="empty-state">
-          <p>У вас пока нет документов</p>
+          <p>You don't have any documents yet</p>
           <button className="upload-button" onClick={handleUploadClick}>
-            <FaUpload /> Загрузить первый документ
+            <FaUpload /> Upload your first document
           </button>
         </div>
       ) : (
@@ -184,7 +184,7 @@ const DocumentList: React.FC = () => {
                     handleDownloadDocument(doc.id, doc.title);
                   }}
                 >
-                  Скачать
+                  Download
                 </button>
                 <button
                   className="delete-button"

@@ -332,7 +332,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     onCollapse?.(collapsed);
   };
 
-  const toggleUserMenu = () => {
+  const handleMenuItemClick = () => {
+    setShowUserMenu(false);
+  };
+
+  const toggleUserMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setShowUserMenu(!showUserMenu);
   };
 
@@ -429,15 +434,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                         <FaUser className="icon" /><span>{userName}</span>
                       </div>
                       <div className={`user-menu ${showUserMenu ? 'active' : ''}`}>
-                      <div className="user-menu-item">
+                        <div className="user-menu-item" onClick={handleMenuItemClick}>
                           <FaQuestionCircle className="icon" />
                           <span>Support</span>
                         </div>
-                        <div className="user-menu-item">
+                        <div className="user-menu-item" onClick={handleMenuItemClick}>
                           <FaGlobe className="icon" />
                           <span>Language</span>
                         </div>
-                         <div className="user-menu-item" onClick={handleLogout}>
+                        <div className="user-menu-item" onClick={() => {
+                          handleMenuItemClick();
+                          handleLogout();
+                        }}>
                           <FaSignOutAlt className="icon" />
                           <span>Logout</span>
                         </div>
