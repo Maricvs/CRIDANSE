@@ -114,15 +114,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
           }),
         });
 
-        if (!response.ok) throw new Error('Ошибка при миграции чата');
+        if (!response.ok) throw new Error('Error migrating chat');
       }
 
       localStorage.removeItem('temporary_chats');
       fetchChats();
       setShowMigrationPrompt(false);
     } catch (err) {
-      console.error('Ошибка при миграции чатов:', err);
-      alert('Не удалось перенести временные чаты. Пожалуйста, попробуйте позже.');
+      console.error('Error migrating chats:', err);
+      alert('Failed to migrate temporary chats. Please try again later.');
     }
   };
 
@@ -138,11 +138,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!userId) return;
     try {
       const response = await fetch(`/api/chats/user/${userId}`);
-      if (!response.ok) throw new Error('Ошибка при загрузке чатов');
+      if (!response.ok) throw new Error('Error loading chats');
       const data = await response.json();
       setChats(sortChats(data));
     } catch (err) {
-      console.error('Ошибка при загрузке чатов:', err);
+      console.error('Error loading chats:', err);
     }
   };
 
@@ -167,7 +167,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     try {
       const newChat = {
         id: Date.now(),
-        title: 'Новый чат',
+        title: 'New Chat',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         isTemporary: !userId
@@ -180,7 +180,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
           body: JSON.stringify({ title: newChat.title, user_id: userId })
         });
 
-        if (!response.ok) throw new Error('Ошибка при создании чата');
+        if (!response.ok) throw new Error('Error creating chat');
         const data = await response.json();
         newChat.id = data.id;
       } else {
@@ -192,13 +192,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       setIsCollapsed(false);
       navigate(`/chat/${newChat.id}`);
     } catch (err) {
-      console.error('Ошибка при создании чата:', err);
-      alert('Не удалось создать чат. Пожалуйста, попробуйте позже.');
+      console.error('Error creating chat:', err);
+      alert('Failed to create chat. Please try again later.');
     }
   };
 
   const deleteChat = async (chatId: number) => {
-    if (!window.confirm('Удалить этот чат?')) return;
+    if (!window.confirm('Delete this chat?')) return;
     
     try {
       if (userId) {
@@ -207,7 +207,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
           headers: { 'Content-Type': 'application/json' }
         });
         
-        if (!response.ok) throw new Error('Ошибка при удалении чата');
+        if (!response.ok) throw new Error('Error deleting chat');
         
         setChats(prev => prev.filter((c: Chat) => c.id !== chatId));
       } else {
@@ -222,8 +222,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         navigate('/');
       }
     } catch (err) {
-      console.error('Ошибка при удалении чата:', err);
-      alert('Не удалось удалить чат. Пожалуйста, попробуйте позже.');
+      console.error('Error deleting chat:', err);
+      alert('Failed to delete chat. Please try again later.');
     }
   };
 
@@ -239,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         });
         
         if (!response.ok) {
-          throw new Error('Ошибка при переименовании чата');
+          throw new Error('Error renaming chat');
         }
         
         const updatedChat = await response.json();
@@ -276,8 +276,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         });
       }
     } catch (err) {
-      console.error('Ошибка при переименовании чата:', err);
-      alert('Не удалось переименовать чат. Пожалуйста, попробуйте позже.');
+      console.error('Error renaming chat:', err);
+      alert('Failed to rename chat. Please try again later.');
     } finally {
       setIsRenamingInProgress(false);
       setEditingChatId(null);
@@ -304,7 +304,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     try {
       await renameChat(chatId, newTitle);
     } catch (err) {
-      console.error('Ошибка при переименовании:', err);
+      console.error('Error renaming:', err);
     } finally {
       setIsRenamingInProgress(false);
       setEditingChatId(null);
@@ -359,9 +359,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
               <div className="sidebar-section">
                 <ul>
-                  <li><Link to="/mylibrary" onClick={handleLinkClick}><FaFile className="icon" /> <span>Моя Библиотека</span></Link></li>
-                  <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Документы</span></Link></li>
-                  <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Библиотеки</span></Link></li>                  
+                  <li><Link to="/mylibrary" onClick={handleLinkClick}><FaFile className="icon" /> <span>My Library</span></Link></li>
+                  <li><Link to="/documents" onClick={handleLinkClick}><FaFile className="icon" /> <span>Documents</span></Link></li>
+                  <li><Link to="/libraries" onClick={handleLinkClick}><FaBook className="icon" /> <span>Libraries</span></Link></li>                  
                 </ul>
               </div>
 
@@ -369,17 +369,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                 <ul>
                   <li>
                     <button className="new-chat-button" onClick={handleNewChat}>
-                      <FaPlus className="icon" /> Новый чат
+                      <FaPlus className="icon" /> New chat
                     </button>
                     <div className="chat-link">
                       <FaComment className="icon" />
-                      <span>Чаты</span>
+                      <span>Chats</span>
                     </div>
 
                     <div className="chat-scrollable">
                       <ul className="chat-list">
                         {chats.length === 0 && (
-                          <li className="no-chats">Нет чатов</li>
+                          <li className="no-chats">No chats</li>
                         )}
                         {chats.map(chat => {
                           const isActive = chat.id === parseInt(selectedChatId || '', 10);
@@ -420,7 +420,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
               <div className="sidebar-footer">
                 <div className="subscription-link">
-                  <Link to="/subscriptions" onClick={handleLinkClick}><FaCreditCard className="icon" /><span>Подписка</span></Link>
+                  <Link to="/subscriptions" onClick={handleLinkClick}><FaCreditCard className="icon" /><span>Subscription</span></Link>
                 </div>
                 <div className="user-greeting" ref={userMenuRef}>
                   {userName ? (
@@ -431,22 +431,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                       <div className={`user-menu ${showUserMenu ? 'active' : ''}`}>
                       <div className="user-menu-item">
                           <FaQuestionCircle className="icon" />
-                          <span>Поддержка</span>
+                          <span>Support</span>
                         </div>
                         <div className="user-menu-item">
                           <FaGlobe className="icon" />
-                          <span>Язык</span>
+                          <span>Language</span>
                         </div>
                          <div className="user-menu-item" onClick={handleLogout}>
                           <FaSignOutAlt className="icon" />
-                          <span>Выйти</span>
+                          <span>Logout</span>
                         </div>
                       </div>
                     </>
                   ) : (
                     <Link to="/auth" onClick={handleLinkClick} className="flex-container">
                       <FaSignInAlt className="icon" />
-                      <span>Войти</span>
+                      <span>Login</span>
                     </Link>
                   )}
                 </div>
@@ -454,12 +454,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
               {showMigrationPrompt && (
                 <div className="migration-prompt">
-                  <p>У вас есть временные чаты. Хотите перенести их в аккаунт?</p>
-                  <button onClick={migrateTemporaryChats}>Перенести</button>
+                  <p>You have temporary chats. Would you like to migrate them to your account?</p>
+                  <button onClick={migrateTemporaryChats}>Migrate</button>
                   <button onClick={() => {
                     localStorage.removeItem('temporary_chats');
                     setShowMigrationPrompt(false);
-                  }}>Отменить</button>
+                  }}>Cancel</button>
                 </div>
               )}
             </>
@@ -474,10 +474,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
           onMouseLeave={() => setContextMenu(null)}
         >
           <div className="context-menu-item" onClick={() => handleRename(contextMenu.chatId)}>
-            <FaEdit /> Переименовать
+            <FaEdit /> Rename
           </div>
           <div className="context-menu-item" onClick={() => deleteChat(contextMenu.chatId)}>
-            <FaTrash /> Удалить
+            <FaTrash /> Delete
           </div>
         </div>
       )}

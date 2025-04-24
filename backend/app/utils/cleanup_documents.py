@@ -5,36 +5,36 @@ from db import get_db
 
 def cleanup_missing_files(db: Session):
     """
-    Проверяет существование файлов документов и удаляет записи из БД,
-    если файлы не найдены.
+    Check document files existence and delete records from DB
+    if files are not found.
     """
-    print("🔍 Начинаем проверку файлов документов...")
+    print("🔍 Starting document files check...")
     
-    # Получаем все документы из БД
+    # Get all documents from DB
     documents = db.query(Document).all()
-    print(f"📚 Найдено {len(documents)} документов в базе данных")
+    print(f"📚 Found {len(documents)} documents in database")
     
     deleted_count = 0
     for doc in documents:
         file_path = Path(doc.file_path)
         
-        # Проверяем существование файла
+        # Check file existence
         if not file_path.exists():
-            print(f"❌ Файл не найден: {file_path}")
-            print(f"   Удаляем документ из БД: ID={doc.id}, Название={doc.title}")
+            print(f"❌ File not found: {file_path}")
+            print(f"   Deleting document from DB: ID={doc.id}, Title={doc.title}")
             
-            # Удаляем запись из БД
+            # Delete record from DB
             db.delete(doc)
             deleted_count += 1
     
-    # Применяем изменения в БД
+    # Apply changes to DB
     db.commit()
     
-    print(f"✅ Проверка завершена. Удалено {deleted_count} несуществующих документов")
+    print(f"✅ Check completed. Deleted {deleted_count} non-existent documents")
     return deleted_count
 
 if __name__ == "__main__":
-    # Создаем сессию БД
+    # Create DB session
     db = next(get_db())
     try:
         cleanup_missing_files(db)

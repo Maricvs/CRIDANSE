@@ -15,30 +15,30 @@ import json
 from datetime import datetime
 from app.services.file_service import save_uploaded_file, delete_file, get_file_info
 
-# Константы
+# Constants
 UPLOAD_DIR = "uploads"
-CHUNK_SIZE = 1000  # примерное количество слов в чанке
-OVERLAP_SIZE = 200  # перекрытие между чанками
-EMBEDDING_MODEL = "text-embedding-3-small"  # модель OpenAI для эмбеддингов
+CHUNK_SIZE = 1000  # approximate number of words in a chunk
+OVERLAP_SIZE = 200  # overlap between chunks
+EMBEDDING_MODEL = "text-embedding-3-small"  # OpenAI model for embeddings
 
-# Инициализация клиента OpenAI
+# Initialize OpenAI client
 client = OpenAI()
 
-# Функция для подсчета токенов
+# Function to count tokens
 def num_tokens_from_string(string: str) -> int:
-    """Возвращает количество токенов в строке"""
+    """Returns the number of tokens in a string"""
     encoding = tiktoken.get_encoding("cl100k_base")
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
-# Функция для создания директорий
+# Function to create directories
 def ensure_upload_dir():
-    """Создает директорию для загрузки, если она не существует"""
+    """Creates upload directory if it doesn't exist"""
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Функция для получения содержимого документов разных форматов
+# Function to get content from different document formats
 def extract_text_from_file(file_path: str, file_type: str) -> str:
-    """Извлекает текст из файла в зависимости от его типа"""
+    """Extracts text from a file depending on its type"""
     if file_type == "pdf":
         return extract_text_from_pdf(file_path)
     elif file_type in ["docx", "doc"]:
@@ -46,7 +46,7 @@ def extract_text_from_file(file_path: str, file_type: str) -> str:
     elif file_type == "txt":
         return extract_text_from_txt(file_path)
     else:
-        raise ValueError(f"Неподдерживаемый тип файла: {file_type}")
+        raise ValueError(f"Unsupported file type: {file_type}")
 
 def extract_text_from_pdf(file_path: str) -> str:
     """Извлекает текст из PDF-файла"""
@@ -166,7 +166,7 @@ async def upload_document(
         return db_document
         
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при загрузке документа: {str(e)}")
+        print(f"❌ [ERROR] Error uploading document: {str(e)}")
         # Если файл был сохранен, удаляем его
         if 'file_path' in locals():
             await delete_file(file_path)
@@ -262,75 +262,75 @@ async def generate_teacher_response(
     user: Profile,
     query: str
 ) -> str:
-    """Генерирует ответ учителя на основе контекста из документов"""
-    # Получаем релевантный контекст из документов
+    """Generates teacher's response based on document context"""
+    # Get relevant context from documents
     context = await get_context_for_query(db, user, query)
     
     if not context:
-        return "Извините, но я не нашел релевантной информации в загруженных материалах. Пожалуйста, загрузите учебные материалы или уточните вопрос."
+        return "I apologize, but I couldn't find relevant information in the uploaded materials. Please upload study materials or clarify your question."
 
-    # Формируем промпт для учителя
-    prompt = f"""Вы - преподаватель, который отвечает на вопросы студента на основе предоставленных учебных материалов.
+    # Form teacher prompt
+    prompt = f"""You are a teacher who answers student questions based on provided study materials.
     
-КОНТЕКСТ ИЗ УЧЕБНЫХ МАТЕРИАЛОВ:
+CONTEXT FROM STUDY MATERIALS:
 {context}
 
-ВОПРОС СТУДЕНТА:
+STUDENT'S QUESTION:
 {query}
 
-Пожалуйста, ответьте на вопрос студента, используя ТОЛЬКО информацию из предоставленного контекста. 
-Если в контексте нет достаточной информации для полного ответа, скажите об этом студенту и ответьте только на основе того, что есть в контексте.
-Будьте педагогичны, объясняйте сложные темы простым языком. При необходимости приводите примеры из контекста.
-Всегда ссылайтесь на учебные материалы, но не упоминайте процесс поиска или эмбеддинги в своем ответе."""
+Please answer the student's question using ONLY information from the provided context.
+If there isn't enough information in the context for a complete answer, tell this to the student and answer based only on what is available in the context.
+Be pedagogical, explain complex topics in simple language. Use examples from the context when necessary.
+Always reference study materials, but don't mention the search process or embeddings in your answer."""
     
-    # Вызываем GPT для генерации ответа
+    # Call GPT to generate response
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "Вы - опытный преподаватель, который отвечает на вопросы студентов на основе учебных материалов."},
+            {"role": "system", "content": "You are an experienced teacher who answers student questions based on study materials."},
             {"role": "user", "content": prompt}
         ],
         temperature=0.3,
         max_tokens=1500
     )
     
-    return response.choices[0].message.content 
+    return response.choices[0].message.content
 
 # Функция для обработки содержимого документа
 async def process_document_content(document_id: int, db: Session) -> bool:
     """
-    Обрабатывает содержимое документа из "Моей библиотеки":
-    - извлекает текст
-    - разбивает на чанки
-    - создает эмбеддинги
-    - сохраняет в базу данных
+    Processes content of a document from "My Library":
+    - extracts text
+    - splits into chunks
+    - creates embeddings
+    - saves to database
     """
     print(f"🧠 [DEBUG] START: process_document_content({document_id})")
     
-    # Получаем документ из БД
+    # Get document from DB
     document = db.query(Document).filter(Document.id == document_id).first()
     
     if not document:
-        raise ValueError(f"Документ с ID {document_id} не найден")
+        raise ValueError(f"Document with ID {document_id} not found")
     
-    # Извлекаем текст из документа
+    # Extract text from document
     try:
         file_type = document.file_name.split('.')[-1] if document.file_name else document.file_type
         if not file_type:
-            raise ValueError("Неизвестный тип файла")
+            raise ValueError("Unknown file type")
             
         text = extract_text_from_file(document.file_path, file_type)
         
-        # Разбиваем текст на чанки
+        # Split text into chunks
         chunks = split_text_into_chunks(text)
         
-        print(f"✅ [INFO] Документ {document.id} разбит на {len(chunks)} чанков")
+        print(f"✅ [INFO] Document {document.id} split into {len(chunks)} chunks")
         
-        # Создаем эмбеддинги для каждого чанка
+        # Create embeddings for each chunk
         for i, chunk_text in enumerate(chunks):
             embedding = await get_embedding(chunk_text)
             
-            # Сохраняем чанк в БД
+            # Save chunk to DB
             db_chunk = DocumentChunk(
                 document_id=document.id,
                 content=chunk_text,
@@ -341,8 +341,8 @@ async def process_document_content(document_id: int, db: Session) -> bool:
             db.add(db_chunk)
         
         db.commit()
-        print(f"✅ [INFO] Векторизация завершена для документа ID={document.id}")
+        print(f"✅ [INFO] Vectorization completed for document ID={document.id}")
         return True
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при обработке документа {document_id}: {str(e)}")
+        print(f"❌ [ERROR] Error processing document {document_id}: {str(e)}")
         raise e

@@ -26,21 +26,21 @@ async def get_documents(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Получить список документов пользователя
+    Get list of user documents
     """
     try:
         documents = db.query(Document).filter(
             Document.is_deleted == False
         ).offset(skip).limit(limit).all()
         
-        print(f"📦 [INFO] Найдено {len(documents)} документов для пользователя {current_user.id}")
+        print(f"📦 [INFO] Found {len(documents)} documents for user {current_user.id}")
         return documents
         
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при получении документов: {str(e)}")
+        print(f"❌ [ERROR] Error getting documents: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при получении списка документов"
+            detail="Error getting document list"
         )
 
 @router.get("/documents/stats")
@@ -49,7 +49,7 @@ async def get_document_stats(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Получить статистику по документам пользователя
+    Get user document statistics
     """
     try:
         total = db.query(Document).filter(
@@ -62,7 +62,7 @@ async def get_document_stats(
             Document.is_deleted == False
         ).scalar() or 0
         
-        print(f"📊 [INFO] Статистика документов для пользователя {current_user.id}: {total} документов, {total_size} байт")
+        print(f"📊 [INFO] Document statistics for user {current_user.id}: {total} documents, {total_size} bytes")
         
         return {
             "total": total,
@@ -71,10 +71,10 @@ async def get_document_stats(
         }
         
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при получении статистики: {str(e)}")
+        print(f"❌ [ERROR] Error getting statistics: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при получении статистики документов"
+            detail="Error getting document statistics"
         )
 
 @router.post("/documents", response_model=DocumentResponse)
@@ -85,13 +85,13 @@ async def create_document(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Создание нового документа
+    Create new document
     """
     try:
-        # Сохраняем файл через единый сервис
+        # Save file through unified service
         file_path, original_filename, file_size = await save_uploaded_file(file)
         
-        # Создаем документ в БД
+        # Create document in DB
         db_document = Document(
             title=document.title,
             description=document.description,
@@ -106,20 +106,20 @@ async def create_document(
         db.commit()
         db.refresh(db_document)
         
-        # Векторизуем документ
+        # Vectorize document
         try:
             await process_document_content(db_document.id, db)
-            print(f"✅ [INFO] Документ успешно векторизован: id={db_document.id}, title={db_document.title}")
+            print(f"✅ [INFO] Document successfully vectorized: id={db_document.id}, title={db_document.title}")
         except Exception as process_err:
-            print(f"⚠️ [WARNING] Ошибка при векторизации документа: {str(process_err)}")
+            print(f"⚠️ [WARNING] Error vectorizing document: {str(process_err)}")
         
         return db_document
         
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при создании документа: {str(e)}")
+        print(f"❌ [ERROR] Error creating document: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при создании документа"
+            detail="Error creating document"
         )
 
 @router.put("/documents/{document_id}", response_model=DocumentResponse)
@@ -130,10 +130,10 @@ async def update_document(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Обновление существующего документа
+    Update existing document
     """
     try:
-        # Получаем документ и проверяем права доступа
+        # Get document and check access rights
         db_document = db.query(Document).filter(
             Document.id == document_id,
             Document.user_id == current_user.id,
@@ -143,10 +143,10 @@ async def update_document(
         if not db_document:
             raise HTTPException(
                 status_code=404,
-                detail="Документ не найден или у вас нет прав на его редактирование"
+                detail="Document not found or you don't have permission to edit it"
             )
         
-        # Обновляем только разрешенные поля
+        # Update only allowed fields
         for field, value in document.dict(exclude_unset=True).items():
             setattr(db_document, field, value)
         
@@ -154,16 +154,16 @@ async def update_document(
         db.commit()
         db.refresh(db_document)
         
-        print(f"✅ [INFO] Документ успешно обновлен: id={db_document.id}")
+        print(f"✅ [INFO] Document successfully updated: id={db_document.id}")
         return db_document
         
     except HTTPException as e:
         raise e
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при обновлении документа: {str(e)}")
+        print(f"❌ [ERROR] Error updating document: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при обновлении документа"
+            detail="Error updating document"
         )
 
 @router.delete("/documents/{document_id}")
@@ -173,7 +173,7 @@ async def delete_document(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Удаление документа (мягкое удаление)
+    Delete document (soft delete)
     """
     try:
         document = db.query(Document).filter(
@@ -185,23 +185,23 @@ async def delete_document(
         if not document:
             raise HTTPException(
                 status_code=404,
-                detail="Документ не найден или у вас нет прав на его удаление"
+                detail="Document not found or you don't have permission to delete it"
             )
         
         document.is_deleted = True
         document.updated_at = datetime.now()
         db.commit()
         
-        print(f"✅ [INFO] Документ успешно удален: id={document_id}")
-        return {"message": "Документ успешно удален"}
+        print(f"✅ [INFO] Document successfully deleted: id={document_id}")
+        return {"message": "Document successfully deleted"}
         
     except HTTPException as e:
         raise e
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при удалении документа: {str(e)}")
+        print(f"❌ [ERROR] Error deleting document: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при удалении документа"
+            detail="Error deleting document"
         )
 
 @router.get("/documents/{document_id}/download")
@@ -211,7 +211,7 @@ async def download_document(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Скачивание документа
+    Download document
     """
     try:
         document = db.query(Document).filter(
@@ -223,16 +223,16 @@ async def download_document(
         if not document:
             raise HTTPException(
                 status_code=404,
-                detail="Документ не найден или у вас нет прав на его скачивание"
+                detail="Document not found or you don't have permission to download it"
             )
         
         if not os.path.exists(document.file_path):
             raise HTTPException(
                 status_code=404,
-                detail="Файл не найден на сервере"
+                detail="File not found on server"
             )
         
-        print(f"✅ [INFO] Документ успешно скачан: id={document_id}")
+        print(f"✅ [INFO] Document successfully downloaded: id={document_id}")
         return FileResponse(
             document.file_path,
             filename=document.file_name,
@@ -242,10 +242,10 @@ async def download_document(
     except HTTPException as e:
         raise e
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при скачивании документа: {str(e)}")
+        print(f"❌ [ERROR] Error downloading document: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при скачивании документа"
+            detail="Error downloading document"
         )
 
 @router.get("/documents/{document_id}/vectorization")
@@ -255,10 +255,10 @@ async def get_document_vectorization(
     current_user: Profile = Depends(get_current_user)
 ):
     """
-    Получить информацию о векторизации документа
+    Get document vectorization information
     """
     try:
-        # Получаем документ
+        # Get document
         document = db.query(Document).filter(
             Document.id == document_id,
             Document.is_deleted == False
@@ -267,10 +267,10 @@ async def get_document_vectorization(
         if not document:
             raise HTTPException(
                 status_code=404,
-                detail="Документ не найден"
+                detail="Document not found"
             )
         
-        # Получаем чанки документа
+        # Get document chunks
         chunks = db.query(DocumentChunk).filter(
             DocumentChunk.document_id == document_id
         ).order_by(DocumentChunk.chunk_index).all()
@@ -292,8 +292,8 @@ async def get_document_vectorization(
     except HTTPException as e:
         raise e
     except Exception as e:
-        print(f"❌ [ERROR] Ошибка при получении информации о векторизации: {str(e)}")
+        print(f"❌ [ERROR] Error getting vectorization information: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail="Ошибка при получении информации о векторизации документа"
+            detail="Error getting document vectorization information"
         ) 

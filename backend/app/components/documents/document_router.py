@@ -23,7 +23,7 @@ async def create_document(
     current_user: Profile = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Загружает новый документ и создает для него эмбеддинги"""
+    """Uploads a new document and creates embeddings for it"""
     return await upload_document(db, current_user, file, title)
 
 @router.get("/documents", response_model=List[Document])
@@ -31,7 +31,7 @@ async def read_documents(
     current_user: Profile = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Получает список документов текущего пользователя"""
+    """Gets the list of documents for the current user"""
     return await get_user_documents(db, current_user)
 
 @router.delete("/documents/{document_id}")
@@ -40,11 +40,11 @@ async def remove_document(
     current_user: Profile = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Удаляет документ пользователя"""
+    """Deletes a user's document"""
     success = await delete_document(db, document_id, current_user)
     if not success:
-        raise HTTPException(status_code=404, detail="Документ не найден")
-    return {"message": "Документ успешно удален"}
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"message": "Document successfully deleted"}
 
 @router.post("/documents/search", response_model=List[SearchResult])
 async def search_documents(
@@ -52,7 +52,7 @@ async def search_documents(
     current_user: Profile = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Выполняет семантический поиск по документам пользователя"""
+    """Performs semantic search in user's documents"""
     return await search_relevant_chunks(db, current_user, search_query)
 
 @router.post("/teacher/ask")
@@ -61,6 +61,6 @@ async def ask_teacher(
     current_user: Profile = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Отправляет запрос и получает ответ на основе контекста из загруженных документов"""
+    """Sends a query and gets a response based on context from uploaded documents"""
     response = await generate_teacher_response(db, current_user, query)
     return {"response": response} 

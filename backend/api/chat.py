@@ -45,7 +45,7 @@ def get_user_messages(user_id: int, db: Session = Depends(get_db)):
 
 from models.models import Chat
 
-# Получить все чаты пользователя
+# Get all user chats
 @router.get("/user/{user_id}")
 def get_chats(user_id: int, db: Session = Depends(get_db)):
     try:
@@ -84,7 +84,7 @@ def get_messages_by_chat(chat_id: int, db: Session = Depends(get_db)):
 # Создать новый чат
 class ChatCreate(BaseModel):
     user_id: int
-    title: str = "Новый чат"
+    title: str = "New Chat"
     is_teacher_chat: bool = False
 
 @router.post("/user")
