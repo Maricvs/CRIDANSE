@@ -5,8 +5,8 @@ import '../ChatWelcomeMessage.css'; // Путь к CSS файлу для сти�
 const ChatWelcomeMessage: React.FC = () => {
   return (
     <div className="chat-welcome-message">
-      <h1>Добро пожаловать!</h1>
-      <h2>/ на бета-версию UnlimAI \</h2>
+      <h1>Welcome!</h1>
+      <h2>/ to CRIDANSE beta version \</h2>
     </div>
   );
 };

@@ -60,7 +60,7 @@ export default function Chat() {
   const fetchMessages = async () => {
     try {
       const res = await fetch(`/api/chats/messages/by_chat/${id}`);
-      if (!res.ok) throw new Error("Ошибка при загрузке сообщений");
+      if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
       setMessages(data);
       
@@ -68,7 +68,7 @@ export default function Chat() {
         lastMessageIdRef.current = data[data.length - 1].id;
       }
     } catch (err) {
-      setError("Не удалось загрузить сообщения");
+      setError("Failed to load messages");
     } finally {
       setLoading(false);
     }
@@ -91,14 +91,14 @@ export default function Chat() {
     return null;
   }
 
-  if (loading) return <div className="chat-loading">Загрузка сообщений...</div>;
+  if (loading) return <div className="chat-loading">Loading messages...</div>;
 
   return (
     <div className={wrapperClass}>
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="empty-chat-message">
-            Начните новую беседу, отправив сообщение
+            Start a new conversation by sending a message
           </div>
         )}
         {messages.map((msg) => (

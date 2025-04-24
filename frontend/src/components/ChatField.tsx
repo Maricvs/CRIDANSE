@@ -35,7 +35,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
             setIsTeacherMode(chat.is_teacher_chat);
           }
         } catch (err) {
-          console.error('Ошибка при загрузке информации о чате:', err);
+          console.error('Error loading chat information:', err);
         }
       }
     };
@@ -53,12 +53,12 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка при переименовании чата');
+        throw new Error('Error renaming chat');
       }
 
       await updateChatsList();
     } catch (err) {
-      console.error('Ошибка при автоматическом переименовании:', err);
+      console.error('Error during automatic renaming:', err);
     }
   };
 
@@ -69,7 +69,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
     try {
       const response = await fetch(`/api/chats/user/${userId}`);
       if (!response.ok) {
-        throw new Error('Ошибка при обновлении списка чатов');
+        throw new Error('Error updating chat list');
       }
       const data = await response.json();
       if (onMessageSent) {
@@ -78,7 +78,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       window.dispatchEvent(new Event('messageSent'));
       return data;
     } catch (err) {
-      console.error('Ошибка при обновлении списка чатов:', err);
+      console.error('Error updating chat list:', err);
       return null;
     }
   };
@@ -101,13 +101,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: parseInt(userId || '0', 10),
-            title: 'Новый чат',
+            title: 'New chat',
             is_teacher_chat: isTeacherMode
           }),
         });
 
         if (!chatResponse.ok) {
-          throw new Error('Ошибка при создании чата');
+          throw new Error('Error creating chat');
         }
 
         const newChat = await chatResponse.json();
@@ -127,7 +127,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       });
 
       if (!messageResponse.ok) {
-        throw new Error('Ошибка при сохранении сообщения');
+        throw new Error('Error saving message');
       }
 
       let apiEndpoint;
@@ -161,7 +161,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       });
 
       if (!aiResponseFetch.ok) {
-        throw new Error('Ошибка при получении ответа от ИИ');
+        throw new Error('Error in teacher mode. We are fixing it.');
       }
 
       const aiResponse: TeacherResponse = await aiResponseFetch.json();
@@ -184,8 +184,8 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       }
       
     } catch (err: any) {
-      console.error('Ошибка:', err);
-      alert(err.message || 'Произошла неизвестная ошибка');
+      console.error('Error:', err);
+      alert(err.message || 'An unknown error occurred');
     } finally {
       setCreatingChat(false);
     }
@@ -226,7 +226,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
               handleSendMessage();
             }
           }}
-          placeholder="Введите сообщение..."
+          placeholder="Enter message..."
           rows={1}
           ref={textareaRef}
         />
@@ -236,12 +236,12 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
             onClick={() => {
               // Если чат существует и это учебный чат, не позволяем выключить режим
               if (chatId && isTeacherMode) {
-                alert('Режим учителя нельзя выключить в учебном чате.');
+                alert('Teacher mode cannot be turned off in a learning chat.');
                 return;
               }
               setIsTeacherMode(!isTeacherMode);
             }}
-            title={isTeacherMode ? 'Выключить режим учителя' : 'Включить режим учителя'}
+            title={isTeacherMode ? 'Turn off teacher mode' : 'Turn on teacher mode'}
           >
             <LiaChalkboardTeacherSolid />
           </button>

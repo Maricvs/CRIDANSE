@@ -33,14 +33,14 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
         const response = await fetch(`/api/document_ai/processor/list_for_ai/${userId}`);
         
         if (!response.ok) {
-          throw new Error('Не удалось загрузить список документов');
+          throw new Error('Failed to load document list');
         }
         
         const data = await response.json();
         setDocuments(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Произошла ошибка');
-        console.error('Ошибка при загрузке документов:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Error loading documents:', err);
       } finally {
         setLoading(false);
       }
@@ -60,7 +60,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   };
 
   if (loading) {
-    return <div className="document-selector-loading">Загрузка документов...</div>;
+    return <div className="document-selector-loading">Loading documents...</div>;
   }
 
   if (error) {
@@ -70,15 +70,15 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   if (documents.length === 0) {
     return (
       <div className="document-selector-empty">
-        <p>У вас нет доступных документов.</p>
-        <p>Загрузите документы в раздел "Моя библиотека".</p>
+        <p>You have no available documents.</p>
+        <p>Upload documents in the "My Library" section.</p>
       </div>
     );
   }
 
   return (
     <div className="document-selector">
-      <h3>Документы для использования:</h3>
+      <h3>Documents for use:</h3>
       <div className="document-selector-list">
         {documents.map((doc) => (
           <div 

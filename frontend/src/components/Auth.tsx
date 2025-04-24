@@ -37,16 +37,16 @@ const Auth = () => {
         navigate('/') // ✅ редирект на главную (или /chat, /profile)
       })
       .catch(err => {
-        console.error('❌ Ошибка при отправке на сервер:', err)
+        console.error('❌ Error sending to server:', err)
       })
   }
 
   return (
     <div className="auth-container">
       <div className="auth-content">
-        <h2>Добро пожаловать в CRIDANSE</h2>
+        <h2>Welcome to CRIDANSE</h2>
         <p style={{ color: '#aaa', marginBottom: '2rem' }}>
-          Войдите через Google, чтобы продолжить
+          Sign in with Google to continue
         </p>
         <div className="auth-button">
           <GoogleLogin

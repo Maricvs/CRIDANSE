@@ -17,9 +17,9 @@ const Libraries: React.FC = () => {
   // Функция для загрузки данных (можно будет заменить на API запрос)
   const loadLibraries = () => {
     const librariesData: Library[] = [
-      { id: 1, name: 'Библиотека МГУ', description: 'Документы для студентов МГУ' },
-      { id: 2, name: 'Библиотека СПбГУ', description: 'Документы для студентов СПбГУ' },
-      { id: 3, name: 'Библиотека ВШЭ', description: 'Документы для студентов ВШЭ' },
+      { id: 1, name: 'MSU Library', description: 'Documents for MSU students' },
+      { id: 2, name: 'SPbSU Library', description: 'Documents for SPbSU students' },
+      { id: 3, name: 'HSE Library', description: 'Documents for HSE students' },
     ];
     setLibraries(librariesData);
   };
@@ -31,7 +31,7 @@ const Libraries: React.FC = () => {
 
   return (
     <div className="libraries-container">
-      <h2>Библиотеки документов</h2>
+      <h2>Document Libraries</h2>
       <ul>
         {libraries.map((library) => (
           <li key={library.id}>
