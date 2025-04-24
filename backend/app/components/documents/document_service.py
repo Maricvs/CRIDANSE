@@ -49,7 +49,7 @@ def extract_text_from_file(file_path: str, file_type: str) -> str:
         raise ValueError(f"Unsupported file type: {file_type}")
 
 def extract_text_from_pdf(file_path: str) -> str:
-    """Извлекает текст из PDF-файла"""
+    """Extracts text from a PDF file"""
     text = ""
     with open(file_path, "rb") as file:
         pdf_reader = PyPDF2.PdfReader(file)
@@ -58,7 +58,7 @@ def extract_text_from_pdf(file_path: str) -> str:
     return text
 
 def extract_text_from_docx(file_path: str) -> str:
-    """Извлекает текст из DOCX-файла"""
+    """Extracts text from a DOCX file"""
     doc = docx.Document(file_path)
     text = ""
     for para in doc.paragraphs:
@@ -66,14 +66,14 @@ def extract_text_from_docx(file_path: str) -> str:
     return text
 
 def extract_text_from_txt(file_path: str) -> str:
-    """Извлекает текст из TXT-файла"""
+    """Extracts text from a TXT file"""
     with open(file_path, "r", encoding="utf-8") as file:
         text = file.read()
     return text
 
-# Функция для разбиения текста на чанки
+# Function to split text into chunks
 def split_text_into_chunks(text: str) -> List[str]:
-    """Разбивает текст на чанки с перекрытием"""
+    """Splits text into chunks with overlap"""
     words = text.split()
     chunks = []
     
@@ -84,18 +84,18 @@ def split_text_into_chunks(text: str) -> List[str]:
     
     return chunks
 
-# Функция для получения эмбеддингов
+# Function to get embeddings
 async def get_embedding(text: str) -> List[float]:
-    """Получает эмбеддинг для текста с помощью API OpenAI"""
+    """Gets embedding for text using OpenAI API"""
     response = client.embeddings.create(
         input=text,
         model=EMBEDDING_MODEL
     )
     return response.data[0].embedding
 
-# Функция для сравнения эмбеддингов
+# Function to compare embeddings
 def calculate_similarity(embedding1: List[float], embedding2: List[float]) -> float:
-    """Рассчитывает косинусное сходство между двумя эмбеддингами"""
+    """Calculates cosine similarity between two embeddings"""
     dot_product = sum(a * b for a, b in zip(embedding1, embedding2))
     magnitude1 = sum(a * a for a in embedding1) ** 0.5
     magnitude2 = sum(b * b for b in embedding2) ** 0.5
@@ -105,19 +105,19 @@ def calculate_similarity(embedding1: List[float], embedding2: List[float]) -> fl
     
     return dot_product / (magnitude1 * magnitude2)
 
-# Функции для работы с документами
+# Functions for working with documents
 async def upload_document(
     db: Session,
     user: Profile,
     file: UploadFile,
     title: str
 ) -> Document:
-    """Загружает документ, сохраняет его и создает эмбеддинги"""
+    """Uploads document, saves it and creates embeddings"""
     try:
-        # Сохраняем файл через единый сервис
+        # Save file through unified service
         file_path, original_filename, file_size = await save_uploaded_file(file)
         
-        # Создаем запись о документе в БД
+        # Create document record in DB
         document_data = DocumentCreate(
             title=title,
             file_type=os.path.splitext(original_filename)[1].lower().lstrip('.')
@@ -136,17 +136,17 @@ async def upload_document(
         db.commit()
         db.refresh(db_document)
         
-        # Извлекаем текст из документа
+        # Extract text from document
         text = extract_text_from_file(file_path, document_data.file_type)
         
-        # Разбиваем текст на чанки
+        # Split text into chunks
         chunks = split_text_into_chunks(text)
         
-        # Создаем эмбеддинги для каждого чанка
+        # Create embeddings for each chunk
         for i, chunk_text in enumerate(chunks):
             embedding = await get_embedding(chunk_text)
             
-            # Сохраняем чанк в БД
+            # Save chunk to DB
             chunk_data = DocumentChunkCreate(
                 content=chunk_text,
                 chunk_index=i,
@@ -156,7 +156,7 @@ async def upload_document(
             db_chunk = DocumentChunk(
                 document_id=db_document.id,
                 content=chunk_data.content,
-                embedding=json.dumps(embedding),  # Сохраняем как JSON
+                embedding=json.dumps(embedding),  # Save as JSON
                 chunk_index=chunk_data.chunk_index
             )
             
@@ -167,7 +167,7 @@ async def upload_document(
         
     except Exception as e:
         print(f"❌ [ERROR] Error uploading document: {str(e)}")
-        # Если файл был сохранен, удаляем его
+        # If file was saved, delete it
         if 'file_path' in locals():
             await delete_file(file_path)
         raise e
@@ -176,7 +176,7 @@ async def get_user_documents(
     db: Session,
     user: Profile
 ) -> List[Document]:
-    """Получает список документов пользователя"""
+    """Gets list of user's documents"""
     return db.query(Document).filter(Document.user_id == user.id).all()
 
 async def delete_document(
@@ -184,17 +184,17 @@ async def delete_document(
     document_id: int,
     user: Profile
 ) -> bool:
-    """Удаляет документ и все его чанки"""
+    """Deletes document and all its chunks"""
     document = db.query(Document).filter(
         Document.id == document_id,
         Document.user_id == user.id
     ).first()
     
     if document:
-        # Удаляем физический файл через единый сервис
+        # Delete physical file through unified service
         await delete_file(document.file_path)
         
-        # Удаляем запись из БД
+        # Delete record from DB
         db.delete(document)
         db.commit()
         return True
@@ -206,29 +206,29 @@ async def search_relevant_chunks(
     user: Profile,
     search_query: SearchQuery
 ) -> List[Dict[str, Any]]:
-    """Ищет релевантные чанки в документах пользователя"""
-    # Получаем эмбеддинг запроса
+    """Searches for relevant chunks in user's documents"""
+    # Get query embedding
     query_embedding = await get_embedding(search_query.query)
     
-    # Получаем все документы пользователя
+    # Get all user's documents
     documents = await get_user_documents(db, user)
     document_ids = [doc.id for doc in documents]
     
     if not document_ids:
         return []
     
-    # Получаем все чанки для документов пользователя
+    # Get all chunks for user's documents
     chunks = db.query(DocumentChunk).filter(
         DocumentChunk.document_id.in_(document_ids)
     ).all()
     
-    # Сопоставляем каждый документ с его ID для быстрого доступа
+    # Map each document to its ID for quick access
     documents_by_id = {doc.id: doc for doc in documents}
     
-    # Рассчитываем сходство для каждого чанка
+    # Calculate similarity for each chunk
     results = []
     for chunk in chunks:
-        chunk_embedding = json.loads(chunk.embedding)  # Преобразуем из JSON
+        chunk_embedding = json.loads(chunk.embedding)  # Convert from JSON
         similarity = calculate_similarity(query_embedding, chunk_embedding)
         
         results.append({
@@ -239,7 +239,7 @@ async def search_relevant_chunks(
             "similarity": similarity
         })
     
-    # Сортируем по сходству и берем top-N
+    # Sort by similarity and take top-N
     results.sort(key=lambda x: x["similarity"], reverse=True)
     return results[:search_query.limit]
 
@@ -249,14 +249,14 @@ async def get_context_for_query(
     query: str,
     limit: int = 5
 ) -> str:
-    """Получает контекст для запроса из документов пользователя"""
+    """Gets context for query from user's documents"""
     search_query = SearchQuery(query=query, limit=limit)
     relevant_chunks = await search_relevant_chunks(db, user, search_query)
     
     context = "\n\n---\n\n".join([chunk["content"] for chunk in relevant_chunks])
     return context
 
-# Функция для генерации ответа с использованием GPT и контекста
+# Function for generating response using GPT and context
 async def generate_teacher_response(
     db: Session,
     user: Profile,

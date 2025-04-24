@@ -1,6 +1,7 @@
 import { GoogleLogin } from '@react-oauth/google'
 import { jwtDecode } from 'jwt-decode'
-import { useNavigate } from 'react-router-dom' // ✅ добавлен для навигации
+import { useNavigate } from 'react-router-dom'
+import axiosInstance from '../services/axiosInstance'
 
 interface DecodedToken {
   email: string
@@ -10,7 +11,7 @@ interface DecodedToken {
 }
 
 const Auth = () => {
-  const navigate = useNavigate() // ✅ хук для редиректа
+  const navigate = useNavigate()
 
   const handleSuccess = (credentialResponse: any) => {
     if (!credentialResponse.credential) return
@@ -18,23 +19,22 @@ const Auth = () => {
 
     console.log('✅ Google decoded:', decoded)
 
-    fetch('/api/auth/oauth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        oauth_provider: 'google',
-        provider_user_id: decoded.sub,
-        email: decoded.email,
-        full_name: decoded.name,
-        avatar_url: decoded.picture,
-      }),
+    axiosInstance.post('/auth/oauth', {
+      oauth_provider: 'google',
+      provider_user_id: decoded.sub,
+      email: decoded.email,
+      full_name: decoded.name,
+      avatar_url: decoded.picture,
     })
-      .then(res => res.json())
-      .then(data => {
+      .then(response => {
+        const data = response.data
         console.log('🟢 Saved to backend:', data)
         localStorage.setItem('user_id', data.user_id)
-        localStorage.setItem('user_name', decoded.name) // опционально
-        navigate('/') // ✅ редирект на главную (или /chat, /profile)
+        localStorage.setItem('user_name', decoded.name)
+        localStorage.setItem('user_token', data.access_token)
+        
+        // Токен уже установлен в axiosInstance
+        navigate('/')
       })
       .catch(err => {
         console.error('❌ Error sending to server:', err)

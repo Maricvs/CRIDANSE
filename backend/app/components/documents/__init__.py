@@ -1,4 +1,4 @@
-# Пакет для работы с документами и семантическим поиском 
+# Package for working with documents and semantic search
 
 from .document_router import router
 from .document_service import (

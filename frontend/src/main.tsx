@@ -3,6 +3,10 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import axiosInstance from './services/axiosInstance'
+
+// Инициализация axiosInstance уже происходит в самом файле
+// Токен будет автоматически добавлен при создании инстанса
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

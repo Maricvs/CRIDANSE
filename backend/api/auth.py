@@ -17,9 +17,11 @@ load_dotenv()
 router = APIRouter()
 
 # Настройки JWT
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-here")  # В продакшене обязательно установить JWT_SECRET_KEY в .env
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-here")
+USER_SECRET_KEY = os.getenv("USER_JWT_SECRET_KEY", "user-secret-key-here")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+USER_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("USER_JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -45,6 +47,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def create_user_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, USER_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 async def get_current_user(
@@ -91,12 +103,67 @@ async def get_current_user(
             detail="Ошибка при аутентификации"
         )
 
+async def get_current_regular_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> Profile:
+    """
+    Получение текущего обычного пользователя по JWT токену.
+    Проверяет валидность токена и возвращает профиль пользователя.
+    """
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Не удалось подтвердить учетные данные",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        # Декодируем JWT токен
+        payload = jwt.decode(token, USER_SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+            
+        # Получаем пользователя из базы
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if user is None:
+            raise credentials_exception
+            
+        # Проверяем, что пользователь активен
+        if user.status != "active":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Пользователь неактивен"
+            )
+            
+        return user
+        
+    except JWTError:
+        raise credentials_exception
+    except Exception as e:
+        print(f"❌ [ERROR] Ошибка при аутентификации: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка при аутентификации"
+        )
+
 @router.post("/oauth")
 def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
     try:
         existing = db.query(Profile).filter_by(provider_user_id=profile.provider_user_id).first()
         if existing:
-            return {"message": "User already exists", "user_id": existing.id}
+            # Создаем токен для существующего пользователя
+            access_token_expires = timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_user_access_token(
+                data={"sub": existing.email},
+                expires_delta=access_token_expires
+            )
+            return {
+                "message": "User already exists", 
+                "user_id": existing.id,
+                "access_token": access_token,
+                "token_type": "bearer"
+            }
 
         new_user = Profile(
             oauth_provider=profile.oauth_provider,
@@ -104,12 +171,24 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
             email=profile.email,
             full_name=profile.full_name,
             avatar_url=profile.avatar_url,
-            # created_at не указываем — добавится автоматически
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"message": "User created", "user_id": new_user.id}
+        
+        # Создаем токен для нового пользователя
+        access_token_expires = timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_user_access_token(
+            data={"sub": new_user.email},
+            expires_delta=access_token_expires
+        )
+        
+        return {
+            "message": "User created", 
+            "user_id": new_user.id,
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
