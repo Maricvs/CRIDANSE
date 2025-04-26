@@ -155,7 +155,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('user_token')}`
         },
         body: JSON.stringify(requestData),
       });
