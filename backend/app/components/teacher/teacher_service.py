@@ -41,6 +41,13 @@ def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
     
     return base_prompt
 
+def convert_role_for_openai(role: str) -> str:
+    if role == "student":
+        return "user"
+    elif role == "teacher":
+        return "assistant"
+    return role
+
 async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None) -> str:
     # Пытаемся получить контекст из документов пользователя
     context = ""
@@ -54,12 +61,15 @@ async def get_teacher_response(messages: List[dict], topic: str, level: str, use
     
     system_prompt = get_teacher_prompt(topic, level, context)
     
+    # Преобразуем роли для OpenAI
+    openai_messages = [
+        {"role": "system", "content": system_prompt},
+        *[{"role": convert_role_for_openai(msg["role"]), "content": msg["content"]} for msg in messages]
+    ]
+    
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            *messages
-        ],
+        messages=openai_messages,
         temperature=0.7,
         max_tokens=1000
     )
