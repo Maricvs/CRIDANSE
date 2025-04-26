@@ -158,12 +158,14 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
                 data={"sub": existing.email},
                 expires_delta=access_token_expires
             )
-            return {
+            response_data = {
                 "message": "User already exists", 
                 "user_id": existing.id,
                 "access_token": access_token,
                 "token_type": "bearer"
             }
+            print(f"🟢 Returning data for existing user: {response_data}")
+            return response_data
 
         new_user = Profile(
             oauth_provider=profile.oauth_provider,
@@ -183,14 +185,17 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
             expires_delta=access_token_expires
         )
         
-        return {
+        response_data = {
             "message": "User created", 
             "user_id": new_user.id,
             "access_token": access_token,
             "token_type": "bearer"
         }
+        print(f"🟢 Returning data for new user: {response_data}")
+        return response_data
     except Exception as e:
         db.rollback()
+        print(f"❌ Error in save_oauth_profile: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/token", response_model=Token)

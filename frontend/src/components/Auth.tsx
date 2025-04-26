@@ -35,12 +35,14 @@ const Auth = () => {
     })
       .then(response => {
         const data = response.data
-        console.log('🟢 Saved to backend:', data)
+        console.log('🟢 Response data:', data)
+        console.log('🟢 Access token:', data.access_token)
         localStorage.setItem('user_id', data.user_id)
         localStorage.setItem('user_name', decoded.name)
         localStorage.setItem('user_token', data.access_token)
         
-        // Токен уже установлен в axiosInstance
+        console.log('🟢 Saved token:', localStorage.getItem('user_token'))
+        
         navigate('/')
       })
       .catch((err: Error) => {
