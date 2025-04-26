@@ -10,6 +10,13 @@ interface DecodedToken {
   picture: string
 }
 
+interface OAuthResponse {
+  message: string
+  user_id: string
+  access_token: string
+  token_type: string
+}
+
 const Auth = () => {
   const navigate = useNavigate()
 
@@ -19,7 +26,7 @@ const Auth = () => {
 
     console.log('✅ Google decoded:', decoded)
 
-    axiosInstance.post('/auth/oauth', {
+    axiosInstance.post<OAuthResponse>('/auth/oauth', {
       oauth_provider: 'google',
       provider_user_id: decoded.sub,
       email: decoded.email,
@@ -36,7 +43,7 @@ const Auth = () => {
         // Токен уже установлен в axiosInstance
         navigate('/')
       })
-      .catch(err => {
+      .catch((err: Error) => {
         console.error('❌ Error sending to server:', err)
       })
   }
