@@ -8,7 +8,7 @@ from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
 from openai import OpenAI
 from models.models import Profile
 from app.components.documents.document_service import get_context_for_query
-from api.auth import get_current_user
+from api.auth import get_current_regular_user
 
 
 router = APIRouter()
@@ -194,7 +194,7 @@ async def send_teacher_message(
 async def ask_teacher_advanced(
     request: dict,
     db: Session = Depends(get_db),
-    current_user: Profile = Depends(get_current_user)
+    current_user: Profile = Depends(get_current_regular_user)
 ):
     """
     Продвинутый endpoint для режима учителя с параметрами topic и level
