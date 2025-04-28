@@ -1,4 +1,10 @@
-import axios from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
+
+interface RefreshTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+}
 
 const axiosInstance = axios.create({
   baseURL: '/api',
@@ -15,11 +21,11 @@ if (userToken) {
 
 // Перехватчик для обработки 401 ошибок
 axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest?._retry) {
       originalRequest._retry = true;
 
       try {
@@ -28,7 +34,7 @@ axiosInstance.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axiosInstance.post('/auth/user/refresh', { refresh_token: refreshToken });
+        const response = await axiosInstance.post<RefreshTokenResponse>('/auth/user/refresh', { refresh_token: refreshToken });
 
         const { access_token, refresh_token } = response.data;
 
@@ -38,7 +44,9 @@ axiosInstance.interceptors.response.use(
 
         // Обновляем заголовки
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+        if (originalRequest?.headers) {
+          originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+        }
 
         return axiosInstance(originalRequest);
       } catch (refreshError) {
