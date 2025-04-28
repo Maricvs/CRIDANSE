@@ -83,6 +83,33 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
     }
   };
 
+  const handleTeacherModeToggle = async () => {
+    if (chatId && isTeacherMode) {
+      alert('Teacher mode cannot be turned off in a learning chat.');
+      return;
+    }
+
+    try {
+      // Если чат существует, обновляем его статус
+      if (chatId) {
+        const response = await fetch(`/api/chats/${chatId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_teacher_chat: !isTeacherMode })
+        });
+
+        if (!response.ok) {
+          throw new Error('Error updating chat mode');
+        }
+      }
+
+      setIsTeacherMode(!isTeacherMode);
+    } catch (err) {
+      console.error('Error toggling teacher mode:', err);
+      alert('Failed to toggle teacher mode');
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -115,6 +142,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         isNewChat = true;
       }
 
+      // Сохраняем сообщение пользователя
       const messageResponse = await fetch('/api/chats/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,13 +192,13 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         throw new Error('Error in teacher mode. We are fixing it.');
       }
 
-      const aiResponse: TeacherResponse = await aiResponseFetch.json();
+      const aiResponse = await aiResponseFetch.json();
       
       // Сохраняем ID сессии учителя, если он был возвращен
       if (isTeacherMode && aiResponse.session_id) {
         setTeacherSessionId(aiResponse.session_id);
       }
-      
+
       if (isNewChat && currentChatId) {
         await autoRenameChat(currentChatId, aiResponse.response);
       }
@@ -233,14 +261,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
         <div className="action-buttons">
           <button 
             className={`chat-action-button ${isTeacherMode ? 'active' : ''}`} 
-            onClick={() => {
-              // Если чат существует и это учебный чат, не позволяем выключить режим
-              if (chatId && isTeacherMode) {
-                alert('Teacher mode cannot be turned off in a learning chat.');
-                return;
-              }
-              setIsTeacherMode(!isTeacherMode);
-            }}
+            onClick={handleTeacherModeToggle}
             title={isTeacherMode ? 'Turn off teacher mode' : 'Turn on teacher mode'}
           >
             <LiaChalkboardTeacherSolid />
