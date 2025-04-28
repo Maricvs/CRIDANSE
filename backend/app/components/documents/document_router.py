@@ -54,3 +54,4 @@ async def search_documents(
 ):
     """Performs semantic search in user's documents"""
     return await search_relevant_chunks(db, current_user, search_query)
+
