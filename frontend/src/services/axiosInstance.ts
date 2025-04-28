@@ -1,4 +1,5 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios from 'axios';
+import type { AxiosResponse, AxiosError } from 'axios';
 
 interface RefreshTokenResponse {
   access_token: string;
@@ -34,7 +35,7 @@ axiosInstance.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await axiosInstance.post<RefreshTokenResponse>('/auth/user/refresh', { refresh_token: refreshToken });
+        const response = await axios.post<RefreshTokenResponse>('/api/auth/user/refresh', { refresh_token: refreshToken });
 
         const { access_token, refresh_token } = response.data;
 
