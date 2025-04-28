@@ -61,10 +61,13 @@ async def get_teacher_response(messages: List[dict], topic: str, level: str, use
     
     system_prompt = get_teacher_prompt(topic, level, context)
     
-    # Преобразуем роли для OpenAI
+    # Преобразуем роли для OpenAI, исключая сообщения с пустым content
     openai_messages = [
         {"role": "system", "content": system_prompt},
-        *[{"role": convert_role_for_openai(msg["role"]), "content": msg["content"]} for msg in messages]
+        *[
+            {"role": convert_role_for_openai(msg["role"]), "content": msg["content"]}
+            for msg in messages if msg.get("content")
+        ]
     ]
     
     response = client.chat.completions.create(
