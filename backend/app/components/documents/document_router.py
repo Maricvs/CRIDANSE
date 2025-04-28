@@ -54,13 +54,3 @@ async def search_documents(
 ):
     """Performs semantic search in user's documents"""
     return await search_relevant_chunks(db, current_user, search_query)
-
-@router.post("/teacher/ask")
-async def ask_teacher(
-    query: str,
-    current_user: Profile = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    """Sends a query and gets a response based on context from uploaded documents"""
-    response = await generate_teacher_response(db, current_user, query)
-    return {"response": response} 
