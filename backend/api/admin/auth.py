@@ -8,21 +8,26 @@ from passlib.context import CryptContext
 from db import get_db
 from models.models import Profile
 from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения
+load_dotenv()
 
 router = APIRouter()
 
 # Настройки безопасности
-SECRET_KEY = "your-secret-key-here"  # В продакшене использовать безопасный ключ из env
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "admin-secret-key-here")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
     token: str
-    refresh_token: str
+    user_refresh_token: str
     user: dict
 
 class TokenData(BaseModel):

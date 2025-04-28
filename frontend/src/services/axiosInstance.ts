@@ -7,13 +7,13 @@ const axiosInstance = axios.create({
   },
 });
 
-// Добавляем токен при инициализации
+// Изначально подставляем токен
 const userToken = localStorage.getItem('user_token');
 if (userToken) {
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
 }
 
-// Перехватчик для обновления токена при 401 ошибке
+// Перехватчик для обработки 401 ошибок
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -23,24 +23,34 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Здесь можно добавить логику обновления токена
-        // Например, если у нас будет refresh token
-        const newToken = localStorage.getItem('user_token');
-        if (newToken) {
-          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
-          return axiosInstance(originalRequest);
+        const refreshToken = localStorage.getItem('user_refresh_token');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
         }
+
+        const response = await axiosInstance.post('/auth/refresh', { refresh_token: refreshToken });
+
+        const { access_token, refresh_token } = response.data;
+
+        // Сохраняем новые токены
+        localStorage.setItem('user_token', access_token);
+        localStorage.setItem('user_refresh_token', refresh_token);
+
+        // Обновляем заголовки
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+
+        return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // Если не удалось обновить токен, перенаправляем на страницу авторизации
+        // Очистка токенов если рефреш не сработал
         localStorage.removeItem('user_token');
+        localStorage.removeItem('user_refresh_token');
         window.location.href = '/auth';
         return Promise.reject(refreshError);
       }
     }
-
     return Promise.reject(error);
   }
 );
 
-export default axiosInstance; 
+export default axiosInstance;

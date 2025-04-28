@@ -14,6 +14,7 @@ interface OAuthResponse {
   message: string
   user_id: string
   access_token: string
+  refresh_token: string
   token_type: string
 }
 
@@ -40,6 +41,7 @@ const Auth = () => {
         localStorage.setItem('user_id', data.user_id)
         localStorage.setItem('user_name', decoded.name)
         localStorage.setItem('user_token', data.access_token)
+        localStorage.setItem('user_refresh_token', data.refresh_token)
         
         console.log('🟢 Saved token:', localStorage.getItem('user_token'))
         

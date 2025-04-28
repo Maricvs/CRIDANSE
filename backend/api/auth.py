@@ -59,6 +59,13 @@ def create_user_access_token(data: dict, expires_delta: timedelta | None = None)
     encoded_jwt = jwt.encode(to_encode, USER_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def create_user_refresh_token(data: dict):
+    expire = datetime.utcnow() + timedelta(days=7)  # Можно срок через .env если хочешь
+    to_encode = data.copy()
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, USER_SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
@@ -153,15 +160,18 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
         existing = db.query(Profile).filter_by(provider_user_id=profile.provider_user_id).first()
         if existing:
             # Создаем токен для существующего пользователя
-            access_token_expires = timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
             access_token = create_user_access_token(
                 data={"sub": existing.email},
-                expires_delta=access_token_expires
+                expires_delta=timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
+            )
+            refresh_token = create_user_refresh_token(
+                data={"sub": existing.email}
             )
             response_data = {
-                "message": "User already exists", 
+                "message": "User already exists",
                 "user_id": existing.id,
                 "access_token": access_token,
+                "refresh_token": refresh_token,
                 "token_type": "bearer"
             }
             print(f"🟢 Returning data for existing user: {response_data}")
@@ -179,16 +189,18 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
         db.refresh(new_user)
         
         # Создаем токен для нового пользователя
-        access_token_expires = timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_user_access_token(
             data={"sub": new_user.email},
-            expires_delta=access_token_expires
+            expires_delta=timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
         )
-        
+        refresh_token = create_user_refresh_token(
+            data={"sub": new_user.email}
+        )
         response_data = {
-            "message": "User created", 
+            "message": "User created",
             "user_id": new_user.id,
             "access_token": access_token,
+            "refresh_token": refresh_token,
             "token_type": "bearer"
         }
         print(f"🟢 Returning data for new user: {response_data}")
@@ -231,3 +243,49 @@ async def login_for_access_token(
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/refresh")
+async def refresh_token(refresh_token: str = Body(...), db: Session = Depends(get_db)):
+    try:
+        # Декодируем refresh_token
+        payload = jwt.decode(refresh_token, USER_SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid refresh token"
+            )
+
+        # Получаем пользователя
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail="User not found"
+            )
+
+        # Проверяем статус пользователя
+        if user.status != "active":
+            raise HTTPException(
+                status_code=403,
+                detail="User inactive"
+            )
+
+        # Создаем новые токены
+        access_token_expires = timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_access_token = create_user_access_token(
+            data={"sub": user.email},
+            expires_delta=access_token_expires
+        )
+        new_refresh_token = create_user_refresh_token(data={"sub": user.email})
+
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer"
+        }
+    except JWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid refresh token"
+        )
