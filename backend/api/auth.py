@@ -245,7 +245,53 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/refresh")
-async def refresh_token(refresh_token: str = Body(...), db: Session = Depends(get_db)):
+async def refresh_admin_token(refresh_token: str = Body(...), db: Session = Depends(get_db)):
+    try:
+        # Декодируем refresh_token
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid refresh token"
+            )
+
+        # Получаем пользователя
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail="User not found"
+            )
+
+        # Проверяем что это админ
+        if not user.is_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Not enough permissions"
+            )
+
+        # Создаем новые токены
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        new_access_token = create_access_token(
+            data={"sub": user.email},
+            expires_delta=access_token_expires
+        )
+        new_refresh_token = create_user_refresh_token(data={"sub": user.email})
+
+        return {
+            "access_token": new_access_token,
+            "refresh_token": new_refresh_token,
+            "token_type": "bearer"
+        }
+    except JWTError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid refresh token"
+        )
+
+@router.post("/user/refresh")
+async def refresh_user_token(refresh_token: str = Body(...), db: Session = Depends(get_db)):
     try:
         # Декодируем refresh_token
         payload = jwt.decode(refresh_token, USER_SECRET_KEY, algorithms=[ALGORITHM])
