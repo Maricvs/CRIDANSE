@@ -21,8 +21,8 @@ if (userToken) {
 
 // Перехватчик для обработки 401 ошибок
 axiosInstance.interceptors.response.use(
-  (response: axios.AxiosResponse) => response,
-  async (error: axios.AxiosError) => {
+  (response) => response,
+   async (error) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest?._retry) {
