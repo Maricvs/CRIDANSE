@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { AxiosResponse, AxiosError } from 'axios';
 
 interface RefreshTokenResponse {
   access_token: string;
@@ -22,8 +21,8 @@ if (userToken) {
 
 // Перехватчик для обработки 401 ошибок
 axiosInstance.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
+  (response: axios.AxiosResponse) => response,
+  async (error: axios.AxiosError) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest?._retry) {
