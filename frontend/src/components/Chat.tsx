@@ -10,15 +10,20 @@ interface Message {
   created_at: string;
 }
 
+interface ChatInfo {
+  is_teacher_chat: boolean;
+}
+
 export default function Chat() {
   const { id } = useParams<{ id: string }>();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [isTeacherChat, setIsTeacherChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageIdRef = useRef<number | null>(null);
-  const initialScrollDoneRef = useRef<boolean>(false);
+  const initialScrollDoneRef = useRef(false);
+  const prevMessagesLengthRef = useRef(0);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (messagesEndRef.current) {
@@ -57,15 +62,42 @@ export default function Chat() {
     return () => window.removeEventListener('resize', handleResize);
   }, [messages.length, scrollToBottom]);
 
+  const fetchChatInfo = async () => {
+    try {
+      const res = await fetch(`/api/chats/${id}`);
+      if (!res.ok) throw new Error("Error loading chat info");
+      const data: ChatInfo = await res.json();
+      setIsTeacherChat(data.is_teacher_chat);
+    } catch (err) {
+      console.error('Error loading chat info:', err);
+    }
+  };
+
   const fetchMessages = async () => {
     try {
-      const res = await fetch(`/api/chats/messages/by_chat/${id}`);
+      let endpoint;
+      if (isTeacherChat) {
+        endpoint = `/api/teacher/sessions/${id}/messages`;
+      } else {
+        endpoint = `/api/chats/messages/by_chat/${id}`;
+      }
+
+      const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
-      setMessages(data);
       
-      if (data.length > 0) {
-        lastMessageIdRef.current = data[data.length - 1].id;
+      // Преобразуем данные в единый формат
+      const formattedMessages = data.map((msg: any) => ({
+        id: msg.id,
+        role: msg.role,
+        message: msg.content || msg.message,
+        created_at: msg.created_at
+      }));
+      
+      setMessages(formattedMessages);
+      
+      if (formattedMessages.length > 0) {
+        lastMessageIdRef.current = formattedMessages[formattedMessages.length - 1].id;
       }
     } catch (err) {
       setError("Failed to load messages");
@@ -77,6 +109,7 @@ export default function Chat() {
   useEffect(() => {
     if (id) {
       initialScrollDoneRef.current = false;
+      fetchChatInfo();
       fetchMessages();
       prevMessagesLengthRef.current = 0;
     }
