@@ -131,7 +131,7 @@ export default function Chat() {
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="empty-chat-message">
-            Start a new conversation by sending a message
+            Start a new conversation by sending a messag
           </div>
         )}
         {messages.map((msg) => (
