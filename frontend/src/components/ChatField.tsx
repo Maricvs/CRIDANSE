@@ -45,8 +45,8 @@ export default function ChatField() {
   }, [message]);
 
   return (
-    <div className="chat-input-container">
-      <div className="chat-input-wrapper">
+    <div className="chat-field">
+      <div className="input-container">
         <textarea
           ref={textareaRef}
           value={message}

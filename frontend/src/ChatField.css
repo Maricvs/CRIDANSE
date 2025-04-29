@@ -64,14 +64,7 @@
   box-sizing: border-box;
 }
 
-.chat-input-wrapper {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 16px;
-  display: flex;
-  gap: 8px;
-  align-items: flex-end;
-}
+
 
 /* Общее сообщение */
 .message {
@@ -104,16 +97,6 @@
   color: white;
   border-bottom-left-radius: 4px; /* Меньший радиус для лучшего визуального стиля */
   width: auto; /* Вместо 100%, чтобы сообщение было по размеру контента */
-}
-
-.chat-input-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #1e1e1e;
-  border-top: 1px solid #333;
-  z-index: 10;
 }
 
 /* Инструменты ввода чата */
@@ -166,42 +149,56 @@
   padding: 0 4px;
 }
 
-/* Стили для textarea */
-textarea {
+.chat-input {
   flex: 1;
-  min-height: 44px;
-  max-height: 200px;
+  width: 100%;
   padding: 12px 16px;
-  font-size: 16px;
+  padding-right: 56px; /* Увеличено для большей кнопки отправки */
+  padding-left: 56px; /* Увеличено для большей кнопки документов */
+  font-size: 16px; /* Минимум 11pt согласно рекомендациям Apple */
   line-height: 1.5;
   border: 1px solid #444;
   border-radius: 12px;
+  outline: none;
   background-color: #2a2a2a;
   color: white;
   resize: none;
-  outline: none;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  min-height: 3rem; /* Изменено на 3rem */
+  max-height: 160px;
+  overflow-y: auto;
   font-family: 'Figtree', sans-serif;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  margin: 8px 0; /* Добавление отступов сверху и снизу */
 }
 
-textarea:focus {
+.chat-input:focus {
   border-color: #666;
   background-color: #333;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1); /* Добавление небольшого эффекта свечения при фокусе */
 }
 
-textarea::placeholder {
+.chat-input::placeholder {
   color: #888;
   font-family: 'Figtree', sans-serif;
+  font-size: 16px; /* Минимум 11pt согласно рекомендациям Apple */
 }
 
-/* Стили для кнопок */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+.chat-textarea {
+  width: 100%;
+  resize: none;
+  overflow: hidden;
+  min-height: 2.5rem;
+  max-height: 10rem;
+  padding: 0.75rem 3rem 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  line-height: 1.4;
+  outline: none;
 }
 
+/* Кнопка отправки */
 .chat-action-button {
   width: 44px;
   height: 44px;
@@ -214,6 +211,8 @@ textarea::placeholder {
   color: #888;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 40px;
+  margin-top: 0.5rem;
 }
 
 .chat-action-button:hover {
@@ -222,58 +221,27 @@ textarea::placeholder {
 }
 
 .chat-action-button.active {
-  color: #007bff;
+  background-color: #e3f2fd;
+  color: #1976d2;
 }
 
-.chat-action-button.send-button {
-  color: #007bff;
+.send-button {
+  position: relative;
+  align-self: flex-end;
 }
 
-.chat-action-button.send-button:hover {
-  background-color: rgba(0, 123, 255, 0.1);
-}
-
-.chat-action-button:disabled {
-  opacity: 0.5;
+.send-button:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.send-button.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .send-icon {
-  font-size: 20px;
-}
-
-/* Адаптивные стили */
-@media (max-width: 767px) {
-  .chat-input-wrapper {
-    padding: 12px;
-  }
-  
-  textarea {
-    min-height: 40px;
-    padding: 10px 14px;
-  }
-  
-  .chat-action-button {
-    width: 40px;
-    height: 40px;
-  }
-}
-
-@media (max-width: 375px) {
-  .chat-input-wrapper {
-    padding: 8px;
-  }
-  
-  textarea {
-    min-height: 36px;
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-  
-  .chat-action-button {
-    width: 36px;
-    height: 36px;
-  }
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 @media (min-width: 768px) {
@@ -284,6 +252,118 @@ textarea::placeholder {
     height: auto; /* Позволяет контенту расти при необходимости */
     display: flex;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 767px) {
+  .chat-wrapper {
+    padding-left: 0;
+    transition: padding-left 0.3s ease;
+    min-height: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-color);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 60px;
+  }
+
+  .chat-field {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6px;
+    background-color: #1e1e1e;
+    z-index: 1000;
+    border-top: 1px solid #333;
+    border-radius: 0;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  .input-container {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    padding-right: 100px; /* Добавляем отступ справа для кнопок */
+    font-size: 16px;
+    line-height: 1.25;
+    border: 1px solid #444;
+    border-radius: 12px;
+    background-color: #2a2a2a;
+    color: white;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  .action-buttons {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    width: 100%;
+    justify-content: center;
+    padding: 0 12px;
+    align-items: center;
+    pointer-events: none; /* Разрешаем клики сквозь кнопки */
+  }
+
+  .chat-action-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 24px;
+    background: transparent;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto; /* Включаем клики для самих кнопок */
+  }
+
+  .chat-messages {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+    margin-bottom: env(safe-area-inset-bottom);
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+}
+
+/* Специальный стиль для устройств с меньшими экранами */
+@media (max-width: 375px) {
+  .chat-input {
+    padding-right: 46px;
+    padding-left: 46px;
+  }
+  
+  .message {
+    max-width: 95%; /* Максимально используем доступное пространство */
   }
 }
 
@@ -309,19 +389,37 @@ textarea::placeholder {
   position: relative;
 }
 
-.send-button {
-  position: relative;
-  align-self: flex-end;
+textarea {
+  flex: 1;
+  width: -webkit-fill-available;
+  min-height: 44px;
+  max-height: 200px;
+  font-size: 16px;
+  line-height: 1.25;
+  border: none;
+  border-radius: 12px;
+  background-color: transparent;
+  color: white;
+  resize: none;
+  outline: none;
+  font-family: 'Figtree', sans-serif;
 }
 
-.send-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+textarea:focus {
+  border-color: #666;
 }
 
-.send-button.visible {
-  opacity: 1;
-  transform: translateY(0);
+textarea::placeholder {
+  color: #888;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 0.5rem;
+  width: 100%;
 }
 
 /* Стиль для первого сообщения в чате */
