@@ -25,6 +25,11 @@ export default function Chat() {
   const initialScrollDoneRef = useRef(false);
   const prevMessagesLengthRef = useRef(0);
 
+  // Проверяем валидность id сразу
+  if (!id || id === 'undefined' || id === null || id === '') {
+    return <div className="chat-error">Invalid chat ID</div>;
+  }
+
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ 
@@ -35,7 +40,7 @@ export default function Chat() {
     }
   }, []);
 
-  // Прокрутка при изменении сообщен
+  // Прокрутка при изменении сообщений
   useEffect(() => {
     if (messages.length > prevMessagesLengthRef.current) {
       scrollToBottom();
@@ -70,6 +75,7 @@ export default function Chat() {
       setIsTeacherChat(data.is_teacher_chat);
     } catch (err) {
       console.error('Error loading chat info:', err);
+      setError("Failed to load chat info");
     }
   };
 
@@ -106,23 +112,27 @@ export default function Chat() {
     }
   };
 
+  // Загружаем информацию о чате и сообщения при монтировании
   useEffect(() => {
     if (id) {
       initialScrollDoneRef.current = false;
+      setLoading(true);
+      setError(null);
       fetchChatInfo();
-      fetchMessages();
-      prevMessagesLengthRef.current = 0;
     }
   }, [id]);
+
+  // Загружаем сообщения после получения информации о чате
+  useEffect(() => {
+    if (id && !loading) {
+      fetchMessages();
+    }
+  }, [id, isTeacherChat]);
 
   if (error) return <div className="chat-error">{error}</div>;
 
   const isWideScreen = window.innerWidth >= 768;
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
-
-  if (!id || id === 'undefined' || id === null || id === '') {
-    return null;
-  }
 
   if (loading) return <div className="chat-loading">Loading messages...</div>;
 
@@ -131,7 +141,7 @@ export default function Chat() {
       <div className="chat-messages">
         {messages.length === 0 && (
           <div className="empty-chat-message">
-            Start a new conversation by sending a messag
+            Start a new conversation by sending a message
           </div>
         )}
         {messages.map((msg) => (
