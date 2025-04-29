@@ -11,24 +11,27 @@ import Auth from './components/Auth';
 import MyLibrary from './components/mylibrary/MyLibrary';
 import './App.css';
 import Chat from './components/Chat'; // Импортируем Chat
+import { ChatProvider } from './context/ChatContext';
 
 const App: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <Router>
-      <div className="app-layout">
-        <Sidebar onCollapse={setIsSidebarCollapsed} />
-        <div className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
-          <Routes>
-            <Route path="/chat/:id" element={<Chat />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/libraries" element={<Libraries />} />
-            <Route path="/mylibrary" element={<MyLibrary />} />
-            <Route path="/auth" element={<Auth />} />
-          </Routes>
+      <ChatProvider>
+        <div className="app-layout">
+          <Sidebar onCollapse={setIsSidebarCollapsed} />
+          <div className={`main-content ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+            <Routes>
+              <Route path="/chat/:id" element={<Chat />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/libraries" element={<Libraries />} />
+              <Route path="/mylibrary" element={<MyLibrary />} />
+              <Route path="/auth" element={<Auth />} />
+            </Routes>
+          </div>
         </div>
-      </div>
+      </ChatProvider>
     </Router>
   );
 };
