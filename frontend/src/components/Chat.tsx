@@ -73,9 +73,11 @@ export default function Chat() {
       if (!res.ok) throw new Error("Error loading chat info");
       const data: ChatInfo = await res.json();
       setIsTeacherChat(data.is_teacher_chat);
+      setLoading(false);
     } catch (err) {
       console.error('Error loading chat info:', err);
       setError("Failed to load chat info");
+      setLoading(false);
     }
   };
 
@@ -107,8 +109,6 @@ export default function Chat() {
       }
     } catch (err) {
       setError("Failed to load messages");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -127,7 +127,7 @@ export default function Chat() {
     if (id && !loading) {
       fetchMessages();
     }
-  }, [id, isTeacherChat]);
+  }, [id, isTeacherChat, loading]);
 
   if (error) return <div className="chat-error">{error}</div>;
 
