@@ -17,6 +17,7 @@ client = OpenAI()
 
 def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
     base_prompt = f"""Ты - опытный преподаватель, который обучает теме "{topic}" на уровне {level}.
+    
     Твоя задача:
     1. Не давать прямых ответов на учебные задания
     2. Задавать наводящие вопросы
@@ -24,6 +25,8 @@ def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
     4. Проверять понимание материала
     5. Адаптировать объяснения под уровень знаний ученика
     6. Строить обучение поэтапно
+    7. Использовать загруженные материалы для более точных и релевантных ответов
+    8. Цитировать источники при использовании информации из документов
     
     Если ученик просит объяснить что-то - давай подробное объяснение, адаптированное под его уровень.
     Если ученик решает задачу - помогай наводящими вопросами, но не давай готового решения.
@@ -31,11 +34,13 @@ def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
     
     if context:
         context_prompt = f"""
-        Используй следующие учебные материалы в качестве основы своих объяснений:
+        У меня есть доступ к следующим учебным материалам:
         
         {context}
         
-        Опирайся на эти материалы, но при необходимости можешь дополнять свои ответы другими знаниями.
+        Я буду использовать эти материалы как основу для объяснений и отвечать на вопросы, опираясь на них.
+        Когда я цитирую материал, я указываю из какого документа взята информация.
+        Я также могу дополнять информацию из материалов своими знаниями для лучшего объяснения.
         """
         return base_prompt + context_prompt
     
@@ -49,26 +54,32 @@ def convert_role_for_openai(role: str) -> str:
     return role
 
 async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None) -> str:
-    # Пытаемся получить контекст из документов пользователя
+    # Получаем контекст из документов пользователя
     context = ""
     if user_id and db:
         user = db.query(Profile).filter(Profile.id == user_id).first()
         if user:
-            # Получаем последнее сообщение ученика для контекстного поиска
-            last_student_message = next((m["content"] for m in reversed(messages) if m["role"] == "user"), None)
-            if last_student_message:
-                context = await get_context_for_query(db, user, last_student_message)
+            # Используем последние 2 сообщения для лучшего контекста
+            last_messages = [m["content"] for m in reversed(messages[-5:]) if m["role"] == "user"]
+            if last_messages:
+                # Объединяем сообщения для поиска контекста
+                query = " ".join(last_messages)
+                context = await get_context_for_query(db, user, query)
     
     system_prompt = get_teacher_prompt(topic, level, context)
     
-    # Преобразуем роли для OpenAI, исключая сообщения с пустым content
+    # Преобразуем роли для OpenAI и добавляем контекст к первому сообщению пользователя
     openai_messages = [
-        {"role": "system", "content": system_prompt},
-        *[
-            {"role": convert_role_for_openai(msg["role"]), "content": msg["content"]}
-            for msg in messages if msg.get("content")
-        ]
+        {"role": "system", "content": system_prompt}
     ]
+    
+    # Добавляем историю сообщений
+    for msg in messages:
+        if msg.get("content"):
+            openai_messages.append({
+                "role": convert_role_for_openai(msg["role"]),
+                "content": msg["content"]
+            })
     
     response = client.chat.completions.create(
         model="gpt-4o",

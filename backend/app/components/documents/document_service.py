@@ -249,12 +249,40 @@ async def get_context_for_query(
     query: str,
     limit: int = 5
 ) -> str:
-    """Gets context for query from user's documents"""
-    search_query = SearchQuery(query=query, limit=limit)
-    relevant_chunks = await search_relevant_chunks(db, user, search_query)
+    """
+    Automatically finds relevant context from user's documents for a given query.
+    Returns concatenated relevant chunks as a string.
+    """
+    search_results = await search_relevant_chunks(
+        db,
+        user,
+        SearchQuery(query=query, limit=limit)
+    )
     
-    context = "\n\n---\n\n".join([chunk["content"] for chunk in relevant_chunks])
-    return context
+    if not search_results:
+        return ""
+    
+    # Sort chunks by document and similarity
+    sorted_results = sorted(
+        search_results,
+        key=lambda x: (x["document_id"], -x["similarity"])
+    )
+    
+    # Format context with document titles and content
+    context_parts = []
+    current_doc_id = None
+    
+    for result in sorted_results:
+        if result["similarity"] < 0.7:  # Skip if similarity is too low
+            continue
+            
+        if current_doc_id != result["document_id"]:
+            current_doc_id = result["document_id"]
+            context_parts.append(f"\nFrom document '{result['document_title']}':")
+            
+        context_parts.append(result["content"])
+    
+    return "\n".join(context_parts)
 
 # Function for generating response using GPT and context
 async def generate_teacher_response(
