@@ -103,7 +103,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body = JSON.stringify({ message });
       } else {
         endpoint = `/api/chats/message`;
-        body = JSON.stringify({ chat_id: chatId, message });
+        // Get user_id from localStorage or context
+        const user_id = localStorage.getItem('user_id');
+        if (!user_id) {
+          throw new Error('User ID is not set');
+        }
+        body = JSON.stringify({ 
+          chat_id: chatId, 
+          message,
+          user_id: parseInt(user_id),
+          role: 'user'
+        });
       }
 
       const res = await fetch(endpoint, {
