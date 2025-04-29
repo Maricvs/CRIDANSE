@@ -13,6 +13,13 @@ interface TeacherResponse {
   session_id?: number;
 }
 
+interface Message {
+  id: number;
+  role: string;
+  message: string;
+  created_at: string;
+}
+
 const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   const params = useParams<{ id?: string }>();
   const navigate = useNavigate();
@@ -22,6 +29,8 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
   const [creatingChat, setCreatingChat] = useState(false);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
   // const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
 
   // Загружаем информацию о чате при монтировании
@@ -33,6 +42,7 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
           if (response.ok) {
             const chat = await response.json();
             setIsTeacherMode(chat.is_teacher_chat);
+            await fetchMessages(chat.is_teacher_chat);
           }
         } catch (err) {
           console.error('Error loading chat information:', err);
@@ -41,6 +51,29 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
     };
     fetchChatInfo();
   }, [chatId]);
+
+  const fetchMessages = async (isTeacherChat: boolean) => {
+    if (!chatId) return;
+    
+    try {
+      let endpoint;
+      if (isTeacherChat) {
+        endpoint = `/api/teacher/sessions/${chatId}/messages`;
+      } else {
+        endpoint = `/api/chats/messages/by_chat/${chatId}`;
+      }
+
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Error loading messages');
+      
+      const data = await response.json();
+      setMessages(data);
+    } catch (err) {
+      console.error('Error loading messages:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const autoRenameChat = async (chatId: number, aiResponse: string) => {
     try {
@@ -202,6 +235,9 @@ const ChatField: React.FC<ChatFieldProps> = ({ onMessageSent }) => {
       if (isNewChat && currentChatId) {
         await autoRenameChat(currentChatId, aiResponse.response);
       }
+
+      // Обновляем список сообщений
+      await fetchMessages(isTeacherMode);
 
       if (onMessageSent) {
         onMessageSent();
