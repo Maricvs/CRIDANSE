@@ -160,3 +160,19 @@ def get_chat(chat_id: int, db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{chat_id}")
+def update_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
+    try:
+        chat = db.query(Chat).filter(Chat.id == chat_id).first()
+        if not chat:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        
+        if "is_teacher_chat" in body:
+            chat.is_teacher_chat = body["is_teacher_chat"]
+        
+        db.commit()
+        return {"message": "Chat updated"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
