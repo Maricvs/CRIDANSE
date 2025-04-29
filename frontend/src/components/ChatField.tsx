@@ -1,7 +1,9 @@
+import { RiChatUploadLine } from "react-icons/ri";
+import { LiaChalkboardTeacherSolid } from "react-icons/lia";
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useChat } from '../context/ChatContext';
-import './ChatField.css';
+import '../ChatField.css';
 
 export default function ChatField() {
   const { id } = useParams<{ id: string }>();
@@ -13,21 +15,6 @@ export default function ChatField() {
     sendMessage,
     toggleTeacherMode
   } = useChat();
-
-  useEffect(() => {
-    if (id) {
-      const savedDraft = localStorage.getItem(`draft_${id}`);
-      if (savedDraft) {
-        setMessage(savedDraft);
-      }
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id) {
-      localStorage.setItem(`draft_${id}`, message);
-    }
-  }, [message, id]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || !id) return;
@@ -69,22 +56,24 @@ export default function ChatField() {
           disabled={loading}
           rows={1}
         />
-        <button
-          onClick={handleSendMessage}
-          disabled={loading || !message.trim()}
-          className="send-button"
-          title="Send message"
-        >
-          Send
-        </button>
-        <button
-          onClick={handleToggleTeacherMode}
-          className={`teacher-mode-button ${isTeacherMode ? 'active' : ''}`}
-          title={isTeacherMode ? "Disable teacher mode" : "Enable teacher mode"}
-          disabled={loading}
-        >
-          {isTeacherMode ? "👨‍🏫" : "👨‍🎓"}
-        </button>
+        <div className="action-buttons">
+          <button
+            onClick={handleToggleTeacherMode}
+            className={`chat-action-button ${isTeacherMode ? 'active' : ''}`}
+            title={isTeacherMode ? "Disable teacher mode" : "Enable teacher mode"}
+            disabled={loading}
+          >
+            <LiaChalkboardTeacherSolid />
+          </button>
+          <button
+            onClick={handleSendMessage}
+            disabled={loading || !message.trim()}
+            className="chat-action-button send-button"
+            title="Send message"
+          >
+            <RiChatUploadLine className="send-icon" />
+          </button>
+        </div>
       </div>
     </div>
   );
