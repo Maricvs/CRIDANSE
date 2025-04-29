@@ -9,7 +9,12 @@ export default defineConfig({
 	    assetsDir: 'assets',
 	    emptyOutDir: true,
         },
-   base: './',
+   base: '/',
+   server: {
+    port: 3000,
+    strictPort: true,
+    host: true,
+  },
    define: {
     'import.meta.env.VITE_API_URL': JSON.stringify('https://www.unlimcode.com/api'),
   },
