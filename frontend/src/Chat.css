@@ -51,4 +51,18 @@
   .messages-container {
     padding-bottom: 120px; /* Увеличиваем отступ для мобильных устройств */
   }
-} 
+}
+
+.skeleton-message {
+  height: 60px;
+  background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.2s infinite;
+  margin: 10px;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}

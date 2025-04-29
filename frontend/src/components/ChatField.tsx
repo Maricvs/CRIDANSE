@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useChat } from '../context/ChatContext';
-import './ChatField.css';
+import '../ChatField.css';
 
 export default function ChatField() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +13,21 @@ export default function ChatField() {
     sendMessage,
     toggleTeacherMode
   } = useChat();
+
+  useEffect(() => {
+    if (id) {
+      const savedDraft = localStorage.getItem(`draft_${id}`);
+      if (savedDraft) {
+        setMessage(savedDraft);
+      }
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem(`draft_${id}`, message);
+    }
+  }, [message, id]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || !id) return;

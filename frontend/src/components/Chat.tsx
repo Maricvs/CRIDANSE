@@ -73,7 +73,18 @@ export default function Chat() {
   const isWideScreen = window.innerWidth >= 768;
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
 
-  if (loading) return <div className="chat-loading">Loading messages...</div>;
+  if (loading) {
+    return (
+      <div className={wrapperClass}>
+        <div className="chat-messages">
+          {[...Array(5)].map((_, idx) => (
+            <div key={idx} className="skeleton-message" />
+          ))}
+        </div>
+        <ChatField />
+      </div>
+    );
+  }
 
   return (
     <div className={wrapperClass}>

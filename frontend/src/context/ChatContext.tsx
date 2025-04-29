@@ -82,6 +82,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       setError(null);
 
+      // Optimistic update
+      setMessages(prev => [
+        ...prev,
+        { id: Date.now(), role: 'user', message, created_at: new Date().toISOString() }
+      ]);
+
       let endpoint;
       let body;
 
@@ -161,4 +167,4 @@ export const useChat = () => {
     throw new Error('useChat must be used within a ChatProvider');
   }
   return context;
-}; 
+};
