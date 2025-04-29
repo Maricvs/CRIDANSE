@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useChat } from '../context/ChatContext';
-import '../ChatField.css';
+import './ChatField.css';
 
 export default function ChatField() {
   const { id } = useParams<{ id: string }>();
