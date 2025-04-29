@@ -54,7 +54,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       let endpoint;
       if (isTeacherMode) {
-        endpoint = `/api/teacher/sessions/${chatId}/messages`;
+        if (!teacherSessionId) {
+          throw new Error('Teacher session ID is not set');
+        }
+        endpoint = `/api/teacher/sessions/${teacherSessionId}/messages`;
       } else {
         endpoint = `/api/chats/messages/by_chat/${chatId}`;
       }
@@ -75,12 +78,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError("Failed to load messages");
       console.error('Error loading messages:', err);
     }
-  }, [isTeacherMode]);
+  }, [isTeacherMode, teacherSessionId]);
 
   const sendMessage = useCallback(async (message: string, chatId: number) => {
     try {
       setLoading(true);
       setError(null);
+
+      if (isTeacherMode && !teacherSessionId) {
+        throw new Error('Teacher session ID is not set');
+      }
 
       // Optimistic update
       setMessages(prev => [
@@ -92,7 +99,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let body;
 
       if (isTeacherMode) {
-        endpoint = `/api/teacher/sessions/${chatId}/message`;
+        endpoint = `/api/teacher/sessions/${teacherSessionId}/message`;
         body = JSON.stringify({ message });
       } else {
         endpoint = `/api/chats/message`;
@@ -115,7 +122,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, fetchMessages]);
+  }, [isTeacherMode, teacherSessionId, fetchMessages]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
