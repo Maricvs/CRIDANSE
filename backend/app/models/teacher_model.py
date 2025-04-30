@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from models.models import Profile
+# from models.models import Profile  # Удаляем импорт
 from db import Base
 
 class TeacherSession(Base):
@@ -16,6 +16,8 @@ class TeacherSession(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     messages = relationship("TeacherMessage", back_populates="session")
+    # Если потребуется связь с Profile:
+    # user = relationship("Profile")
 
 class TeacherMessage(Base):
     __tablename__ = "teacher_messages"
