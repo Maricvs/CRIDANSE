@@ -41,9 +41,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!res.ok) throw new Error("Error loading chat info");
       const data = await res.json();
       setIsTeacherMode(data.is_teacher_chat);
-      if (data.teacher_session_id) {
-        setTeacherSessionId(data.teacher_session_id);
-      }
+      setTeacherSessionId(data.teacher_session_id || null);
     } catch (err) {
       setError("Failed to load chat info");
       console.error('Error loading chat info:', err);
@@ -54,54 +52,46 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchMessages = useCallback(async (chatId: number) => {
     try {
+      setLoading(true);
+      setError(null);
       let endpoint;
+      let sessionId = teacherSessionId;
       if (isTeacherMode) {
-        if (!teacherSessionId) {
-          // Создаем новую сессию учителя
-          const res = await fetch('/api/teacher/sessions/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: parseInt(localStorage.getItem('user_id') || '0'),
-              topic: 'Общее обучение',
-              level: 'intermediate'
-            })
-          });
-          if (!res.ok) throw new Error("Error creating teacher session");
-          const session = await res.json();
-          setTeacherSessionId(session.id);
-          endpoint = `/api/teacher/sessions/${session.id}/messages/`;
+        if (!sessionId) {
+          await fetchChatInfo(chatId);
+          sessionId = teacherSessionId;
+        }
+        if (sessionId) {
+          endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
         } else {
-          endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
+          setMessages([]);
+          return;
         }
       } else {
         endpoint = `/api/chats/messages/by_chat/${chatId}`;
       }
-
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
-      
       const formattedMessages = data.map((msg: any) => ({
         id: msg.id,
         role: msg.role,
         message: msg.content || msg.message,
         created_at: msg.created_at
       }));
-      
       setMessages(formattedMessages);
     } catch (err) {
       setError("Failed to load messages");
       console.error('Error loading messages:', err);
+    } finally {
+      setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId]);
+  }, [isTeacherMode, teacherSessionId, fetchChatInfo]);
 
   const sendMessage = useCallback(async (message: string, chatId: number) => {
     try {
       setLoading(true);
       setError(null);
-
-      // Optimistic update
       setMessages(prev => [
         ...prev,
         {
@@ -113,29 +103,18 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           created_at: new Date().toISOString()
         }
       ]);
-
       let endpoint;
       let body;
-
+      let sessionId = teacherSessionId;
       if (isTeacherMode) {
-        if (!teacherSessionId) {
-          // Создаем новую сессию учителя
-          const res = await fetch('/api/teacher/sessions/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: parseInt(localStorage.getItem('user_id') || '0'),
-              topic: 'Общее обучение',
-              level: 'intermediate'
-            })
-          });
-          if (!res.ok) throw new Error("Error creating teacher session");
-          const session = await res.json();
-          setTeacherSessionId(session.id);
+        if (!sessionId) {
+          await fetchChatInfo(chatId);
+          sessionId = teacherSessionId;
         }
-        endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
+        if (!sessionId) throw new Error("No teacher session for this chat");
+        endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
         body = JSON.stringify({ 
-          session_id: teacherSessionId,
+          session_id: sessionId,
           content: message,
           role: 'student'
         });
@@ -148,16 +127,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'user'
         });
       }
-
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body
       });
-
       if (!res.ok) throw new Error("Error sending message");
-      
-      // После отправки сообщения обновляем список сообщений
       await fetchMessages(chatId);
     } catch (err) {
       setError("Failed to send message");
@@ -165,16 +140,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, fetchMessages]);
+  }, [isTeacherMode, teacherSessionId, fetchMessages, fetchChatInfo]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
       setLoading(true);
       setError(null);
-
-      // Если включаем режим учителя
       if (!isTeacherMode) {
-        // Создаем сессию учителя
         const sessionRes = await fetch('/api/teacher/sessions/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -184,11 +156,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             level: 'intermediate'
           })
         });
-
         if (!sessionRes.ok) throw new Error("Error creating teacher session");
         const session = await sessionRes.json();
-        
-        // Обновляем чат с teacher_session_id
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -197,13 +166,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             teacher_session_id: session.id 
           })
         });
-
         if (!res.ok) throw new Error("Error toggling teacher mode");
-        
         setTeacherSessionId(session.id);
         setIsTeacherMode(true);
       } else {
-        // Выключаем режим учителя
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -212,14 +178,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             teacher_session_id: null 
           })
         });
-
         if (!res.ok) throw new Error("Error toggling teacher mode");
-        
         setTeacherSessionId(null);
         setIsTeacherMode(false);
       }
-
-      // После переключения режима обновляем сообщения
       await fetchMessages(chatId);
     } catch (err) {
       setError("Failed to toggle teacher mode");
