@@ -28,6 +28,7 @@ export default function ChatField() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
             title: 'New Teacher Chat',
             is_teacher_chat: true
           }),
@@ -65,6 +66,7 @@ export default function ChatField() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
             title: 'New Teacher Chat',
             is_teacher_chat: true
           }),
