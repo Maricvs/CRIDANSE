@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 interface Message {
   id: number;
+  user_id: number;
+  chat_id: number;
   role: string;
   message: string;
   created_at: string;
@@ -55,9 +57,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let endpoint;
       if (isTeacherMode) {
         if (!teacherSessionId) {
-          throw new Error('Teacher session ID is not set');
+          // Создаем новую сессию учителя
+          const res = await fetch('/api/teacher/sessions/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: parseInt(localStorage.getItem('user_id') || '0'),
+              topic: 'Общее обучение',
+              level: 'intermediate'
+            })
+          });
+          if (!res.ok) throw new Error("Error creating teacher session");
+          const session = await res.json();
+          setTeacherSessionId(session.id);
+          endpoint = `/api/teacher/sessions/${session.id}/messages/`;
+        } else {
+          endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
         }
-        endpoint = `/api/teacher/sessions/${teacherSessionId}/messages`;
       } else {
         endpoint = `/api/chats/messages/by_chat/${chatId}`;
       }
@@ -85,10 +101,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       setError(null);
 
-      if (isTeacherMode && !teacherSessionId) {
-        throw new Error('Teacher session ID is not set');
-      }
-
       // Optimistic update
       setMessages(prev => [
         ...prev,
@@ -99,19 +111,33 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let body;
 
       if (isTeacherMode) {
-        endpoint = `/api/teacher/sessions/${teacherSessionId}/message`;
-        body = JSON.stringify({ message });
+        if (!teacherSessionId) {
+          // Создаем новую сессию учителя
+          const res = await fetch('/api/teacher/sessions/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: parseInt(localStorage.getItem('user_id') || '0'),
+              topic: 'Общее обучение',
+              level: 'intermediate'
+            })
+          });
+          if (!res.ok) throw new Error("Error creating teacher session");
+          const session = await res.json();
+          setTeacherSessionId(session.id);
+        }
+        endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
+        body = JSON.stringify({ 
+          session_id: teacherSessionId,
+          content: message,
+          role: 'student'
+        });
       } else {
         endpoint = `/api/chats/message`;
-        // Get user_id from localStorage or context
-        const user_id = localStorage.getItem('user_id');
-        if (!user_id) {
-          throw new Error('User ID is not set');
-        }
         body = JSON.stringify({ 
           chat_id: chatId, 
           message,
-          user_id: parseInt(user_id),
+          user_id: parseInt(localStorage.getItem('user_id') || '0'),
           role: 'user'
         });
       }
