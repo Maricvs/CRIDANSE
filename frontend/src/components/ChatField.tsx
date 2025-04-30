@@ -17,11 +17,35 @@ export default function ChatField() {
   } = useChat();
 
   const handleSendMessage = async () => {
-    if (!message.trim() || !id) return;
+    if (!message.trim()) return;
 
-    const chatId = parseInt(id);
-    await sendMessage(message, chatId);
-    setMessage('');
+    if (!id) {
+      // Создаем новый чат в режиме учителя
+      try {
+        const response = await fetch('/api/chats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: 'New Teacher Chat',
+            is_teacher_chat: true
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to create chat');
+        
+        const newChat = await response.json();
+        await sendMessage(message, newChat.id);
+        setMessage('');
+      } catch (error) {
+        console.error('Error creating new chat:', error);
+      }
+    } else {
+      const chatId = parseInt(id);
+      await sendMessage(message, chatId);
+      setMessage('');
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -32,9 +56,31 @@ export default function ChatField() {
   };
 
   const handleToggleTeacherMode = async () => {
-    if (!id) return;
-    const chatId = parseInt(id);
-    await toggleTeacherMode(chatId);
+    if (!id) {
+      // Создаем новый чат в режиме учителя
+      try {
+        const response = await fetch('/api/chats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: 'New Teacher Chat',
+            is_teacher_chat: true
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to create chat');
+        
+        const newChat = await response.json();
+        await toggleTeacherMode(newChat.id);
+      } catch (error) {
+        console.error('Error creating new chat:', error);
+      }
+    } else {
+      const chatId = parseInt(id);
+      await toggleTeacherMode(chatId);
+    }
   };
 
   useEffect(() => {
