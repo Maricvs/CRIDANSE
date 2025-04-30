@@ -139,6 +139,12 @@ async def create_message(session_id: int, message: TeacherMessageCreate, db: Ses
     db.refresh(db_teacher_message)
     return db_teacher_message
 
+@router.get("/sessions/{session_id}/messages/", response_model=List[TeacherMessageSchema])
+def get_session_messages(session_id: int, db: Session = Depends(get_db)):
+    """Возвращает все сообщения для teacher session по session_id"""
+    messages = db.query(TeacherMessage).filter(TeacherMessage.session_id == session_id).order_by(TeacherMessage.created_at).all()
+    return messages
+
 async def create_teacher_session(
     db: Session,
     user: Profile,
