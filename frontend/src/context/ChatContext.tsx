@@ -172,15 +172,53 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`/api/chats/${chatId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_teacher_chat: !isTeacherMode })
-      });
+      // Если включаем режим учителя
+      if (!isTeacherMode) {
+        // Создаем сессию учителя
+        const sessionRes = await fetch('/api/teacher/sessions/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            topic: 'Общее обучение',
+            level: 'intermediate'
+          })
+        });
 
-      if (!res.ok) throw new Error("Error toggling teacher mode");
-      
-      setIsTeacherMode(!isTeacherMode);
+        if (!sessionRes.ok) throw new Error("Error creating teacher session");
+        const session = await sessionRes.json();
+        
+        // Обновляем чат с teacher_session_id
+        const res = await fetch(`/api/chats/${chatId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            is_teacher_chat: true,
+            teacher_session_id: session.id 
+          })
+        });
+
+        if (!res.ok) throw new Error("Error toggling teacher mode");
+        
+        setTeacherSessionId(session.id);
+        setIsTeacherMode(true);
+      } else {
+        // Выключаем режим учителя
+        const res = await fetch(`/api/chats/${chatId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            is_teacher_chat: false,
+            teacher_session_id: null 
+          })
+        });
+
+        if (!res.ok) throw new Error("Error toggling teacher mode");
+        
+        setTeacherSessionId(null);
+        setIsTeacherMode(false);
+      }
+
       // После переключения режима обновляем сообщения
       await fetchMessages(chatId);
     } catch (err) {
