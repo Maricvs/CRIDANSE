@@ -22,7 +22,7 @@ export default function ChatField() {
     if (!id) {
       // Создаем новый чат в режиме учителя
       try {
-        const response = await fetch('/api/chats', {
+        const response = await fetch('/api/chats/user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export default function ChatField() {
     if (!id) {
       // Создаем новый чат в режиме учителя
       try {
-        const response = await fetch('/api/chats', {
+        const response = await fetch('/api/chats/user', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
