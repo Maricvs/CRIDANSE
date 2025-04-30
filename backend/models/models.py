@@ -4,6 +4,8 @@ from datetime import datetime
 from sqlalchemy import TIMESTAMP
 from sqlalchemy.sql import func
 from db import Base
+# Импорт TeacherSession для связи
+from app.models.teacher_model import TeacherSession
 
 # Таблица users.profiles
 class Profile(Base):
@@ -52,10 +54,11 @@ class Chat(Base):
     user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
     title = Column(String(255), nullable=False, default="Новый чат")
     is_teacher_chat = Column(Boolean, default=False, nullable=False)
+    teacher_session_id = Column(Integer, ForeignKey("teacher.teacher_sessions.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # ✅ ЭТА СТРОКА УЖЕ ЕСТЬ:
     messages = relationship("Message", back_populates="chat", cascade="all, delete")
+    teacher_session = relationship("TeacherSession", foreign_keys=[teacher_session_id])
 
 # Таблица documents.documents
 class Document(Base):
