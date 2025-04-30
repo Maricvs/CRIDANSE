@@ -5,6 +5,7 @@ from db import get_db
 from typing import List
 from models.models import Message, Chat
 from fastapi.responses import JSONResponse
+from app.models.teacher_model import TeacherSession
 
 router = APIRouter()
 
@@ -90,10 +91,24 @@ class ChatCreate(BaseModel):
 @router.post("/user")
 def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
+        teacher_session_id = None
+        if chat.is_teacher_chat:
+            # Создаем teacher session
+            session = TeacherSession(
+                user_id=chat.user_id,
+                topic="Общее обучение",
+                level="intermediate"
+            )
+            db.add(session)
+            db.commit()
+            db.refresh(session)
+            teacher_session_id = session.id
+
         new_chat = Chat(
             user_id=chat.user_id, 
             title=chat.title,
-            is_teacher_chat=chat.is_teacher_chat
+            is_teacher_chat=chat.is_teacher_chat,
+            teacher_session_id=teacher_session_id
         )
         db.add(new_chat)
         db.commit()
@@ -102,6 +117,7 @@ def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
             "id": new_chat.id,
             "title": new_chat.title,
             "is_teacher_chat": new_chat.is_teacher_chat,
+            "teacher_session_id": new_chat.teacher_session_id,
             "created_at": new_chat.created_at.isoformat()
         })
     except Exception as e:
@@ -155,6 +171,7 @@ def get_chat(chat_id: int, db: Session = Depends(get_db)):
             "id": chat.id,
             "title": chat.title,
             "is_teacher_chat": chat.is_teacher_chat,
+            "teacher_session_id": chat.teacher_session_id,
             "created_at": chat.created_at.isoformat(),
             "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat()
         }
@@ -170,6 +187,8 @@ def update_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
         
         if "is_teacher_chat" in body:
             chat.is_teacher_chat = body["is_teacher_chat"]
+        if "teacher_session_id" in body:
+            chat.teacher_session_id = body["teacher_session_id"]
         
         db.commit()
         return {"message": "Chat updated"}
