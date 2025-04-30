@@ -104,7 +104,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Optimistic update
       setMessages(prev => [
         ...prev,
-        { id: Date.now(), role: 'user', message, created_at: new Date().toISOString() }
+        {
+          id: Date.now(),
+          user_id: parseInt(localStorage.getItem('user_id') || '0'),
+          chat_id: chatId,
+          role: 'user',
+          message,
+          created_at: new Date().toISOString()
+        }
       ]);
 
       let endpoint;
