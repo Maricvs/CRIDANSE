@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from db import get_db
 from app.models.teacher_model import TeacherSession, TeacherMessage
@@ -15,35 +15,31 @@ router = APIRouter()
 
 client = OpenAI()
 
-def get_teacher_prompt(topic: str, level: str, context: str = "") -> str:
-    base_prompt = f"""Ты - опытный преподаватель, который обучает теме "{topic}" на уровне {level}.
-    
-    Твоя задача:
-    1. Не давать прямых ответов на учебные задания
-    2. Задавать наводящие вопросы
-    3. Давать подсказки и направлять ученика
-    4. Проверять понимание материала
-    5. Адаптировать объяснения под уровень знаний ученика
-    6. Строить обучение поэтапно
-    7. Использовать загруженные материалы для более точных и релевантных ответов
-    8. Цитировать источники при использовании информации из документов
-    
-    Если ученик просит объяснить что-то - давай подробное объяснение, адаптированное под его уровень.
-    Если ученик решает задачу - помогай наводящими вопросами, но не давай готового решения.
-    """
-    
+def get_teacher_prompt(topic: str = None, level: str = None, context: str = "") -> str:
+    if topic and level:
+        base_prompt = f"""Ты - опытный преподаватель, который обучает теме '{topic}' на уровне {level}.
+        \nТвоя задача:
+        1. Не давать прямых ответов на учебные задания
+        2. Задавать наводящие вопросы
+        3. Давать подсказки и направлять ученика
+        4. Проверять понимание материала
+        5. Адаптировать объяснения под уровень знаний ученика
+        6. Строить обучение поэтапно
+        7. Использовать загруженные материалы для более точных и релевантных ответов
+        8. Цитировать источники при использовании информации из документов\n\nЕсли ученик просит объяснить что-то - давай подробное объяснение, адаптированное под его уровень.\nЕсли ученик решает задачу - помогай наводящими вопросами, но не давай готового решения."""
+    else:
+        base_prompt = (
+            "Ты — опытный преподаватель. Твоя задача — сначала выяснить, что именно интересует ученика и каков его уровень знаний. "
+            "Задавай наводящие вопросы, чтобы определить тему и уровень, не делай предположений без явных признаков. "
+            "Когда поймёшь, что ученик хочет изучать и на каком он уровне — начни обучение по этим параметрам. "
+            "Не давай прямых ответов на учебные задания, а помогай через подсказки и вопросы. "
+            "Используй загруженные материалы, если они есть, и цитируй источники при необходимости."
+        )
     if context:
         context_prompt = f"""
         У меня есть доступ к следующим учебным материалам:
-        
-        {context}
-        
-        Я буду использовать эти материалы как основу для объяснений и отвечать на вопросы, опираясь на них.
-        Когда я цитирую материал, я указываю из какого документа взята информация.
-        Я также могу дополнять информацию из материалов своими знаниями для лучшего объяснения.
-        """
+        \n{context}\n\nЯ буду использовать эти материалы как основу для объяснений и отвечать на вопросы, опираясь на них.\nКогда я цитирую материал, я указываю из какого документа взята информация.\nЯ также могу дополнять информацию из материалов своими знаниями для лучшего объяснения."""
         return base_prompt + context_prompt
-    
     return base_prompt
 
 def convert_role_for_openai(role: str) -> str:
@@ -240,20 +236,14 @@ async def ask_teacher_advanced(
             detail="Доступ запрещен"
         )
     
-    # Если session_id не указан, создаем новую сессию
+    # Если session_id не указан, создаем новую сессию без topic/level
     if not session_id:
-        # Определяем тему и уровень на основе первого сообщения
-        topic = "Общее обучение"
-        level = "intermediate"
-        
-        # Создаем новую сессию
         session = await create_teacher_session(
             db, 
             current_user, 
             TeacherSessionCreate(
-                user_id=current_user.id,
-                topic=topic,
-                level=level
+                user_id=current_user.id
+                # topic и level не передаем, пусть будут None
             )
         )
         session_id = session.id
@@ -269,4 +259,20 @@ async def ask_teacher_advanced(
     return {
         "response": message.content,
         "session_id": session_id
-    } 
+    }
+
+@router.put("/sessions/{session_id}/topic_level", response_model=TeacherSessionSchema)
+def update_topic_level(session_id: int, data: dict = Body(...), db: Session = Depends(get_db)):
+    """Позволяет обновить topic и level в сессии учителя"""
+    session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    topic = data.get("topic")
+    level = data.get("level")
+    if topic is not None:
+        session.topic = topic
+    if level is not None:
+        session.level = level
+    db.commit()
+    db.refresh(session)
+    return session 

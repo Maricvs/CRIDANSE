@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 class TeacherMessageBase(BaseModel):
     content: str
@@ -18,8 +18,8 @@ class TeacherMessage(TeacherMessageBase):
         from_attributes = True
 
 class TeacherSessionBase(BaseModel):
-    topic: str
-    level: str
+    topic: Optional[str] = None
+    level: Optional[str] = None
 
 class TeacherSessionCreate(TeacherSessionBase):
     user_id: int
