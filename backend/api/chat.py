@@ -93,11 +93,10 @@ def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
         teacher_session_id = None
         if chat.is_teacher_chat:
-            # Создаем teacher session
+            # Создаем teacher session без topic и level
             session = TeacherSession(
-                user_id=chat.user_id,
-                topic="Общее обучение",
-                level="intermediate"
+                user_id=chat.user_id
+                # topic и level не передаем!
             )
             db.add(session)
             db.commit()

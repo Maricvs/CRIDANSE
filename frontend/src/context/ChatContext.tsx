@@ -151,9 +151,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
-            topic: 'Общее обучение',
-            level: 'intermediate'
+            user_id: parseInt(localStorage.getItem('user_id') || '0')
           })
         });
         if (!sessionRes.ok) throw new Error("Error creating teacher session");
