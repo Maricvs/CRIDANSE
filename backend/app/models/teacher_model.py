@@ -14,6 +14,7 @@ class TeacherSession(Base):
     level = Column(String(50), nullable=True)  # beginner, intermediate, advanced
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    selected_document_id = Column(Integer, ForeignKey("documents.documents.id"), nullable=True)
     
     messages = relationship("TeacherMessage", back_populates="session")
     # Если потребуется связь с Profile:

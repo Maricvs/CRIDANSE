@@ -7,7 +7,7 @@ from typing import List
 from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
 from openai import OpenAI
 from models.models import Profile
-from app.components.documents.document_service import get_context_for_query
+from app.components.documents.document_service import get_context_for_query, get_user_documents
 from api.auth import get_current_regular_user
 from app.components.teacher.teacher_materials_service import get_user_materials_list
 
@@ -54,10 +54,13 @@ def convert_role_for_openai(role: str) -> str:
         return "assistant"
     return role
 
-async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None) -> str:
+async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None, session: TeacherSession = None) -> str:
     # Получаем контекст из документов пользователя
     context = ""
     materials_list = ""
+    selected_document_id = None
+    if session:
+        selected_document_id = session.selected_document_id
     if user_id and db:
         user = db.query(Profile).filter(Profile.id == user_id).first()
         if user:
@@ -68,7 +71,14 @@ async def get_teacher_response(messages: List[dict], topic: str, level: str, use
             if last_messages:
                 # Объединяем сообщения для поиска контекста
                 query = " ".join(last_messages)
-                context = await get_context_for_query(db, user, query)
+                # Если выбран учебник, ищем только по нему
+                if selected_document_id:
+                    docs = await get_user_documents(db, user)
+                    doc_ids = [doc.id for doc in docs if doc.id == selected_document_id]
+                    if doc_ids:
+                        context = await get_context_for_query(db, user, query, limit=5, document_ids=doc_ids)
+                else:
+                    context = await get_context_for_query(db, user, query)
     # Формируем prompt
     materials_prompt = ""
     if materials_list:
@@ -126,14 +136,24 @@ async def create_message(session_id: int, message: TeacherMessageCreate, db: Ses
     
     # Получаем информацию о сессии
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
-    
+    # Проверяем, выбрал ли пользователь учебник (по совпадению с названием)
+    if session and message.content:
+        user = db.query(Profile).filter(Profile.id == session.user_id).first()
+        if user:
+            docs = await get_user_documents(db, user)
+            for doc in docs:
+                if doc.title.lower() in message.content.lower():
+                    session.selected_document_id = doc.id
+                    db.commit()
+                    break
     # Получаем ответ учителя с использованием контекста из документов
     teacher_response = await get_teacher_response(
         messages_history, 
         session.topic, 
         session.level,
         session.user_id,  # Добавляем ID пользователя для получения контекста
-        db
+        db,
+        session
     )
     
     # Сохраняем ответ учителя
@@ -214,7 +234,8 @@ async def send_teacher_message(
         session.topic,
         session.level,
         user.id,
-        db
+        db,
+        session
     )
     
     # Сохраняем ответ учителя

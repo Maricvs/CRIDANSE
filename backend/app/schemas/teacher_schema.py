@@ -20,6 +20,7 @@ class TeacherMessage(TeacherMessageBase):
 class TeacherSessionBase(BaseModel):
     topic: Optional[str] = None
     level: Optional[str] = None
+    selected_document_id: Optional[int] = None
 
 class TeacherSessionCreate(TeacherSessionBase):
     user_id: int
