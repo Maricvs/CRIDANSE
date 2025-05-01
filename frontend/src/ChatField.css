@@ -64,8 +64,6 @@
   box-sizing: border-box;
 }
 
-
-
 /* Общее сообщение */
 .message {
   font-size: 15px;
@@ -425,5 +423,38 @@ textarea::placeholder {
 /* Стиль для первого сообщения в чате */
 .chat-messages > .message:first-child {
   margin-top: 2rem; /* Дополнительный отступ для первого сообщения */
+}
+
+.teacher-info-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(60, 60, 60, 0.95);
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  font-size: 15px;
+  font-family: 'Figtree', sans-serif;
+  color: #fff;
+}
+
+.teacher-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #4f8cff 0%, #6dd5ed 100%);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  margin-right: 4px;
+}
+
+.teacher-badge.level {
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  color: #222;
 }
 

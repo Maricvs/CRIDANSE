@@ -13,7 +13,9 @@ export default function ChatField() {
     isTeacherMode,
     loading,
     sendMessage,
-    toggleTeacherMode
+    toggleTeacherMode,
+    topic,
+    level
   } = useChat();
 
   const handleSendMessage = async () => {
@@ -94,6 +96,13 @@ export default function ChatField() {
 
   return (
     <div className="chat-field">
+      {/* Topic/Level info bar */}
+      {isTeacherMode && topic && level && (
+        <div className="teacher-info-bar">
+          <span className="teacher-badge">{topic}</span>
+          <span className="teacher-badge level">{level}</span>
+        </div>
+      )}
       <div className="input-container">
         <textarea
           ref={textareaRef}

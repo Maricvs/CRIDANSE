@@ -13,6 +13,8 @@ interface ChatContextType {
   messages: Message[];
   isTeacherMode: boolean;
   teacherSessionId: number | null;
+  topic?: string | null;
+  level?: string | null;
   loading: boolean;
   error: string | null;
   fetchChatInfo: (chatId: number) => Promise<void>;
@@ -22,6 +24,8 @@ interface ChatContextType {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
+  setTopic: React.Dispatch<React.SetStateAction<string | null>>;
+  setLevel: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -30,6 +34,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
+  const [topic, setTopic] = useState<string | null>(null);
+  const [level, setLevel] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,8 +48,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await res.json();
       setIsTeacherMode(data.is_teacher_chat);
       setTeacherSessionId(data.teacher_session_id || null);
+      if (data.teacher_session_id) {
+        const sessionRes = await fetch(`/api/teacher/sessions/${data.teacher_session_id}`);
+        if (sessionRes.ok) {
+          const session = await sessionRes.json();
+          setTopic(session.topic || null);
+          setLevel(session.level || null);
+        } else {
+          setTopic(null);
+          setLevel(null);
+        }
+      } else {
+        setTopic(null);
+        setLevel(null);
+      }
     } catch (err) {
       setError("Failed to load chat info");
+      setTopic(null);
+      setLevel(null);
       console.error('Error loading chat info:', err);
     } finally {
       setLoading(false);
@@ -134,13 +156,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       if (!res.ok) throw new Error("Error sending message");
       await fetchMessages(chatId);
+      if (isTeacherMode && sessionId) {
+        const sessionRes = await fetch(`/api/teacher/sessions/${sessionId}`);
+        if (sessionRes.ok) {
+          const session = await sessionRes.json();
+          const lastTeacherMsg = messages.filter(m => m.role === 'teacher').slice(-1)[0];
+          let t = session.topic;
+          let l = session.level;
+          if ((!t || !l) && lastTeacherMsg) {
+            const match = lastTeacherMsg.message.match(/Тема: ([^;]+); Уровень: ([^\n]+)/);
+            if (match) {
+              t = match[1].trim();
+              l = match[2].trim();
+              await fetch(`/api/teacher/sessions/${sessionId}/topic_level`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: t, level: l })
+              });
+            }
+          }
+          setTopic(t || null);
+          setLevel(l || null);
+        }
+      }
     } catch (err) {
       setError("Failed to send message");
       console.error('Error sending message:', err);
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, fetchMessages, fetchChatInfo]);
+  }, [isTeacherMode, teacherSessionId, fetchMessages, fetchChatInfo, messages]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
@@ -194,6 +239,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       messages,
       isTeacherMode,
       teacherSessionId,
+      topic,
+      level,
       loading,
       error,
       fetchChatInfo,
@@ -202,7 +249,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toggleTeacherMode,
       setMessages,
       setLoading,
-      setError
+      setError,
+      setTopic,
+      setLevel
     }}>
       {children}
     </ChatContext.Provider>
