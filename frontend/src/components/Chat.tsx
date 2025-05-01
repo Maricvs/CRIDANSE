@@ -68,23 +68,17 @@ export default function Chat() {
     }
   }, [id, fetchChatInfo, fetchMessages]);
 
+  // Определяем текущий user_id
+  const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
+
+  // Определяем, нужно ли показывать индикатор "думаю"
+  const lastMsg = messages[messages.length - 1];
+  const showThinking = loading && lastMsg && (lastMsg.role === 'user' || lastMsg.role === 'student') && lastMsg.user_id === currentUserId;
+
   if (error) return <div className="chat-error">{error}</div>;
 
   const isWideScreen = window.innerWidth >= 768;
   const wrapperClass = isWideScreen ? 'chat-wrapper with-sidebar' : 'chat-wrapper';
-
-  if (loading) {
-    return (
-      <div className={wrapperClass}>
-        <div className="chat-messages">
-          {[...Array(5)].map((_, idx) => (
-            <div key={idx} className="skeleton-message" />
-          ))}
-        </div>
-        <ChatField />
-      </div>
-    );
-  }
 
   return (
     <div className={wrapperClass}>
@@ -94,17 +88,26 @@ export default function Chat() {
             Start a new conversation by sending a message
           </div>
         )}
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`message ${msg.role === "user" ? "user-message" : "bot-message"}`}
-          >
-            {msg.message}
+        {messages.map((msg) => {
+          const isMyMessage = (msg.role === "user" || msg.role === "student") && msg.user_id === currentUserId;
+          return (
+            <div
+              key={msg.id}
+              className={`message ${isMyMessage ? "user-message" : "bot-message"} fade-in`}
+            >
+              {msg.message}
+            </div>
+          );
+        })}
+        {showThinking && (
+          <div className="message bot-message thinking-indicator fade-in">
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
+            <span className="thinking-dot" />
           </div>
-        ))}
+        )}
         <div ref={messagesEndRef} className="messages-end-anchor" />
       </div>
-
       <ChatField />
     </div>
   );

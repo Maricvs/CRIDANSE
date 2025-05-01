@@ -112,8 +112,9 @@ export default function ChatField() {
           placeholder={isTeacherMode ? "Ask your question..." : "Type your message..."}
           disabled={loading}
           rows={1}
+          className="fade-in"
         />
-        <div className="action-buttons">
+        <div className="action-buttons fade-in">
           <button
             onClick={handleToggleTeacherMode}
             className={`chat-action-button ${isTeacherMode ? 'active' : ''}`}
