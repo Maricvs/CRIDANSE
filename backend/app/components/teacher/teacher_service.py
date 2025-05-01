@@ -9,6 +9,7 @@ from openai import OpenAI
 from models.models import Profile
 from app.components.documents.document_service import get_context_for_query
 from api.auth import get_current_regular_user
+from app.components.teacher.teacher_materials_service import get_user_materials_list
 
 
 router = APIRouter()
@@ -56,17 +57,25 @@ def convert_role_for_openai(role: str) -> str:
 async def get_teacher_response(messages: List[dict], topic: str, level: str, user_id: int = None, db: Session = None) -> str:
     # Получаем контекст из документов пользователя
     context = ""
+    materials_list = ""
     if user_id and db:
         user = db.query(Profile).filter(Profile.id == user_id).first()
         if user:
+            # Получаем список учебников пользователя
+            materials_list = await get_user_materials_list(db, user)
             # Используем последние 2 сообщения для лучшего контекста
             last_messages = [m["content"] for m in reversed(messages[-5:]) if m["role"] == "user"]
             if last_messages:
                 # Объединяем сообщения для поиска контекста
                 query = " ".join(last_messages)
                 context = await get_context_for_query(db, user, query)
-    
-    system_prompt = get_teacher_prompt(topic, level, context)
+    # Формируем prompt
+    materials_prompt = ""
+    if materials_list:
+        materials_prompt = f"\nУ тебя есть доступ к следующим учебникам пользователя:\n{materials_list}\n"
+    else:
+        materials_prompt = "\nУ тебя нет загруженных учебников. Попроси пользователя загрузить учебник через раздел 'Моя библиотека'.\n"
+    system_prompt = get_teacher_prompt(topic, level, context) + materials_prompt
     
     # Преобразуем роли для OpenAI и добавляем контекст к первому сообщению пользователя
     openai_messages = [
