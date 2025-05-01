@@ -114,17 +114,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       setError(null);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: Date.now(),
-          user_id: parseInt(localStorage.getItem('user_id') || '0'),
-          chat_id: chatId,
-          role: 'user',
-          message,
-          created_at: new Date().toISOString()
-        }
-      ]);
       let endpoint;
       let body;
       let sessionId = teacherSessionId;
