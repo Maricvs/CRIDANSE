@@ -108,13 +108,17 @@ export default function Chat() {
           </div>
         )}
         {messages.map((msg) => {
-          const isMyMessage = (msg.role === "user" || msg.role === "student") && msg.user_id === currentUserId;
+          // Определяем, является ли сообщение пользовательским
+          const isMyMessage = (
+            (msg.role === "user" && msg.user_id === currentUserId) ||
+            (msg.role === "student" && msg.user_id === currentUserId)
+          );
           return (
             <div
               key={msg.id}
               className={`message ${isMyMessage ? "user-message" : "bot-message"} fade-in`}
             >
-              {msg.message}
+              {msg.message || msg.content}
             </div>
           );
         })}

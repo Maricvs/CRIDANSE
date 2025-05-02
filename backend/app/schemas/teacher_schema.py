@@ -12,6 +12,7 @@ class TeacherMessageCreate(TeacherMessageBase):
 class TeacherMessage(TeacherMessageBase):
     id: int
     session_id: int
+    user_id: int
     created_at: datetime
 
     class Config:

@@ -172,7 +172,18 @@ async def create_message(session_id: int, message: TeacherMessageCreate, db: Ses
 def get_session_messages(session_id: int, db: Session = Depends(get_db)):
     """Возвращает все сообщения для teacher session по session_id"""
     messages = db.query(TeacherMessage).filter(TeacherMessage.session_id == session_id).order_by(TeacherMessage.created_at).all()
-    return messages
+    # Явно возвращаем user_id для каждого сообщения
+    return [
+        {
+            "id": msg.id,
+            "session_id": msg.session_id,
+            "user_id": msg.session.user_id if msg.role == "student" else None,
+            "role": msg.role,
+            "content": msg.content,
+            "created_at": msg.created_at
+        }
+        for msg in messages
+    ]
 
 async def create_teacher_session(
     db: Session,
