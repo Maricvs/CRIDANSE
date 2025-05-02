@@ -108,15 +108,12 @@ export default function Chat() {
           </div>
         )}
         {messages.map((msg) => {
-          // Определяем, является ли сообщение пользовательским
-          const isMyMessage = (
-            (msg.role === "user" && msg.user_id === currentUserId) ||
-            (msg.role === "student" && msg.user_id === currentUserId)
-          );
+          // Новая универсальная логика: ИИ всегда слева, пользователь всегда справа
+          const isBotMessage = msg.role === "assistant" || msg.role === "teacher";
           return (
             <div
               key={msg.id}
-              className={`message ${isMyMessage ? "user-message" : "bot-message"} fade-in`}
+              className={`message ${isBotMessage ? "bot-message" : "user-message"} fade-in`}
             >
               {msg.message}
             </div>
