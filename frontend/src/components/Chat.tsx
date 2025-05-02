@@ -68,6 +68,20 @@ export default function Chat() {
     }
   }, [id, fetchChatInfo, fetchMessages]);
 
+  // Delete empty chat on unmount if no messages
+  useEffect(() => {
+    return () => {
+      if (id && messages.length === 0) {
+        // Call API to delete chat if it is empty
+        fetch(`/api/chats/delete/${id}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, messages.length]);
+
   // Определяем текущий user_id
   const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
 
