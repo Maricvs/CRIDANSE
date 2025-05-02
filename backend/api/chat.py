@@ -73,6 +73,7 @@ def get_messages_by_chat(chat_id: int, db: Session = Depends(get_db)):
         return [
             {
                 "id": msg.id,
+                "user_id": msg.user_id,
                 "role": msg.role,
                 "message": msg.message,
                 "created_at": msg.created_at.isoformat()
