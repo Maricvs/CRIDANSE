@@ -68,15 +68,20 @@ export default function Chat() {
     }
   }, [id, fetchChatInfo, fetchMessages]);
 
-  // Delete empty chat on unmount if no messages
+  // Delete empty chat on unmount if no messages (double check: frontend and backend)
   useEffect(() => {
     return () => {
-      if (id && messages.length === 0) {
-        // Call API to delete chat if it is empty
-        fetch(`/api/chats/delete/${id}`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
-        });
+      if (id) {
+        fetch(`/api/chats/messages/by_chat/${id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (Array.isArray(data) && data.length === 0 && messages.length === 0) {
+              fetch(`/api/chats/delete/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+              });
+            }
+          });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
