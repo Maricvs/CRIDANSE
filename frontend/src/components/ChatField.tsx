@@ -1,7 +1,7 @@
 import { RiChatUploadLine } from "react-icons/ri";
 import { LiaChalkboardTeacherSolid } from "react-icons/lia";
 import { useState, useRef, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../context/ChatContext';
 import '../ChatField.css';
 
@@ -17,12 +17,13 @@ export default function ChatField() {
     topic,
     level
   } = useChat();
+  const navigate = useNavigate();
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
 
     if (!id) {
-      // Создаем новый чат в режиме учителя
+      // Create a new chat with is_teacher_chat based on current mode
       try {
         const response = await fetch('/api/chats/user', {
           method: 'POST',
@@ -31,8 +32,8 @@ export default function ChatField() {
           },
           body: JSON.stringify({
             user_id: parseInt(localStorage.getItem('user_id') || '0'),
-            title: 'New Teacher Chat',
-            is_teacher_chat: true
+            title: isTeacherMode ? 'New Teacher Chat' : 'New Chat',
+            is_teacher_chat: isTeacherMode
           }),
         });
         
@@ -41,6 +42,8 @@ export default function ChatField() {
         const newChat = await response.json();
         await sendMessage(message, newChat.id);
         setMessage('');
+        // Redirect to the new chat after sending the first message
+        navigate(`/chat/${newChat.id}`);
       } catch (error) {
         console.error('Error creating new chat:', error);
       }
