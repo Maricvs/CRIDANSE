@@ -129,6 +129,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           content: message,
           role: 'student'
         });
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body
+        });
+        if (!res.ok) throw new Error("Error sending message");
+        await fetchMessages(chatId);
+        if (sessionId) {
+          const sessionRes = await fetch(`/api/teacher/sessions/${sessionId}`);
+          if (sessionRes.ok) {
+            const session = await sessionRes.json();
+            const lastTeacherMsg = messages.filter(m => m.role === 'teacher').slice(-1)[0];
+            let t = session.topic;
+            let l = session.level;
+            if ((!t || !l) && lastTeacherMsg) {
+              const match = lastTeacherMsg.message.match(/Тема: ([^;]+); Уровень: ([^\n]+)/);
+              if (match) {
+                t = match[1].trim();
+                l = match[2].trim();
+                await fetch(`/api/teacher/sessions/${sessionId}/topic_level`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ topic: t, level: l })
+                });
+              }
+            }
+            setTopic(t || null);
+            setLevel(l || null);
+          }
+        }
       } else {
         endpoint = `/api/chats/message`;
         body = JSON.stringify({ 
@@ -137,36 +167,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           user_id: parseInt(localStorage.getItem('user_id') || '0'),
           role: 'user'
         });
-      }
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body
-      });
-      if (!res.ok) throw new Error("Error sending message");
-      await fetchMessages(chatId);
-      if (isTeacherMode && sessionId) {
-        const sessionRes = await fetch(`/api/teacher/sessions/${sessionId}`);
-        if (sessionRes.ok) {
-          const session = await sessionRes.json();
-          const lastTeacherMsg = messages.filter(m => m.role === 'teacher').slice(-1)[0];
-          let t = session.topic;
-          let l = session.level;
-          if ((!t || !l) && lastTeacherMsg) {
-            const match = lastTeacherMsg.message.match(/Тема: ([^;]+); Уровень: ([^\n]+)/);
-            if (match) {
-              t = match[1].trim();
-              l = match[2].trim();
-              await fetch(`/api/teacher/sessions/${sessionId}/topic_level`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ topic: t, level: l })
-              });
-            }
-          }
-          setTopic(t || null);
-          setLevel(l || null);
-        }
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body
+        });
+        if (!res.ok) throw new Error("Error sending message");
+        const gptRes = await fetch(`/api/gpt/ask`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: message,
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            chat_id: chatId
+          })
+        });
+        if (!gptRes.ok) throw new Error("Error generating AI response");
+        await fetchMessages(chatId);
       }
     } catch (err) {
       setError("Failed to send message");
