@@ -118,7 +118,7 @@ export default function Chat() {
               key={msg.id}
               className={`message ${isMyMessage ? "user-message" : "bot-message"} fade-in`}
             >
-              {msg.message || msg.content}
+              {msg.message}
             </div>
           );
         })}
