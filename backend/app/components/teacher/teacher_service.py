@@ -6,7 +6,7 @@ from app.schemas.teacher_schema import TeacherSessionCreate, TeacherSession as T
 from typing import List
 from app.schemas.message_schema import MessageSchema, MessageBase
 from openai import OpenAI
-from models.models import Profile, Message
+from models.models import Profile, Message, Chat
 from app.components.documents.document_service import get_context_for_query, get_user_documents
 from api.auth import get_current_regular_user
 from app.components.teacher.teacher_materials_service import get_user_materials_list
@@ -130,10 +130,12 @@ async def create_message(session_id: int, message: MessageBase, db: Session = De
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    # Сохраняем сообщение пользователя
+    chat = db.query(Chat).filter(Chat.teacher_session_id == session.id).first()
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found for this teacher session")
     db_message = Message(
         user_id=session.user_id,
-        chat_id=session.chat_id,
+        chat_id=chat.id,
         role=message.role,
         message=message.message
     )
@@ -142,7 +144,7 @@ async def create_message(session_id: int, message: MessageBase, db: Session = De
     db.refresh(db_message)
 
     # Получаем историю сообщений
-    messages = db.query(Message).filter(Message.chat_id == session.chat_id).order_by(Message.created_at).all()
+    messages = db.query(Message).filter(Message.chat_id == chat.id).order_by(Message.created_at).all()
     messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
 
     # Получаем ответ учителя
@@ -157,7 +159,7 @@ async def create_message(session_id: int, message: MessageBase, db: Session = De
     # Сохраняем ответ учителя
     db_teacher_message = Message(
         user_id=session.user_id,
-        chat_id=session.chat_id,
+        chat_id=chat.id,
         role="teacher",
         message=teacher_response
     )
@@ -171,7 +173,10 @@ def get_session_messages(session_id: int, db: Session = Depends(get_db)):
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
-    messages = db.query(Message).filter(Message.chat_id == session.chat_id).order_by(Message.created_at).all()
+    chat = db.query(Chat).filter(Chat.teacher_session_id == session.id).first()
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found for this teacher session")
+    messages = db.query(Message).filter(Message.chat_id == chat.id).order_by(Message.created_at).all()
     return messages
 
 async def create_teacher_session(
