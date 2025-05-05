@@ -10,6 +10,7 @@ import os
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.models import Message
+from app.schemas.message_schema import MessageSchema
 
 router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -24,7 +25,7 @@ class GPTRequest(BaseModel):
 class GPTResponse(BaseModel):
     response: str
 
-@router.post("/ask", response_model=GPTResponse)
+@router.post("/ask", response_model=MessageSchema)
 async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
     try:
         # ✅ Загружаем предыдущие сообщения по чату
@@ -98,8 +99,8 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
             message=reply
         )
         db.add(bot_message)
-
         db.commit()
+        db.refresh(bot_message)
         # 🧠 Генерация названия чата, если это первое сообщение
         from models.models import Chat  # можно наверх, если ещё не импортировано
         chat = db.query(Chat).filter(Chat.id == request.chat_id).first()
@@ -121,7 +122,7 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
             except Exception as title_error:
                 print("Ошибка генерации названия чата:", title_error)
 
-        return {"response": reply}
+        return bot_message
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

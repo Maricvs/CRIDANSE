@@ -6,6 +6,7 @@ from typing import List
 from models.models import Message, Chat
 from fastapi.responses import JSONResponse
 from app.models.teacher_model import TeacherSession
+from app.schemas.message_schema import MessageSchema
 
 router = APIRouter()
 
@@ -16,14 +17,14 @@ class MessageCreate(BaseModel):
     message: str
 
 
-@router.post("/message")
+@router.post("/message", response_model=MessageSchema)
 def save_message(msg: MessageCreate, db: Session = Depends(get_db)):
     try:
         new_msg = Message(**msg.dict())
         db.add(new_msg)
         db.commit()
         db.refresh(new_msg)
-        return {"message": "Saved", "id": new_msg.id}
+        return new_msg
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
