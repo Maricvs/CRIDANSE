@@ -101,14 +101,19 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
         db.add(bot_message)
         db.commit()
         db.refresh(bot_message)
-        # 🧠 Генерация названия чата, если это первое сообщение
+        # 🧠 Генерация названия чата только если сообщений >= 4 и title == "Новый чат"
         from models.models import Chat  # можно наверх, если ещё не импортировано
         chat = db.query(Chat).filter(Chat.id == request.chat_id).first()
-        if chat and chat.title == "Новый чат":
+        all_messages = db.query(Message).filter(Message.chat_id == request.chat_id).order_by(Message.created_at.asc()).all()
+        if chat and chat.title == "Новый чат" and len(all_messages) >= 4:
             try:
+                # Берём первые 2-3 сообщения и ответы
+                context_msgs = []
+                for m in all_messages[:6]:
+                    context_msgs.append(f"{m.role}: {m.message}")
+                context_text = "\n".join(context_msgs)
                 title_prompt = (
-                    f"Придумай короткое и понятное название для чата по следующему сообщению: "
-                    f"\"{request.prompt}\". Оно должно быть не длиннее 5 слов."
+                    f"Придумай короткое и понятное название для чата по этим сообщениям (не длиннее 5 слов):\n{context_text}"
                 )
                 title_response = client.chat.completions.create(
                     model="gpt-4o",
@@ -121,8 +126,13 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
                 db.commit()
             except Exception as title_error:
                 print("Ошибка генерации названия чата:", title_error)
-
-        return bot_message
+        new_title = None
+        if chat and chat.title != "Новый чат":
+            new_title = chat.title
+        # Возвращаем сообщение + новое название (если оно появилось)
+        response_data = MessageSchema.from_orm(bot_message).dict()
+        response_data["new_title"] = new_title
+        return response_data
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

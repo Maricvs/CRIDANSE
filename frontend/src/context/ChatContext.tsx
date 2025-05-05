@@ -9,6 +9,15 @@ interface Message {
   created_at: string;
 }
 
+interface CreatedChat {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  is_teacher_chat?: boolean;
+  teacher_session_id?: number | null;
+}
+
 interface ChatContextType {
   messages: Message[];
   isTeacherMode: boolean;
@@ -21,6 +30,7 @@ interface ChatContextType {
   fetchMessages: (chatId: number) => Promise<void>;
   sendMessage: (message: string, chatId: number) => Promise<void>;
   toggleTeacherMode: (chatId: number) => Promise<void>;
+  createChat: (chat: { user_id?: number, title: string, is_teacher_chat?: boolean }) => Promise<CreatedChat>;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -178,6 +188,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLevel(l || null);
           }
         }
+        if (aiMsg.new_title && typeof aiMsg.new_title === 'string' && aiMsg.new_title !== '') {
+          const chatsRaw = localStorage.getItem('sidebar_chats');
+          if (chatsRaw) {
+            try {
+              const chats = JSON.parse(chatsRaw);
+              const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: aiMsg.new_title } : c);
+              localStorage.setItem('sidebar_chats', JSON.stringify(updated));
+            } catch {}
+          }
+          window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: aiMsg.new_title } }));
+        }
       } else {
         endpoint = `/api/chats/message`;
         body = JSON.stringify({ 
@@ -218,6 +239,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...prev,
           aiMsg
         ]);
+        if (aiMsg.new_title && typeof aiMsg.new_title === 'string' && aiMsg.new_title !== '') {
+          const chatsRaw = localStorage.getItem('sidebar_chats');
+          if (chatsRaw) {
+            try {
+              const chats = JSON.parse(chatsRaw);
+              const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: aiMsg.new_title } : c);
+              localStorage.setItem('sidebar_chats', JSON.stringify(updated));
+            } catch {}
+          }
+          window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: aiMsg.new_title } }));
+        }
       }
     } catch (err) {
       setError("Failed to send message");
@@ -274,6 +306,40 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isTeacherMode, fetchMessages]);
 
+  const createChat = useCallback(async ({ user_id, title, is_teacher_chat = false }: { user_id?: number, title: string, is_teacher_chat?: boolean }) : Promise<CreatedChat> => {
+    setLoading(true);
+    setError(null);
+    try {
+      if (!user_id) {
+        // Temporary (guest) chat
+        const newChat = {
+          id: Date.now(),
+          title,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          isTemporary: true
+        };
+        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
+        localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
+        return newChat;
+      }
+      // Registered user — create via API
+      const response = await fetch('/api/chats/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id, title, is_teacher_chat })
+      });
+      if (!response.ok) throw new Error('Error creating chat');
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      setError('Failed to create chat');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <ChatContext.Provider value={{
       messages,
@@ -287,6 +353,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       fetchMessages,
       sendMessage,
       toggleTeacherMode,
+      createChat,
       setMessages,
       setLoading,
       setError,

@@ -15,7 +15,8 @@ export default function ChatField() {
     sendMessage,
     toggleTeacherMode,
     topic,
-    level
+    level,
+    createChat
   } = useChat();
   const navigate = useNavigate();
 
@@ -25,21 +26,12 @@ export default function ChatField() {
     if (!id) {
       // Create a new chat with is_teacher_chat based on current mode
       try {
-        const response = await fetch('/api/chats/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
-            title: isTeacherMode ? 'New Teacher Chat' : 'New Chat',
-            is_teacher_chat: isTeacherMode
-          }),
+        const user_id = localStorage.getItem('user_id');
+        const newChat = await createChat({
+          user_id: user_id ? parseInt(user_id) : undefined,
+          title: isTeacherMode ? 'New Teacher Chat' : 'New Chat',
+          is_teacher_chat: isTeacherMode
         });
-        
-        if (!response.ok) throw new Error('Failed to create chat');
-        
-        const newChat = await response.json();
         await sendMessage(message, newChat.id);
         setMessage('');
         // Сразу переходим в чат, не дожидаясь fetchMessages/ответа ИИ
@@ -65,21 +57,12 @@ export default function ChatField() {
     if (!id) {
       // Создаем новый чат в режиме учителя
       try {
-        const response = await fetch('/api/chats/user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
-            title: 'New Teacher Chat',
-            is_teacher_chat: true
-          }),
+        const user_id = localStorage.getItem('user_id');
+        const newChat = await createChat({
+          user_id: user_id ? parseInt(user_id) : undefined,
+          title: 'New Teacher Chat',
+          is_teacher_chat: true
         });
-        
-        if (!response.ok) throw new Error('Failed to create chat');
-        
-        const newChat = await response.json();
         await toggleTeacherMode(newChat.id);
       } catch (error) {
         console.error('Error creating new chat:', error);

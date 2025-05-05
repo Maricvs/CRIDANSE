@@ -7,6 +7,7 @@ import {
   FaGlobe, FaQuestionCircle
 } from 'react-icons/fa';
 import '../Sidebar.css';
+import { useChat } from '../context/ChatContext';
 
 interface SidebarProps {
   onCollapse?: (collapsed: boolean) => void;
@@ -36,6 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const userId = localStorage.getItem('user_id');
   const { id: selectedChatId } = useParams();
   const userName = localStorage.getItem('user_name');
+  const { createChat } = useChat();
 
   useEffect(() => {
     const handleResize = () => {
@@ -159,40 +161,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     return () => window.removeEventListener('messageSent', handleMessageSent);
   }, [userId]);
 
-  const handleNewChat = () => {
-    createNewChat();
-  };
+  useEffect(() => {
+    const handleChatTitleUpdated = (e: any) => {
+      const { chatId, newTitle } = e.detail;
+      setChats(prev => prev.map(chat => chat.id === chatId ? { ...chat, title: newTitle } : chat));
+    };
+    window.addEventListener('chatTitleUpdated', handleChatTitleUpdated);
+    return () => window.removeEventListener('chatTitleUpdated', handleChatTitleUpdated);
+  }, []);
 
-  const createNewChat = async () => {
+  const handleNewChat = async () => {
     try {
-      const newChat = {
-        id: Date.now(),
-        title: 'New Chat',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        isTemporary: !userId
-      };
-
-      if (userId) {
-        const response = await fetch('/api/chats/user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: newChat.title, user_id: userId })
-        });
-
-        if (!response.ok) throw new Error('Error creating chat');
-        const data = await response.json();
-        newChat.id = data.id;
-      } else {
-        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-        localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
-      }
-
+      const user_id = userId ? parseInt(userId) : undefined;
+      const newChat = await createChat({ user_id, title: 'New Chat' });
       setChats(prev => [newChat, ...prev]);
       setIsCollapsed(false);
       navigate(`/chat/${newChat.id}`);
     } catch (err) {
-      console.error('Error creating chat:', err);
       alert('Failed to create chat. Please try again later.');
     }
   };
