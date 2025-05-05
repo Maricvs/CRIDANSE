@@ -42,7 +42,7 @@ export default function ChatField() {
         const newChat = await response.json();
         await sendMessage(message, newChat.id);
         setMessage('');
-        // Redirect to the new chat after sending the first message
+        // Сразу переходим в чат, не дожидаясь fetchMessages/ответа ИИ
         navigate(`/chat/${newChat.id}`);
       } catch (error) {
         console.error('Error creating new chat:', error);

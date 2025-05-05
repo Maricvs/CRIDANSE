@@ -131,6 +131,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           content: message,
           role: 'student'
         });
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now(),
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            chat_id: chatId,
+            role: 'student',
+            message,
+            created_at: new Date().toISOString()
+          }
+        ]);
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -169,6 +180,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           user_id: parseInt(localStorage.getItem('user_id') || '0'),
           role: 'user'
         });
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now(),
+            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            chat_id: chatId,
+            role: 'user',
+            message,
+            created_at: new Date().toISOString()
+          }
+        ]);
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
