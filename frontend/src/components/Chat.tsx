@@ -132,4 +132,3 @@ export default function Chat() {
     </div>
   );
 }
-да 
