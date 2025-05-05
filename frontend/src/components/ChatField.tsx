@@ -32,10 +32,13 @@ export default function ChatField() {
           title: isTeacherMode ? 'New Teacher Chat' : 'New Chat',
           is_teacher_chat: isTeacherMode
         });
-        await sendMessage(message, newChat.id);
-        setMessage('');
-        // Сразу переходим в чат, не дожидаясь fetchMessages/ответа ИИ
+        // Сразу переходим в чат, не дожидаясь ответа ИИ
         navigate(`/chat/${newChat.id}`);
+        // Отправляем сообщение асинхронно после перехода
+        setTimeout(() => {
+          sendMessage(message, newChat.id);
+          setMessage('');
+        }, 0);
       } catch (error) {
         console.error('Error creating new chat:', error);
       }
