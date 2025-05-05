@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from db import get_db
-from app.models.teacher_model import TeacherSession, TeacherMessage
-from app.schemas.teacher_schema import TeacherSessionCreate, TeacherMessageCreate, TeacherSession as TeacherSessionSchema
+from app.models.teacher_model import TeacherSession
+from app.schemas.teacher_schema import TeacherSessionCreate, TeacherSession as TeacherSessionSchema
 from typing import List
-from app.schemas.teacher_schema import TeacherMessage as TeacherMessageSchema
+from app.schemas.message_schema import MessageSchema, MessageBase
 from openai import OpenAI
-from models.models import Profile
+from models.models import Profile, Message
 from app.components.documents.document_service import get_context_for_query, get_user_documents
 from api.auth import get_current_regular_user
 from app.components.teacher.teacher_materials_service import get_user_materials_list
@@ -124,66 +124,55 @@ def get_session(session_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Session not found")
     return session
 
-@router.post("/sessions/{session_id}/messages/", response_model=TeacherMessageSchema)
-async def create_message(session_id: int, message: TeacherMessageCreate, db: Session = Depends(get_db)):
-    # Сохраняем сообщение ученика
-    db_message = TeacherMessage(**message.dict())
-    db.add(db_message)
-    
-    # Получаем историю сообщений
-    messages = db.query(TeacherMessage).filter(TeacherMessage.session_id == session_id).all()
-    messages_history = [{"role": msg.role, "content": msg.content} for msg in messages]
-    
-    # Получаем информацию о сессии
+@router.post("/sessions/{session_id}/messages/", response_model=MessageSchema)
+async def create_message(session_id: int, message: MessageBase, db: Session = Depends(get_db)):
+    # Сохраняем сообщение ученика в chats.messages
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
-    # Проверяем, выбрал ли пользователь учебник (по совпадению с названием)
-    if session and message.content:
-        user = db.query(Profile).filter(Profile.id == session.user_id).first()
-        if user:
-            docs = await get_user_documents(db, user)
-            for doc in docs:
-                if doc.title.lower() in message.content.lower():
-                    session.selected_document_id = doc.id
-                    db.commit()
-                    break
-    # Получаем ответ учителя с использованием контекста из документов
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    # Сохраняем сообщение пользователя
+    db_message = Message(
+        user_id=session.user_id,
+        chat_id=session.chat_id,
+        role=message.role,
+        message=message.message
+    )
+    db.add(db_message)
+    db.commit()
+    db.refresh(db_message)
+
+    # Получаем историю сообщений
+    messages = db.query(Message).filter(Message.chat_id == session.chat_id).order_by(Message.created_at).all()
+    messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
+
+    # Получаем ответ учителя
     teacher_response = await get_teacher_response(
-        messages_history, 
-        session.topic, 
+        messages_history,
+        session.topic,
         session.level,
-        session.user_id,  # Добавляем ID пользователя для получения контекста
+        session.user_id,
         db,
         session
     )
-    
     # Сохраняем ответ учителя
-    db_teacher_message = TeacherMessage(
-        session_id=session_id,
-        content=teacher_response,
-        role="teacher"
+    db_teacher_message = Message(
+        user_id=session.user_id,
+        chat_id=session.chat_id,
+        role="teacher",
+        message=teacher_response
     )
     db.add(db_teacher_message)
-    
     db.commit()
     db.refresh(db_teacher_message)
     return db_teacher_message
 
-@router.get("/sessions/{session_id}/messages/", response_model=List[TeacherMessageSchema])
+@router.get("/sessions/{session_id}/messages/", response_model=List[MessageSchema])
 def get_session_messages(session_id: int, db: Session = Depends(get_db)):
-    """Возвращает все сообщения для teacher session по session_id"""
-    messages = db.query(TeacherMessage).filter(TeacherMessage.session_id == session_id).order_by(TeacherMessage.created_at).all()
     session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
-    return [
-        {
-            "id": msg.id,
-            "session_id": msg.session_id,
-            "user_id": session.user_id,  # всегда id владельца сессии
-            "role": msg.role,
-            "content": msg.content,
-            "created_at": msg.created_at
-        }
-        for msg in messages
-    ]
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    messages = db.query(Message).filter(Message.chat_id == session.chat_id).order_by(Message.created_at).all()
+    return messages
 
 async def create_teacher_session(
     db: Session,
@@ -222,23 +211,24 @@ async def send_teacher_message(
     user: Profile,
     session_id: int,
     message: str
-) -> TeacherMessage:
+) -> Message:
     """Отправляет сообщение в сессию учителя и получает ответ"""
     # Проверяем существование сессии
     session = await get_teacher_session(db, user, session_id)
-    
-    # Сохраняем сообщение ученика
-    student_message = TeacherMessage(
-        session_id=session_id,
-        content=message,
-        role="student"
+
+    # Сохраняем сообщение ученика в Message
+    student_message = Message(
+        user_id=user.id,
+        chat_id=session.chat_id,
+        role="student",
+        message=message
     )
     db.add(student_message)
-    
+
     # Получаем историю сообщений
-    messages = db.query(TeacherMessage).filter(TeacherSession.id == session_id).all()
-    messages_history = [{"role": msg.role, "content": msg.content} for msg in messages]
-    
+    messages = db.query(Message).filter(Message.chat_id == session.chat_id).all()
+    messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
+
     # Получаем ответ учителя
     teacher_response = await get_teacher_response(
         messages_history,
@@ -248,15 +238,16 @@ async def send_teacher_message(
         db,
         session
     )
-    
-    # Сохраняем ответ учителя
-    teacher_message = TeacherMessage(
-        session_id=session_id,
-        content=teacher_response,
-        role="teacher"
+
+    # Сохраняем ответ учителя в Message
+    teacher_message = Message(
+        user_id=user.id,
+        chat_id=session.chat_id,
+        role="teacher",
+        message=teacher_response
     )
     db.add(teacher_message)
-    
+
     db.commit()
     db.refresh(teacher_message)
     return teacher_message
@@ -302,7 +293,7 @@ async def ask_teacher_advanced(
     )
     
     return {
-        "response": message.content,
+        "response": message.message,
         "session_id": session_id
     }
 

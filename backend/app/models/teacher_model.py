@@ -16,18 +16,5 @@ class TeacherSession(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     selected_document_id = Column(Integer, ForeignKey("documents.documents.id"), nullable=True)
     
-    messages = relationship("TeacherMessage", back_populates="session")
     # Если потребуется связь с Profile:
     # user = relationship("Profile")
-
-class TeacherMessage(Base):
-    __tablename__ = "teacher_messages"
-    __table_args__ = {"schema": "teacher"}
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("teacher.teacher_sessions.id"))
-    role = Column(String(50))  # teacher, student
-    content = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    session = relationship("TeacherSession", back_populates="messages")
