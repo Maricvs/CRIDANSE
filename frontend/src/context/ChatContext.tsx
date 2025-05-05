@@ -119,6 +119,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let endpoint;
       let body;
       let sessionId = teacherSessionId;
+      const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
       if (isTeacherMode) {
         if (!sessionId) {
           await fetchChatInfo(chatId);
@@ -135,7 +136,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...prev,
           {
             id: Date.now(),
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            user_id: currentUserId,
             chat_id: chatId,
             role: 'student',
             message,
@@ -148,12 +149,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           body
         });
         if (!res.ok) throw new Error("Error sending message");
-        await fetchMessages(chatId);
+        const aiMsg = await res.json();
+        setMessages(prev => [
+          ...prev,
+          aiMsg
+        ]);
         if (sessionId) {
           const sessionRes = await fetch(`/api/teacher/sessions/${sessionId}`);
           if (sessionRes.ok) {
             const session = await sessionRes.json();
-            const lastTeacherMsg = messages.filter(m => m.role === 'teacher').slice(-1)[0];
+            const lastTeacherMsg = aiMsg.role === 'teacher' ? aiMsg : null;
             let t = session.topic;
             let l = session.level;
             if ((!t || !l) && lastTeacherMsg) {
@@ -177,14 +182,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body = JSON.stringify({ 
           chat_id: chatId, 
           message,
-          user_id: parseInt(localStorage.getItem('user_id') || '0'),
+          user_id: currentUserId,
           role: 'user'
         });
         setMessages(prev => [
           ...prev,
           {
             id: Date.now(),
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            user_id: currentUserId,
             chat_id: chatId,
             role: 'user',
             message,
@@ -202,12 +207,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             prompt: message,
-            user_id: parseInt(localStorage.getItem('user_id') || '0'),
+            user_id: currentUserId,
             chat_id: chatId
           })
         });
         if (!gptRes.ok) throw new Error("Error generating AI response");
-        await fetchMessages(chatId);
+        const aiMsg = await gptRes.json();
+        setMessages(prev => [
+          ...prev,
+          aiMsg
+        ]);
       }
     } catch (err) {
       setError("Failed to send message");
@@ -215,7 +224,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, fetchMessages, fetchChatInfo, messages]);
+  }, [isTeacherMode, teacherSessionId, fetchChatInfo]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
