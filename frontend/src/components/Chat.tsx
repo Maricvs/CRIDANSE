@@ -35,17 +35,12 @@ export default function Chat() {
   // Прокрутка при изменении сообщений
   useEffect(() => {
     if (messages.length > 0) {
-      scrollToBottom();
+      scrollToBottom('auto'); // всегда мгновенно, без анимации
     }
   }, [messages.length, scrollToBottom]);
 
   // Начальная прокрутка после загрузки
-  useEffect(() => {
-    if (!loading && messages.length > 0 && !initialScrollDoneRef.current) {
-      scrollToBottom("auto");
-      initialScrollDoneRef.current = true;
-    }
-  }, [loading, messages.length, scrollToBottom]);
+  // (этот useEffect можно удалить, т.к. теперь всегда auto)
 
   // Прокрутка при изменении размера окна
   useEffect(() => {
