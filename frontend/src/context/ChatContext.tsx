@@ -95,10 +95,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
-      const formattedMessages = data.map((msg: any) => ({
+      const formattedMessages = data.map((msg: Message) => ({
         id: msg.id,
+        user_id: msg.user_id,
+        chat_id: msg.chat_id,
         role: msg.role,
-        message: msg.content || msg.message,
+        message: msg.message,
         created_at: msg.created_at
       }));
       setMessages(formattedMessages);
