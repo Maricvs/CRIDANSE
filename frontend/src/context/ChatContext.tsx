@@ -127,10 +127,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         if (!sessionId) throw new Error("No teacher session for this chat");
         endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
-        body = JSON.stringify({ 
-          session_id: sessionId,
-          content: message,
-          role: 'student'
+        body = JSON.stringify({
+          user_id: currentUserId,
+          chat_id: chatId,
+          role: 'student',
+          message
         });
         setMessages(prev => [
           ...prev,
