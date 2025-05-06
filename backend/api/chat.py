@@ -185,12 +185,12 @@ def update_chat(chat_id: int, body: dict, db: Session = Depends(get_db)):
         chat = db.query(Chat).filter(Chat.id == chat_id).first()
         if not chat:
             raise HTTPException(status_code=404, detail="Chat not found")
-        
         if "is_teacher_chat" in body:
             chat.is_teacher_chat = body["is_teacher_chat"]
+            if not body["is_teacher_chat"]:
+                chat.teacher_session_id = None
         if "teacher_session_id" in body:
             chat.teacher_session_id = body["teacher_session_id"]
-        
         db.commit()
         return {"message": "Chat updated"}
     except Exception as e:
