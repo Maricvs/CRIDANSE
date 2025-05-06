@@ -87,8 +87,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(true);
       setError(null);
       let endpoint;
-      let sessionId = teacherSessionId;
-      if (isTeacherMode) {
+      if (!isTeacherMode) {
+        endpoint = `/api/chats/messages/by_chat/${chatId}`;
+      } else {
+        let sessionId = teacherSessionId;
         if (!sessionId) {
           await fetchChatInfo(chatId);
           sessionId = teacherSessionId;
@@ -99,8 +101,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setMessages([]);
           return;
         }
-      } else {
-        endpoint = `/api/chats/messages/by_chat/${chatId}`;
       }
       const res = await fetch(endpoint);
       if (!res.ok) throw new Error("Error loading messages");
