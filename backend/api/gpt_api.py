@@ -10,7 +10,7 @@ import os
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.models import Message
-from app.schemas.message_schema import MessageSchema
+from app.schemas.message_schema import MessageSchema, AskGptResponse
 
 router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -25,7 +25,7 @@ class GPTRequest(BaseModel):
 class GPTResponse(BaseModel):
     response: str
 
-@router.post("/ask", response_model=MessageSchema)
+@router.post("/ask", response_model=AskGptResponse)
 async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
     try:
         # ✅ Загружаем предыдущие сообщения по чату
@@ -130,8 +130,10 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
         if chat and chat.title != "Новый чат":
             new_title = chat.title
         # Возвращаем сообщение + новое название (если оно появилось)
-        response_data = MessageSchema.from_orm(bot_message).dict()
-        response_data["new_title"] = new_title
+        response_data = AskGptResponse(
+            message=MessageSchema.from_orm(bot_message),
+            new_title=new_title
+        )
         return response_data
 
     except Exception as e:

@@ -16,4 +16,8 @@ class MessageSchema(MessageBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True 
+        orm_mode = True
+
+class AskGptResponse(BaseModel):
+    message: MessageSchema
+    new_title: Optional[str] = None 

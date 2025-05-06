@@ -130,6 +130,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let body;
       let sessionId = teacherSessionId;
       const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
+
       if (isTeacherMode) {
         if (!sessionId) {
           await fetchChatInfo(chatId);
@@ -234,21 +235,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           })
         });
         if (!gptRes.ok) throw new Error("Error generating AI response");
-        const aiMsg = await gptRes.json();
+        const gptData = await gptRes.json();
         setMessages(prev => [
           ...prev,
-          aiMsg
+          gptData.message
         ]);
-        if (aiMsg.new_title && typeof aiMsg.new_title === 'string' && aiMsg.new_title !== '') {
+        if (gptData.new_title && typeof gptData.new_title === 'string' && gptData.new_title !== '') {
           const chatsRaw = localStorage.getItem('sidebar_chats');
           if (chatsRaw) {
             try {
               const chats = JSON.parse(chatsRaw);
-              const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: aiMsg.new_title } : c);
+              const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: gptData.new_title } : c);
               localStorage.setItem('sidebar_chats', JSON.stringify(updated));
             } catch {}
           }
-          window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: aiMsg.new_title } }));
+          window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: gptData.new_title } }));
         }
       }
     } catch (err) {
