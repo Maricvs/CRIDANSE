@@ -297,6 +297,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!res.ok) throw new Error("Error toggling teacher mode");
         setTeacherSessionId(null);
         setIsTeacherMode(false);
+        setTopic(null);
+        setLevel(null);
       }
       await fetchMessages(chatId);
     } catch (err) {

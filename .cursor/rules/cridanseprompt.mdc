@@ -10,7 +10,7 @@ Project Overview
 You are working within the Unlim Mind AI project. Follow strictly the existing project structure and conventions.
 
 GPT Model & Modes
-	•	GPT Model: Use OpenAI GPT-3.5 turbo.
+	•	GPT Model: Use OpenAI GPT-4o.
 	•	Chat Modes: Implement two primary modes:
 	•	Normal Chat (standard conversation mode)
 	•	Teacher Mode (educational guidance, specific formatting for tutoring interactions)
