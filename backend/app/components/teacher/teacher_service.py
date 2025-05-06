@@ -269,6 +269,8 @@ async def ask_teacher_advanced(
     prompt = request.get("prompt")
     session_id = request.get("session_id")
     user_id = request.get("user_id")
+    topic = request.get("topic")
+    level = request.get("level")
     
     # Проверяем, что user_id совпадает с текущим пользователем
     if user_id != current_user.id:
@@ -277,14 +279,17 @@ async def ask_teacher_advanced(
             detail="Доступ запрещен"
         )
     
-    # Если session_id не указан, создаем новую сессию без topic/level
-    if not session_id:
+    # Если topic определён, ищем или создаём сессию по (user_id, topic)
+    if topic:
+        session = get_or_create_teacher_session(db, current_user.id, topic, level)
+        session_id = session.id
+    elif not session_id:
+        # Если topic не определён и session_id не указан, создаём временную сессию
         session = await create_teacher_session(
             db, 
             current_user, 
             TeacherSessionCreate(
                 user_id=current_user.id
-                # topic и level не передаем, пусть будут None
             )
         )
         session_id = session.id
@@ -314,6 +319,19 @@ def update_topic_level(session_id: int, data: dict = Body(...), db: Session = De
         session.topic = topic
     if level is not None:
         session.level = level
+    db.commit()
+    db.refresh(session)
+    return session
+
+def get_or_create_teacher_session(db: Session, user_id: int, topic: str, level: str = None) -> TeacherSession:
+    session = db.query(TeacherSession).filter(
+        TeacherSession.user_id == user_id,
+        TeacherSession.topic == topic
+    ).first()
+    if session:
+        return session
+    session = TeacherSession(user_id=user_id, topic=topic, level=level)
+    db.add(session)
     db.commit()
     db.refresh(session)
     return session 
