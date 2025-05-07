@@ -122,18 +122,58 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
 
       if (isTeacherMode) {
-        if (!sessionId) {
-          await fetchChatInfo(chatId);
-          sessionId = teacherSessionId;
+        // Если тема не определена, пробуем определить её из сообщения
+        if (!topic) {
+          const topicMatch = message.match(/тема[:\s]+([^.,;]+)/i) || 
+                           message.match(/хочу изучать ([^.,;]+)/i) ||
+                           message.match(/интересует ([^.,;]+)/i);
+          if (topicMatch) {
+            const detectedTopic = topicMatch[1].trim();
+            // Ищем существующую сессию с этой темой
+            const existingSessionRes = await fetch('/api/teacher/sessions/', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: currentUserId,
+                topic: detectedTopic
+              })
+            });
+            if (existingSessionRes.ok) {
+              const existingSession = await existingSessionRes.json();
+              // Обновляем chat с новой сессией
+              await fetch(`/api/chats/${chatId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  teacher_session_id: existingSession.id 
+                })
+              });
+              sessionId = existingSession.id;
+              setTeacherSessionId(existingSession.id);
+              setTopic(existingSession.topic);
+              setLevel(existingSession.level);
+            }
+          }
         }
-        if (!sessionId) throw new Error("No teacher session for this chat");
-        endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
-        body = JSON.stringify({
-          user_id: currentUserId,
-          chat_id: chatId,
-          role: 'student',
-          message
-        });
+
+        if (!sessionId) {
+          // Если сессия не найдена, отправляем сообщение через /ask endpoint
+          endpoint = '/api/teacher/ask';
+          body = JSON.stringify({
+            prompt: message,
+            user_id: currentUserId,
+            chat_id: chatId
+          });
+        } else {
+          endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
+          body = JSON.stringify({
+            user_id: currentUserId,
+            chat_id: chatId,
+            role: 'student',
+            message
+          });
+        }
+
         setMessages(prev => [
           ...prev,
           {
@@ -145,6 +185,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             created_at: new Date().toISOString()
           }
         ]);
+
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -156,39 +197,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...prev,
           aiMsg
         ]);
-        if (sessionId) {
-          const sessionRes = await fetch(`/api/teacher/sessions/${sessionId}`);
+
+        if (aiMsg.session_id) {
+          setTeacherSessionId(aiMsg.session_id);
+          const sessionRes = await fetch(`/api/teacher/sessions/${aiMsg.session_id}`);
           if (sessionRes.ok) {
             const session = await sessionRes.json();
-            const lastTeacherMsg = aiMsg.role === 'teacher' ? aiMsg : null;
-            let t = session.topic;
-            let l = session.level;
-            if ((!t || !l) && lastTeacherMsg) {
-              const match = lastTeacherMsg.message.match(/Тема: ([^;]+); Уровень: ([^\n]+)/);
-              if (match) {
-                t = match[1].trim();
-                l = match[2].trim();
-                await fetch(`/api/teacher/sessions/${sessionId}/topic_level`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ topic: t, level: l })
-                });
-              }
-            }
-            setTopic(t || null);
-            setLevel(l || null);
+            setTopic(session.topic || null);
+            setLevel(session.level || null);
           }
-        }
-        if (aiMsg.new_title && typeof aiMsg.new_title === 'string' && aiMsg.new_title !== '') {
-          const chatsRaw = localStorage.getItem('sidebar_chats');
-          if (chatsRaw) {
-            try {
-              const chats = JSON.parse(chatsRaw);
-              const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: aiMsg.new_title } : c);
-              localStorage.setItem('sidebar_chats', JSON.stringify(updated));
-            } catch {}
-          }
-          window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: aiMsg.new_title } }));
         }
       } else {
         endpoint = `/api/chats/message`;
@@ -248,34 +265,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, fetchChatInfo]);
+  }, [isTeacherMode, teacherSessionId, topic]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
       setLoading(true);
       setError(null);
       if (!isTeacherMode) {
-        const sessionRes = await fetch('/api/teacher/sessions/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: parseInt(localStorage.getItem('user_id') || '0')
-          })
-        });
-        if (!sessionRes.ok) throw new Error("Error creating teacher session");
-        const session = await sessionRes.json();
+        // При включении режима учителя не создаем сессию сразу
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             is_teacher_chat: true,
-            teacher_session_id: session.id 
+            teacher_session_id: null 
           })
         });
         if (!res.ok) throw new Error("Error toggling teacher mode");
-        setTeacherSessionId(session.id);
         setIsTeacherMode(true);
       } else {
+        // При выключении режима учителя просто отключаем функционал
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -285,11 +294,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           })
         });
         if (!res.ok) throw new Error("Error toggling teacher mode");
+        
+        // Очищаем состояние учительского режима
         setTeacherSessionId(null);
         setIsTeacherMode(false);
         setTopic(null);
         setLevel(null);
       }
+      
+      // Обновляем сообщения с правильного эндпоинта
       await fetchMessages(chatId);
     } catch (err) {
       setError("Failed to toggle teacher mode");

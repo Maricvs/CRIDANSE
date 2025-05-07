@@ -33,12 +33,14 @@ def get_teacher_prompt(topic: str = None, level: str = None, context: str = "") 
         \nЕсли ты определил тему и уровень ученика, обязательно явно сообщи об этом в ответе в формате: 'Тема: <...>; Уровень: <...>'."""
     else:
         base_prompt = (
-            "Ты — опытный преподаватель. Твоя задача — сначала выяснить, что именно интересует ученика"
-            "Задавай наводящие вопросы, чтобы определить тему, после как узнал тему задавай вопросы по этой теме или задачки чтобы получить ответ и определить уровень, не делай предположений без явных признаков. "
-            "Когда поймёшь, что ученик хочет изучать и на каком он уровне — начни обучение по этим параметрам. "
-            "Не давай прямых ответов на учебные задания, а помогай через подсказки и вопросы. "
-            "Используй загруженные материалы, если они есть, и цитируй источники при необходимости. "
-            "Если ты определил тему и уровень ученика, обязательно явно сообщи об этом в ответе в формате: 'Тема: <...>; Уровень: <...>'."
+            "Ты — опытный преподаватель. Твоя задача — определить, какую тему хочет изучать ученик.\n"
+            "1. Если ученик явно указывает тему (например, 'хочу изучать математику' или 'тема: физика'), "
+            "спроси, хочет ли он продолжить существующую сессию по этой теме или начать новую.\n"
+            "2. Если ученик не указывает тему, задавай наводящие вопросы, чтобы определить, что именно его интересует.\n"
+            "3. После определения темы, задай вопросы для определения уровня знаний ученика.\n"
+            "4. Не создавай новую сессию, пока не убедишься, что ученик хочет изучать новую тему.\n"
+            "5. Если ученик хочет продолжить существующую сессию, используй контекст из предыдущих сообщений.\n"
+            "Когда определишь тему и уровень, сообщи об этом в формате: 'Тема: <...>; Уровень: <...>'."
         )
     if context:
         context_prompt = f"""
@@ -111,6 +113,16 @@ async def get_teacher_response(messages: List[dict], topic: str, level: str, use
 
 @router.post("/sessions/", response_model=TeacherSessionSchema)
 def create_session(session: TeacherSessionCreate, db: Session = Depends(get_db)):
+    # Если указана тема, ищем существующую сессию
+    if session.topic:
+        existing_session = db.query(TeacherSession).filter(
+            TeacherSession.user_id == session.user_id,
+            TeacherSession.topic == session.topic
+        ).first()
+        if existing_session:
+            return existing_session
+    
+    # Если сессия не найдена или тема не указана, создаем новую
     db_session = TeacherSession(**session.dict())
     db.add(db_session)
     db.commit()
@@ -185,6 +197,16 @@ async def create_teacher_session(
     session_data: TeacherSessionCreate
 ) -> TeacherSession:
     """Создает новую сессию учителя для пользователя"""
+    # Если указана тема, проверяем существующие сессии
+    if session_data.topic:
+        existing_session = db.query(TeacherSession).filter(
+            TeacherSession.user_id == user.id,
+            TeacherSession.topic == session_data.topic
+        ).first()
+        if existing_session:
+            return existing_session
+    
+    # Если сессия не найдена или тема не указана, создаем новую
     db_session = TeacherSession(
         user_id=user.id,
         topic=session_data.topic,
