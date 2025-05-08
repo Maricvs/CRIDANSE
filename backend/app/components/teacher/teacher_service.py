@@ -237,6 +237,7 @@ async def send_teacher_message(
     db: Session,
     user: Profile,
     session_id: int,
+    chat_id: int, 
     message: str
 ) -> Message:
     """Отправляет сообщение в сессию учителя и получает ответ"""
@@ -246,14 +247,14 @@ async def send_teacher_message(
     # Сохраняем сообщение ученика в Message
     student_message = Message(
         user_id=user.id,
-        chat_id=session.chat_id,
+        chat_id=chat_id,
         role="student",
         message=message
     )
     db.add(student_message)
 
     # Получаем историю сообщений
-    messages = db.query(Message).filter(Message.chat_id == session.chat_id).all()
+    messages = db.query(Message).filter(Message.chat_id == chat_id).all()
     messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
 
     # Получаем ответ учителя
@@ -269,7 +270,7 @@ async def send_teacher_message(
     # Сохраняем ответ учителя в Message
     teacher_message = Message(
         user_id=user.id,
-        chat_id=session.chat_id,
+        chat_id=chat_id,
         role="teacher",
         message=teacher_response
     )
@@ -289,6 +290,7 @@ async def ask_teacher_advanced(
     Продвинутый endpoint для режима учителя с параметрами topic и level
     """
     prompt = request.get("prompt")
+    chat_id = request.get("chat_id")
     session_id = request.get("session_id")
     user_id = request.get("user_id")
     topic = request.get("topic")
@@ -321,6 +323,7 @@ async def ask_teacher_advanced(
         db,
         current_user,
         session_id,
+        chat_id,
         prompt
     )
     
