@@ -69,8 +69,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const authToken = localStorage.getItem('auth_token');
-
-  const parseJwt = (token: string) => JSON.parse(atob(token.split('.')[1]));
   
   const currentUserId = getUserIdFromToken(authToken);
   if (!currentUserId) throw new Error('User not authenticated');
