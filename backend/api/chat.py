@@ -93,23 +93,12 @@ class ChatCreate(BaseModel):
 @router.post("/user")
 def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
     try:
-        teacher_session_id = None
-        if chat.is_teacher_chat:
-            # Создаем teacher session без topic и level
-            session = TeacherSession(
-                user_id=chat.user_id
-                # topic и level не передаем!
-            )
-            db.add(session)
-            db.commit()
-            db.refresh(session)
-            teacher_session_id = session.id
-
+        # teacher_session_id всегда None при создании чата
         new_chat = Chat(
             user_id=chat.user_id, 
             title=chat.title,
             is_teacher_chat=chat.is_teacher_chat,
-            teacher_session_id=teacher_session_id
+            teacher_session_id=None
         )
         db.add(new_chat)
         db.commit()
