@@ -280,7 +280,7 @@ async def send_teacher_message(
     db.refresh(teacher_message)
     return teacher_message
 
-@router.post("/ask")
+@router.post("/ask", response_model=MessageSchema)
 async def ask_teacher_advanced(
     request: dict,
     db: Session = Depends(get_db),
@@ -315,15 +315,23 @@ async def ask_teacher_advanced(
             chat_id,
             prompt
         )
-        return {
-            "response": message.message,
-            "session_id": session_id
-        }
+        return message
     else:
-        # Если topic не определён, НЕ создаём сессию, просто возвращаем ответ ИИ
-        # Получаем историю сообщений чата
+        # Если topic не определён, сохраняем сообщение пользователя и ответ ИИ в Message
+        # 1. Сохраняем сообщение пользователя
+        db_user_message = Message(
+            user_id=current_user.id,
+            chat_id=chat_id,
+            role="student",
+            message=prompt
+        )
+        db.add(db_user_message)
+        db.commit()
+        db.refresh(db_user_message)
+        # 2. Получаем историю сообщений (включая только что добавленное)
         messages = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at).all()
         messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
+        # 3. Получаем ответ учителя
         teacher_response = await get_teacher_response(
             messages_history,
             topic=None,
@@ -332,9 +340,18 @@ async def ask_teacher_advanced(
             db=db,
             session=None
         )
-        return {
-            "response": teacher_response
-        }
+        # 4. Сохраняем ответ учителя
+        db_teacher_message = Message(
+            user_id=current_user.id,
+            chat_id=chat_id,
+            role="teacher",
+            message=teacher_response
+        )
+        db.add(db_teacher_message)
+        db.commit()
+        db.refresh(db_teacher_message)
+        # 5. Возвращаем последнее сообщение учителя
+        return db_teacher_message
 
 @router.put("/sessions/{session_id}/topic_level", response_model=TeacherSessionSchema)
 def update_topic_level(session_id: int, data: dict = Body(...), db: Session = Depends(get_db)):
