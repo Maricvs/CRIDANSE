@@ -68,10 +68,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const authToken = localStorage.getItem('auth_token');
+  const authToken = localStorage.getItem('user_token');
   const currentUserId = getUserIdFromToken(authToken);
   if (!currentUserId) {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
     localStorage.removeItem('user_refresh_token');
