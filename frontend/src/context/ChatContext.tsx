@@ -71,7 +71,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const authToken = localStorage.getItem('auth_token');
   
   const currentUserId = getUserIdFromToken(authToken);
-  if (!currentUserId) throw new Error('User not authenticated');
+  if (!currentUserId) {
+    window.location.href = '/auth';
+    return null;
+  }
 
   const fetchChatInfo = useCallback(async (chatId: number) => {
     try {
