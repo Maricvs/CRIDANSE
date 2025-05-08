@@ -307,30 +307,34 @@ async def ask_teacher_advanced(
     if topic:
         session = get_or_create_teacher_session(db, current_user.id, topic, level)
         session_id = session.id
-    elif not session_id:
-        # Если topic не определён и session_id не указан, создаём временную сессию
-        session = await create_teacher_session(
-            db, 
-            current_user, 
-            TeacherSessionCreate(
-                user_id=current_user.id
-            )
+        # Отправляем сообщение и получаем ответ
+        message = await send_teacher_message(
+            db,
+            current_user,
+            session_id,
+            chat_id,
+            prompt
         )
-        session_id = session.id
-    
-    # Отправляем сообщение и получаем ответ
-    message = await send_teacher_message(
-        db,
-        current_user,
-        session_id,
-        chat_id,
-        prompt
-    )
-    
-    return {
-        "response": message.message,
-        "session_id": session_id
-    }
+        return {
+            "response": message.message,
+            "session_id": session_id
+        }
+    else:
+        # Если topic не определён, НЕ создаём сессию, просто возвращаем ответ ИИ
+        # Получаем историю сообщений чата
+        messages = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.created_at).all()
+        messages_history = [{"role": msg.role, "content": msg.message} for msg in messages]
+        teacher_response = await get_teacher_response(
+            messages_history,
+            topic=None,
+            level=None,
+            user_id=current_user.id,
+            db=db,
+            session=None
+        )
+        return {
+            "response": teacher_response
+        }
 
 @router.put("/sessions/{session_id}/topic_level", response_model=TeacherSessionSchema)
 def update_topic_level(session_id: int, data: dict = Body(...), db: Session = Depends(get_db)):
