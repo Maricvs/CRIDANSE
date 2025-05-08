@@ -161,11 +161,11 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
         if existing:
             # Создаем токен для существующего пользователя
             access_token = create_user_access_token(
-                data={"sub": existing.email},
+                data={"sub": existing.email, "user_id": str(existing.id)},
                 expires_delta=timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
             )
             refresh_token = create_user_refresh_token(
-                data={"sub": existing.email}
+                data={"sub": existing.email, "user_id": str(existing.id)}
             )
             response_data = {
                 "message": "User already exists",
@@ -190,11 +190,11 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
         
         # Создаем токен для нового пользователя
         access_token = create_user_access_token(
-            data={"sub": new_user.email},
+            data={"sub": new_user.email, "user_id": str(new_user.id)},
             expires_delta=timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
         )
         refresh_token = create_user_refresh_token(
-            data={"sub": new_user.email}
+            data={"sub": new_user.email, "user_id": str(new_user.id)}
         )
         response_data = {
             "message": "User created",

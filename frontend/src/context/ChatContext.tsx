@@ -40,6 +40,25 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
+// Получение user_id из JWT токена без внешних зависимостей
+const getUserIdFromToken = (token: string | null): number | undefined => {
+  if (!token) return undefined;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const decoded = JSON.parse(jsonPayload);
+    return decoded.user_id ? parseInt(decoded.user_id, 10) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
@@ -53,6 +72,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const parseJwt = (token: string) => JSON.parse(atob(token.split('.')[1]));
   
+  const currentUserId = getUserIdFromToken(authToken);
+  if (!currentUserId) throw new Error('User not authenticated');
 
   const fetchChatInfo = useCallback(async (chatId: number) => {
     try {
@@ -128,7 +149,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let endpoint;
       let body;
       let sessionId = teacherSessionId;
-      const currentUserId = authToken ? parseJwt(authToken).sub : 0;
 
       if (isTeacherMode) {
         // Если тема не определена, пробуем определить её из сообщения
