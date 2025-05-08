@@ -206,17 +206,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         }
 
-        setMessages(prev => [
-          ...prev,
-          {
-            id: Date.now(),
-            user_id: currentUserId,
-            chat_id: chatId,
-            role: 'student',
-            message,
-            created_at: new Date().toISOString()
-          }
-        ]);
+        if (typeof currentUserId === 'number') {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now(),
+              user_id: currentUserId,
+              chat_id: chatId,
+              role: 'student',
+              message,
+              created_at: new Date().toISOString()
+            }
+          ]);
+        }
 
         const res = await fetch(endpoint, {
           method: 'POST',
@@ -247,17 +249,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           user_id: currentUserId,
           role: 'user'
         });
-        setMessages(prev => [
-          ...prev,
-          {
-            id: Date.now(),
-            user_id: currentUserId,
-            chat_id: chatId,
-            role: 'user',
-            message,
-            created_at: new Date().toISOString()
-          }
-        ]);
+        if (typeof currentUserId === 'number') {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now(),
+              user_id: currentUserId,
+              chat_id: chatId,
+              role: 'student',
+              message,
+              created_at: new Date().toISOString()
+            }
+          ]);
+        }
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
