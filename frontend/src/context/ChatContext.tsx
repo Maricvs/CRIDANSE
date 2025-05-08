@@ -69,11 +69,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [error, setError] = useState<string | null>(null);
 
   const authToken = localStorage.getItem('auth_token');
-  
   const currentUserId = getUserIdFromToken(authToken);
   if (!currentUserId) {
-    window.location.href = '/auth';
-    return null;
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_refresh_token');
+    // Не делаем return null, не делаем редирект, просто позволяем UI работать как для неавторизованного пользователя
   }
 
   const fetchChatInfo = useCallback(async (chatId: number) => {
