@@ -51,6 +51,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const authToken = localStorage.getItem('auth_token');
 
+  const parseJwt = (token: string) => JSON.parse(atob(token.split('.')[1]));
+  
+
   const fetchChatInfo = useCallback(async (chatId: number) => {
     try {
       setLoading(true);
@@ -125,7 +128,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       let endpoint;
       let body;
       let sessionId = teacherSessionId;
-      const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
+      const currentUserId = authToken ? parseJwt(authToken).sub : 0;
 
       if (isTeacherMode) {
         // Если тема не определена, пробуем определить её из сообщения
