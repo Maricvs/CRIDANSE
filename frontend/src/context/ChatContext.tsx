@@ -89,7 +89,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await res.json();
       setIsTeacherMode(data.is_teacher_chat);
       setTeacherSessionId(data.teacher_session_id || null);
-      if (data.teacher_session_id) {
+      if (data.is_teacher_chat && data.teacher_session_id) {
         const sessionRes = await fetch(`/api/teacher/sessions/${data.teacher_session_id}`);
         if (sessionRes.ok) {
           const session = await sessionRes.json();
@@ -100,6 +100,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLevel(null);
         }
       } else {
+        // Always clear topic and level if not in teacher mode, even if teacher_session_id exists
         setTopic(null);
         setLevel(null);
       }
