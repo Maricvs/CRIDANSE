@@ -152,7 +152,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       let endpoint;
       let body;
-      let sessionId = teacherSessionId;
+      let sessionId = isTeacherMode ? teacherSessionId : null;
 
       if (isTeacherMode) {
         // Если тема не определена, пробуем определить её из сообщения
@@ -257,7 +257,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: Date.now(),
               user_id: currentUserId,
               chat_id: chatId,
-              role: 'student',
+              role: 'user',
               message,
               created_at: new Date().toISOString()
             }
