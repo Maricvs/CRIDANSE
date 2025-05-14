@@ -152,7 +152,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError(null);
       let endpoint;
       let body;
-      let sessionId = isTeacherMode ? teacherSessionId : null;
 
       if (isTeacherMode) {
         // Если тема не определена, пробуем определить её из сообщения
@@ -181,7 +180,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   teacher_session_id: existingSession.id 
                 })
               });
-              sessionId = existingSession.id;
               setTeacherSessionId(existingSession.id);
               setTopic(existingSession.topic);
               setLevel(existingSession.level);
@@ -189,7 +187,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
 
-        if (!sessionId) {
+        if (!teacherSessionId) {
           // Если сессия не найдена, отправляем сообщение через /ask endpoint
           endpoint = '/api/teacher/ask';
           body = JSON.stringify({
@@ -198,7 +196,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             chat_id: chatId
           });
         } else {
-          endpoint = `/api/teacher/sessions/${sessionId}/messages/`;
+          endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
           body = JSON.stringify({
             user_id: currentUserId,
             chat_id: chatId,
@@ -257,7 +255,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               id: Date.now(),
               user_id: currentUserId,
               chat_id: chatId,
-              role: 'user',
+              role: 'student',
               message,
               created_at: new Date().toISOString()
             }
