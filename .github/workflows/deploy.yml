@@ -77,18 +77,18 @@ jobs:
               exit 1
             fi
             
-            sudo rm -rf /var/www/admin-app/* || {
+            sudo rm -rf /var/www/admin-panel/* || {
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя админки"
               exit 1
             }
 
-            sudo cp -r dist/* /var/www/admin-app/ || {
+            sudo cp -r dist/* /var/www/admin-panel/ || {
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда админки"
               exit 1
             }
             
-            sudo chown -R www-data:www-data /var/www/admin-app
-            sudo chmod -R 755 /var/www/admin-app
+            sudo chown -R www-data:www-data /var/www/admin-panel
+            sudo chmod -R 755 /var/www/admin-panel
 
             if ! sudo systemctl restart nginx; then
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"

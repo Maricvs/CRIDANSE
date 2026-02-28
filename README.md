@@ -106,3 +106,48 @@ export default tseslint.config({
 })
 
 Теперь вы сможете запустить бэкенд на 8000, админку на 3000 и фронтенд на 5173 одновременно! 
+
+
+Admin Panel Deployment Architecture Update (Feb 2026)
+
+Changes Made
+	1.	Nginx Configuration Updated
+	•	Replaced direct alias to project directory:
+
+alias /var/www/unlim-mind-ai/admin/dist/;
+
+
+	•	With isolated production directory:
+
+root /var/www/admin-panel;
+try_files $uri $uri/ /index.html;
+
+
+	•	Purpose: prevent Nginx from serving files directly from the repository.
+
+	2.	Dedicated Production Directory Created
+
+/var/www/admin-panel
+
+This directory now stores only the compiled admin build files.
+
+	3.	Deployment Workflow Adjusted
+	•	Admin panel build output (admin/dist/) is copied to:
+
+/var/www/admin-panel
+
+
+	•	Nginx serves the admin panel from this isolated directory.
+
+	4.	Configuration Verified
+	•	nginx -t passed successfully.
+	•	Nginx reloaded without errors.
+
+⸻
+
+Result
+	•	Clean separation between repository and public assets
+	•	Improved security (no direct exposure of project files)
+	•	Stable production-ready structure aligned with frontend deployment strategy
+
+⸻
