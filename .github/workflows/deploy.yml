@@ -62,16 +62,6 @@ jobs:
             sudo chown -R www-data:www-data /var/www/react-app
             sudo chmod -R 755 /var/www/react-app
 
-            if ! sudo systemctl restart nginx; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
-              exit 1
-            fi
-
-            if ! sudo systemctl restart unlim_backend; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
-              exit 1
-            fi
-
             cd ../admin
 
             export NODE_OPTIONS="--max_old_space_size=3072"
@@ -86,6 +76,30 @@ jobs:
               python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
               exit 1
             fi
+            
+            sudo rm -rf /var/www/admin-app/* || {
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя админки"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/admin-app/ || {
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда админки"
+              exit 1
+            }
+            
+            sudo chown -R www-data:www-data /var/www/admin-app
+            sudo chmod -R 755 /var/www/admin-app
+
+            if ! sudo systemctl restart nginx; then
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              exit 1
+            fi
+
+            if ! sudo systemctl restart unlim_backend; then
+              python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              exit 1
+            fi
+            
             python3 /var/www/unlim-mind-ai/tools/notifier-bot/telegram.py "✅ Админка успешно собрана и развёрнута по /admin"
 
       - name: Уведомление об окончании деплоя

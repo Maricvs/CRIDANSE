@@ -11,11 +11,15 @@ export default defineConfig({
         },
    base: '/',
    server: {
-    port: 3000,
+    port: 5173,
     strictPort: true,
     host: true,
-  },
-   define: {
-    'import.meta.env.VITE_API_URL': JSON.stringify('https://www.unlimcode.com/api'),
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })
