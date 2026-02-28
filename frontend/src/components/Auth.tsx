@@ -27,12 +27,16 @@ const Auth = () => {
 
     console.log('✅ Google decoded:', decoded)
 
+    const guestToken = localStorage.getItem('user_token')
+
     axiosInstance.post<OAuthResponse>('/auth/oauth', {
       oauth_provider: 'google',
       provider_user_id: decoded.sub,
       email: decoded.email,
       full_name: decoded.name,
       avatar_url: decoded.picture,
+    }, {
+      headers: guestToken ? { Authorization: `Bearer ${guestToken}` } : {}
     })
       .then(response => {
         const data = response.data
@@ -42,9 +46,9 @@ const Auth = () => {
         localStorage.setItem('user_name', decoded.name)
         localStorage.setItem('user_token', data.access_token)
         localStorage.setItem('user_refresh_token', data.refresh_token)
-        
+
         console.log('🟢 Saved token:', localStorage.getItem('user_token'))
-        
+
         navigate('/')
       })
       .catch((err: Error) => {

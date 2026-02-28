@@ -40,7 +40,6 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-// Получение user_id из JWT токена без внешних зависимостей
 const getUserIdFromToken = (token: string | null): number | undefined => {
   if (!token) return undefined;
   try {
@@ -59,7 +58,10 @@ const getUserIdFromToken = (token: string | null): number | undefined => {
   }
 };
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const getToken = () => localStorage.getItem('user_token');
+const getUserId = () => getUserIdFromToken(getToken());
+
+export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
@@ -68,22 +70,40 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const authToken = localStorage.getItem('user_token');
-  const currentUserId = getUserIdFromToken(authToken);
-  if (!currentUserId) {
-    localStorage.removeItem('user_token');
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('user_refresh_token');
-    // Не делаем return null, не делаем редирект, просто позволяем UI работать как для неавторизованного пользователя
-  }
+  React.useEffect(() => {
+    const initializeGuest = async () => {
+      if (!getUserId()) {
+        localStorage.removeItem('user_token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_refresh_token');
+        try {
+          const res = await fetch('/api/auth/guest-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem('user_token', data.access_token);
+            localStorage.setItem('user_refresh_token', data.refresh_token);
+            localStorage.setItem('user_id', data.user_id.toString());
+            localStorage.setItem('user_name', 'Guest');
+            window.dispatchEvent(new Event('authChange'));
+          }
+        } catch (e) {
+          console.error('Guest initialization failed:', e);
+        }
+      }
+    };
+    initializeGuest();
+  }, []);
 
   const fetchChatInfo = useCallback(async (chatId: number) => {
     try {
       setLoading(true);
       setError(null);
       const res = await fetch(`/api/chats/${chatId}`, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       if (!res.ok) throw new Error("Error loading chat info");
       const data = await res.json();
@@ -125,7 +145,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
       }
       const res = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${authToken}` }
+        headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
@@ -156,9 +176,9 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isTeacherMode) {
         // Если тема не определена, пробуем определить её из сообщения
         if (!topic) {
-          const topicMatch = message.match(/тема[:\s]+([^.,;]+)/i) || 
-                           message.match(/хочу изучать ([^.,;]+)/i) ||
-                           message.match(/интересует ([^.,;]+)/i);
+          const topicMatch = message.match(/тема[:\s]+([^.,;]+)/i) ||
+            message.match(/хочу изучать ([^.,;]+)/i) ||
+            message.match(/интересует ([^.,;]+)/i);
           if (topicMatch) {
             const detectedTopic = topicMatch[1].trim();
             // Ищем существующую сессию с этой темой
@@ -166,7 +186,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                user_id: currentUserId,
+                user_id: getUserId(),
                 topic: detectedTopic
               })
             });
@@ -176,8 +196,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               await fetch(`/api/chats/${chatId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                  teacher_session_id: existingSession.id 
+                body: JSON.stringify({
+                  teacher_session_id: existingSession.id
                 })
               });
               setTeacherSessionId(existingSession.id);
@@ -192,25 +212,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
           endpoint = '/api/teacher/ask';
           body = JSON.stringify({
             prompt: message,
-            user_id: currentUserId,
+            user_id: getUserId(),
             chat_id: chatId
           });
         } else {
           endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
           body = JSON.stringify({
-            user_id: currentUserId,
+            user_id: getUserId(),
             chat_id: chatId,
             role: 'student',
             message
           });
         }
 
-        if (typeof currentUserId === 'number') {
-          setMessages(prev => [
+        const currentUserIdObj = getUserId();
+        if (typeof currentUserIdObj === 'number') {
+          setMessages((prev: Message[]) => [
             ...prev,
             {
               id: Date.now(),
-              user_id: currentUserId,
+              user_id: currentUserIdObj,
               chat_id: chatId,
               role: 'student',
               message,
@@ -221,12 +242,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
           body
         });
         if (!res.ok) throw new Error("Error sending message");
         const aiMsg = await res.json();
-        setMessages(prev => [
+        setMessages((prev: Message[]) => [
           ...prev,
           aiMsg
         ]);
@@ -242,20 +263,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         endpoint = `/api/chats/message`;
-        body = JSON.stringify({ 
-          chat_id: chatId, 
+        body = JSON.stringify({
+          chat_id: chatId,
           message,
-          user_id: currentUserId,
+          user_id: getUserId(),
           role: 'user'
         });
-        if (typeof currentUserId === 'number') {
-          setMessages(prev => [
+        const currentUser = getUserId();
+        if (typeof currentUser === 'number') {
+          setMessages((prev: Message[]) => [
             ...prev,
             {
               id: Date.now(),
-              user_id: currentUserId,
+              user_id: currentUser,
               chat_id: chatId,
-              role: 'student',
+              role: 'user', // Also using 'user' consistent with backend instead of student
               message,
               created_at: new Date().toISOString()
             }
@@ -263,22 +285,22 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
           body
         });
         if (!res.ok) throw new Error("Error sending message");
         const gptRes = await fetch(`/api/gpt/ask`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
           body: JSON.stringify({
             prompt: message,
-            user_id: currentUserId,
+            user_id: getUserId(),
             chat_id: chatId
           })
         });
         if (!gptRes.ok) throw new Error("Error generating AI response");
         const gptData = await gptRes.json();
-        setMessages(prev => [
+        setMessages((prev: Message[]) => [
           ...prev,
           gptData.message
         ]);
@@ -289,7 +311,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
               const chats = JSON.parse(chatsRaw);
               const updated = chats.map((c: any) => c.id === chatId ? { ...c, title: gptData.new_title } : c);
               localStorage.setItem('sidebar_chats', JSON.stringify(updated));
-            } catch {}
+            } catch { }
           }
           window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: gptData.new_title } }));
         }
@@ -310,10 +332,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // При включении режима учителя не создаем сессию сразу
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-          body: JSON.stringify({ 
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          body: JSON.stringify({
             is_teacher_chat: true,
-            teacher_session_id: null 
+            teacher_session_id: null
           })
         });
         if (!res.ok) throw new Error("Error toggling teacher mode");
@@ -322,21 +344,21 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // При выключении режима учителя просто отключаем функционал
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-          body: JSON.stringify({ 
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          body: JSON.stringify({
             is_teacher_chat: false,
-            teacher_session_id: null 
+            teacher_session_id: null
           })
         });
         if (!res.ok) throw new Error("Error toggling teacher mode");
-        
+
         // Очищаем состояние учительского режима
         setTeacherSessionId(null);
         setIsTeacherMode(false);
         setTopic(null);
         setLevel(null);
       }
-      
+
       // Обновляем сообщения с правильного эндпоинта
       await fetchMessages(chatId);
     } catch (err) {
@@ -347,28 +369,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isTeacherMode, fetchMessages]);
 
-  const createChat = useCallback(async ({ user_id, title, is_teacher_chat = false }: { user_id?: number, title: string, is_teacher_chat?: boolean }) : Promise<CreatedChat> => {
+  const createChat = useCallback(async ({ user_id, title, is_teacher_chat = false }: { user_id?: number, title: string, is_teacher_chat?: boolean }): Promise<CreatedChat> => {
     setLoading(true);
     setError(null);
     try {
-      if (!user_id) {
-        // Temporary (guest) chat
-        const newChat = {
-          id: Date.now(),
-          title,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          isTemporary: true
-        };
-        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-        localStorage.setItem('temporary_chats', JSON.stringify([newChat, ...tempChats]));
-        return newChat;
-      }
-      // Registered user — create via API
+      const currentUserId = getUserId();
+      // Registered user or guest via API
       const response = await fetch('/api/chats/user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-        body: JSON.stringify({ user_id, title, is_teacher_chat })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+        body: JSON.stringify({ user_id: user_id || currentUserId, title, is_teacher_chat })
       });
       if (!response.ok) throw new Error('Error creating chat');
       const data = await response.json();

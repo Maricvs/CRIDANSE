@@ -7,9 +7,12 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
+import uuid
 from dotenv import load_dotenv
 from db import get_db
-from models.models import Profile
+from models.models import Profile, Chat, Message, Document
+from app.models.teacher_model import TeacherSession
+from fastapi import Request
 
 # Загружаем переменные окружения
 load_dotenv()
@@ -154,11 +157,68 @@ async def get_current_regular_user(
             detail="Ошибка при аутентификации"
         )
 
-@router.post("/oauth")
-def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
+@router.post("/guest-login")
+def guest_login(db: Session = Depends(get_db)):
     try:
+        provider_user_id = str(uuid.uuid4())
+        email = f"guest_{provider_user_id}@guest.local"
+        
+        new_user = Profile(
+            oauth_provider="guest",
+            provider_user_id=provider_user_id,
+            email=email,
+            full_name="Guest User",
+            avatar_url="",
+            status="active"
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+        
+        access_token = create_user_access_token(
+            data={"sub": new_user.email, "user_id": str(new_user.id)},
+            expires_delta=timedelta(minutes=USER_ACCESS_TOKEN_EXPIRE_MINUTES)
+        )
+        refresh_token = create_user_refresh_token(
+            data={"sub": new_user.email, "user_id": str(new_user.id)}
+        )
+        return {
+            "message": "Guest user created",
+            "user_id": new_user.id,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/oauth")
+def save_oauth_profile(profile: OAuthProfile, request: Request, db: Session = Depends(get_db)):
+    try:
+        guest_user = None
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                payload = jwt.decode(token, USER_SECRET_KEY, algorithms=[ALGORITHM])
+                guest_email = payload.get("sub")
+                if guest_email and guest_email.endswith("@guest.local"):
+                    guest_user = db.query(Profile).filter_by(email=guest_email, oauth_provider="guest").first()
+            except JWTError:
+                pass # invalid or expired token, just ignore
+
         existing = db.query(Profile).filter_by(provider_user_id=profile.provider_user_id).first()
         if existing:
+            if guest_user and guest_user.id != existing.id:
+                # Merge guest data to existing Google account
+                db.query(Chat).filter(Chat.user_id == guest_user.id).update({"user_id": existing.id})
+                db.query(Message).filter(Message.user_id == guest_user.id).update({"user_id": existing.id})
+                db.query(TeacherSession).filter(TeacherSession.user_id == guest_user.id).update({"user_id": existing.id})
+                db.query(Document).filter(Document.user_id == guest_user.id).update({"user_id": existing.id})
+                db.delete(guest_user)
+                db.commit()
+                
             # Создаем токен для существующего пользователя
             access_token = create_user_access_token(
                 data={"sub": existing.email, "user_id": str(existing.id)},
@@ -177,16 +237,26 @@ def save_oauth_profile(profile: OAuthProfile, db: Session = Depends(get_db)):
             print(f"🟢 Returning data for existing user: {response_data}")
             return response_data
 
-        new_user = Profile(
-            oauth_provider=profile.oauth_provider,
-            provider_user_id=profile.provider_user_id,
-            email=profile.email,
-            full_name=profile.full_name,
-            avatar_url=profile.avatar_url,
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        if guest_user:
+            # Upgrade guest user to real user
+            guest_user.oauth_provider = profile.oauth_provider
+            guest_user.provider_user_id = profile.provider_user_id
+            guest_user.email = profile.email
+            guest_user.full_name = profile.full_name
+            guest_user.avatar_url = profile.avatar_url
+            db.commit()
+            new_user = guest_user
+        else:
+            new_user = Profile(
+                oauth_provider=profile.oauth_provider,
+                provider_user_id=profile.provider_user_id,
+                email=profile.email,
+                full_name=profile.full_name,
+                avatar_url=profile.avatar_url,
+            )
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
         
         # Создаем токен для нового пользователя
         access_token = create_user_access_token(
