@@ -50,7 +50,7 @@ jobs:
             fi
 
             sudo rm -rf /var/www/cridanse-web-preprod/* || {
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка! при очистке директории деплоя"
               exit 1
             }
 
