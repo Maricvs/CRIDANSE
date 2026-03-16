@@ -1,0 +1,148 @@
+name: Deploy Preprod to Server
+
+on:
+  push:
+    branches:
+      - preprod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Уведомление в Telegram о старте
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
+
+      - name: Deploy to server по SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/cridanse-preprod || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+              exit 1
+            }
+
+            git fetch origin
+            git checkout preprod
+            git reset --hard origin/preprod
+            git clean -fd
+            
+            cd frontend
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install"
+              exit 1
+            fi
+
+            if ! npm run build > build_error.log 2>&1; then
+              error_log=$(tail -n 10 build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$error_log"
+              exit 1
+            fi
+
+            sudo rm -rf /var/www/cridanse-web-preprod/* || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/cridanse-web-preprod/ || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
+              exit 1
+            }
+
+            sudo chown -R www-data:www-data /var/www/cridanse-web-preprod
+            sudo chmod -R 755 /var/www/cridanse-web-preprod
+
+            cd ../admin
+
+            export NODE_OPTIONS="--max_old_space_size=3072"
+
+            if ! npm install; then
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
+              exit 1
+            fi
+
+            if ! npm run build > admin_build_error.log 2>&1; then
+              error_log=$(tail -n 10 admin_build_error.log)
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
+              exit 1
+            fi
+            
+            sudo rm -rf /var/www/cridanse-admin-preprod/* || {
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя админки"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/cridanse-admin-preprod/ || {
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда админки"
+              exit 1
+            }
+            
+            sudo chown -R www-data:www-data /var/www/cridanse-admin-preprod
+            sudo chmod -R 755 /var/www/cridanse-admin-preprod
+
+            if ! sudo systemctl restart nginx; then
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              exit 1
+            fi
+
+            if ! sudo systemctl restart cridanse-backend-preprod.service; then
+              python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              exit 1
+            fi
+            
+            python3 /var/www/cridanse-preprod/tools/notifier-bot/telegram.py "✅ Админка Preprod успешно собрана и развёрнута"
+
+      - name: Уведомление об окончании деплоя
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🍌 Деплой завершён успешно!"
+
+  monitor:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка сервисов на сервере
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/cridanse-preprod
+
+            if ! systemctl is-active --quiet cridanse-backend-preprod.service; then
+              python3 tools/notifier-bot/telegram.py "❌ Backend preprod is down"
+            fi
+
+            if ! systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "❌ Nginx не работает!"
+            fi
+
+            if systemctl is-active --quiet cridanse-backend-preprod.service && systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "🐒 Preprod: Все сервисы работают!"
+            fi
+
+             if [ ! -f /etc/systemd/system/log_watcher.service ]; then
+              echo "⚙️ Установка log_watcher.service"
+              sudo cp tools/notifier-bot/log_watcher.service /etc/systemd/system/
+              sudo systemctl daemon-reexec
+              sudo systemctl enable log_watcher.service
+            fi
+
+            sudo systemctl restart log_watcher.service || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
+              exit 1
+            }
+
