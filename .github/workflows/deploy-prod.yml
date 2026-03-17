@@ -1,0 +1,152 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Уведомление в Telegram о старте
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🙈 Начался деплой на сервер"
+
+      - name: Deploy to server по SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/cridanse || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+              exit 1
+            }
+
+            git reset --hard HEAD
+            git clean -fd
+            git pull origin main
+
+            
+            cd frontend
+
+            if ! npm install; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при npm install"
+              exit 1
+            fi
+
+            if ! npm run build 2>build_error.log; then
+              error_log=$(tail -n 10 build_error.log)
+              python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$error_log"
+              exit 1
+            fi
+
+            find /var/www/cridanse-web -mindepth 1 -maxdepth 1 -exec rm -rf {} + || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/cridanse-web/ || {
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда"
+              exit 1
+            }
+
+            sudo chown -R www-data:www-data /var/www/cridanse-web
+            sudo chmod -R 755 /var/www/cridanse-web
+
+            cd ../admin
+
+            export NODE_OPTIONS="--max_old_space_size=3072"
+
+            if ! npm install; then
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при npm install в админке"
+              exit 1
+            fi
+
+            if ! npm run build > admin_build_error.log 2>&1; then
+              error_log=$(tail -n 10 admin_build_error.log)
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Сборка админки не удалась:\n$error_log"
+              exit 1
+            fi
+            
+            find /var/www/cridanse-admin -mindepth 1 -maxdepth 1 -exec rm -rf {} + || {
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при очистке директории деплоя админки"
+              exit 1
+            }
+
+            sudo cp -r dist/* /var/www/cridanse-admin/ || {
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при копировании билда админки"
+              exit 1
+            }
+            
+            sudo chown -R www-data:www-data /var/www/cridanse-admin
+            sudo chmod -R 755 /var/www/cridanse-admin
+
+            if ! sudo systemctl restart nginx; then
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте nginx"
+              exit 1
+            fi
+
+            if ! sudo systemctl restart unlim_backend; then
+              python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
+              exit 1
+            fi
+            
+            python3 /var/www/cridanse/tools/notifier-bot/telegram.py "✅ Админка успешно собрана и развёрнута по /admin"
+
+      - name: Уведомление об окончании деплоя
+        run: |
+          cd ${{ github.workspace }}
+          python3 tools/notifier-bot/telegram.py "🍌 Деплой завершён успешно!"
+
+  monitor:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Проверка сервисов на сервере
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /var/www/cridanse
+
+            if ! systemctl is-active --quiet unlim_backend; then
+              python3 tools/notifier-bot/telegram.py "❌ Backend (unlim_backend) упал!"
+            fi
+
+            if ! systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "❌ Nginx не работает!"
+            fi
+
+            if systemctl is-active --quiet unlim_backend && systemctl is-active --quiet nginx; then
+              python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
+            fi
+
+            if ! sudo systemctl restart log_watcher; then
+              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
+              exit 1
+            fi
+
+             if [ ! -f /etc/systemd/system/log_watcher.service ]; then
+              echo "⚙️ Установка log_watcher.service"
+              sudo cp tools/notifier-bot/log_watcher.service /etc/systemd/system/
+              sudo systemctl daemon-reexec
+              sudo systemctl enable log_watcher.service
+            fi
+
+            sudo systemctl restart log_watcher.service || {
+              python3 tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
+              exit 1
+            }
