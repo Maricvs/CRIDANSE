@@ -26,14 +26,17 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            set -e
+
             cd /var/www/cridanse || {
-              python3 tools/notifier-bot/telegram.py "❌ Ошибка: не удалось перейти в директорию проекта"
+              echo "❌ Не удалось перейти в /var/www/cridanse"
               exit 1
             }
 
-            git reset --hard HEAD
-            git clean -fd
-            git pull origin main
+            git fetch origin
+            git checkout main
+            git reset --hard origin/main
+            git clean -fdx
 
             
             cd frontend
@@ -43,7 +46,7 @@ jobs:
               exit 1
             fi
 
-            if ! npm run build 2>build_error.log; then
+            if ! npm run build > build_error.log 2>&1; then
               error_log=$(tail -n 10 build_error.log)
               python3 ../tools/notifier-bot/telegram.py "❌ Сборка не удалась:\n$error_log"
               exit 1
@@ -100,7 +103,7 @@ jobs:
               exit 1
             fi
             
-            python3 /var/www/cridanse/tools/notifier-bot/telegram.py "✅ Админка успешно собрана и развёрнута по /admin"
+            python3 /var/www/cridanse/tools/notifier-bot/telegram.py "✅ Прод успешно собран и развёрнут"
 
       - name: Уведомление об окончании деплоя
         run: |
@@ -132,11 +135,6 @@ jobs:
 
             if systemctl is-active --quiet unlim_backend && systemctl is-active --quiet nginx; then
               python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
-            fi
-
-            if ! sudo systemctl restart log_watcher; then
-              python3 ../tools/notifier-bot/telegram.py "❌ Ошибка при рестарте log_watcher"
-              exit 1
             fi
 
              if [ ! -f /etc/systemd/system/log_watcher.service ]; then
