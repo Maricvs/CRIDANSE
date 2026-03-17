@@ -98,7 +98,7 @@ jobs:
               exit 1
             fi
 
-            if ! sudo systemctl restart unlim_backend; then
+            if ! sudo systemctl restart cridanse-backend; then
               python3 /var/www/cridanse/tools/notifier-bot/telegram.py "❌ Ошибка при рестарте backend"
               exit 1
             fi
@@ -125,15 +125,15 @@ jobs:
           script: |
             cd /var/www/cridanse
 
-            if ! systemctl is-active --quiet unlim_backend; then
-              python3 tools/notifier-bot/telegram.py "❌ Backend (unlim_backend) упал!"
+            if ! systemctl is-active --quiet cridanse-backend; then
+              python3 tools/notifier-bot/telegram.py "❌ Backend (cridanse-backend) упал!"
             fi
 
             if ! systemctl is-active --quiet nginx; then
               python3 tools/notifier-bot/telegram.py "❌ Nginx не работает!"
             fi
 
-            if systemctl is-active --quiet unlim_backend && systemctl is-active --quiet nginx; then
+            if systemctl is-active --quiet cridanse-backend && systemctl is-active --quiet nginx; then
               python3 tools/notifier-bot/telegram.py "🐒 Все сервисы работают!"
             fi
 
