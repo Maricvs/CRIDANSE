@@ -1,12 +1,12 @@
 # backend/api/gpt_api.py
 
 from dotenv import load_dotenv
-load_dotenv()
+import os
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', '.env'))
 
 from fastapi import APIRouter, HTTPException, Depends
 from openai import OpenAI
 from db import get_db
-import os
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from models.models import Message
