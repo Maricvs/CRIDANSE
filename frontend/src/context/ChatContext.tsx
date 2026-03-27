@@ -103,7 +103,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       setError(null);
       const res = await fetch(`/api/chats/${chatId}`, {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
+        headers: { 'X-Authorization': `Bearer ${getToken()}` }
       });
       if (!res.ok) throw new Error("Error loading chat info");
       const data = await res.json();
@@ -145,7 +145,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
       }
       const res = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${getToken()}` }
+        headers: { 'X-Authorization': `Bearer ${getToken()}` }
       });
       if (!res.ok) throw new Error("Error loading messages");
       const data = await res.json();
@@ -242,7 +242,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body
         });
         if (!res.ok) throw new Error("Error sending message");
@@ -285,13 +285,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         }
         const res = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body
         });
         if (!res.ok) throw new Error("Error sending message");
         const gptRes = await fetch(`/api/gpt/ask`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body: JSON.stringify({
             prompt: message,
             user_id: getUserId(),
@@ -332,7 +332,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         // При включении режима учителя не создаем сессию сразу
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body: JSON.stringify({
             is_teacher_chat: true,
             teacher_session_id: null
@@ -344,7 +344,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         // При выключении режима учителя просто отключаем функционал
         const res = await fetch(`/api/chats/${chatId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+          headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body: JSON.stringify({
             is_teacher_chat: false,
             teacher_session_id: null
@@ -377,7 +377,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       // Registered user or guest via API
       const response = await fetch('/api/chats/user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+        headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ user_id: user_id || currentUserId, title, is_teacher_chat })
       });
       if (!response.ok) throw new Error('Error creating chat');

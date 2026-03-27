@@ -36,7 +36,7 @@ const Auth = () => {
       full_name: decoded.name,
       avatar_url: decoded.picture,
     }, {
-      headers: guestToken ? { Authorization: `Bearer ${guestToken}` } : {}
+      headers: guestToken ? { 'X-Authorization': `Bearer ${guestToken}` } : {}
     })
       .then(response => {
         const data = response.data

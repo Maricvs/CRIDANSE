@@ -67,13 +67,18 @@ export default function Chat() {
   useEffect(() => {
     return () => {
       if (id) {
-        fetch(`/api/chats/messages/by_chat/${id}`)
+        fetch(`/api/chats/messages/by_chat/${id}`, {
+          headers: { 'X-Authorization': `Bearer ${localStorage.getItem('user_token')}` }
+        })
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data) && data.length === 0 && messages.length === 0) {
               fetch(`/api/chats/delete/${id}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+                }
               });
             }
           });

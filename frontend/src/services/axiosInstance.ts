@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 // Изначально подставляем токен
 const userToken = localStorage.getItem('user_token');
 if (userToken) {
-  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
+  axiosInstance.defaults.headers.common['X-Authorization'] = `Bearer ${userToken}`;
 }
 
 // Перехватчик для обработки 401 ошибок
@@ -43,9 +43,9 @@ axiosInstance.interceptors.response.use(
         localStorage.setItem('user_refresh_token', refresh_token);
 
         // Обновляем заголовки
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+        axiosInstance.defaults.headers.common['X-Authorization'] = `Bearer ${access_token}`;
         if (originalRequest?.headers) {
-          originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+          originalRequest.headers['X-Authorization'] = `Bearer ${access_token}`;
         }
 
         return axiosInstance(originalRequest);

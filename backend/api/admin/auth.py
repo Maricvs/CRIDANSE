@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends, Body
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends, Body, Request, status
+from fastapi.security import OAuth2, OAuth2PasswordRequestForm
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from typing import Optional
@@ -23,7 +24,32 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+class OAuth2CustomToken(OAuth2):
+    def __init__(self, tokenUrl: str):
+        flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl})
+        super().__init__(flows=flows)
+
+    async def __call__(self, request: Request):
+        authorization: str = request.headers.get("X-Authorization")
+        if not authorization:
+            authorization = request.headers.get("Authorization")
+        if not authorization:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        scheme, _, param = authorization.partition(" ")
+        if not authorization or scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return param
+
+oauth2_scheme = OAuth2CustomToken(tokenUrl="token")
 
 class Token(BaseModel):
     token: str

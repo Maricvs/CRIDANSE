@@ -3,7 +3,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Body
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
@@ -26,7 +27,31 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 USER_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("USER_JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+class OAuth2CustomToken(OAuth2):
+    def __init__(self, tokenUrl: str):
+        flows = OAuthFlowsModel(password={"tokenUrl": tokenUrl})
+        super().__init__(flows=flows)
+
+    async def __call__(self, request: Request):
+        authorization: str = request.headers.get("X-Authorization")
+        if not authorization:
+            authorization = request.headers.get("Authorization")
+        if not authorization:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        scheme, _, param = authorization.partition(" ")
+        if not authorization or scheme.lower() != "bearer":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return param
+
+oauth2_scheme = OAuth2CustomToken(tokenUrl="token")
 
 class OAuthProfile(BaseModel):
     oauth_provider: str
@@ -197,7 +222,7 @@ def guest_login(db: Session = Depends(get_db)):
 def save_oauth_profile(profile: OAuthProfile, request: Request, db: Session = Depends(get_db)):
     try:
         guest_user = None
-        auth_header = request.headers.get("Authorization")
+        auth_header = request.headers.get("X-Authorization") or request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
             try:

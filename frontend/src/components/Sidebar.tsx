@@ -29,12 +29,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const navigate = useNavigate();
-  const userId = localStorage.getItem('user_id');
+  const [localUserId, setLocalUserId] = useState(localStorage.getItem('user_id'));
   const { id: selectedChatId } = useParams();
   const userName = localStorage.getItem('user_name');
   const { createChat } = useChat();
@@ -66,27 +65,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   }, [isCollapsed, onCollapse]);
 
   useEffect(() => {
-    const loadTemporaryChats = () => {
-      const tempChats = localStorage.getItem('temporary_chats');
-      if (tempChats) {
-        return JSON.parse(tempChats);
-      }
-      return [];
+    const handleAuthChange = () => {
+      setLocalUserId(localStorage.getItem('user_id'));
     };
-
-    if (!userId) {
-      setChats(loadTemporaryChats());
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    if (userId) {
-      const tempChats = localStorage.getItem('temporary_chats');
-      if (tempChats && JSON.parse(tempChats).length > 0) {
-        setShowMigrationPrompt(true);
-      }
-    }
-  }, [userId]);
+    window.addEventListener('authChange', handleAuthChange);
+    return () => window.removeEventListener('authChange', handleAuthChange);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -99,34 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const migrateTemporaryChats = async () => {
-    const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-    if (!tempChats.length) return;
-
-    try {
-      for (const chat of tempChats) {
-        const response = await fetch('/api/chats/user/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: parseInt(userId || '0'),
-            title: chat.title,
-            created_at: chat.created_at,
-            updated_at: chat.updated_at,
-          }),
-        });
-
-        if (!response.ok) throw new Error('Error migrating chat');
-      }
-
-      localStorage.removeItem('temporary_chats');
-      fetchChats();
-      setShowMigrationPrompt(false);
-    } catch (err) {
-      console.error('Error migrating chats:', err);
-      alert('Failed to migrate temporary chats. Please try again later.');
-    }
-  };
+  // Removed migrateTemporaryChats
 
   const sortChats = (chats: Chat[]) => {
     return [...chats].sort((a, b) => {
@@ -137,9 +94,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   };
 
   const fetchChats = async () => {
-    if (!userId) return;
+    if (!localUserId) return;
     try {
-      const response = await fetch(`/api/chats/user/${userId}`);
+      const response = await fetch(`/api/chats/user/${localUserId}`, {
+        headers: { 'X-Authorization': `Bearer ${localStorage.getItem('user_token')}` }
+      });
       if (!response.ok) throw new Error('Error loading chats');
       const data = await response.json();
       setChats(sortChats(data));
@@ -150,7 +109,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
   useEffect(() => {
     fetchChats();
-  }, [userId]);
+  }, [localUserId]);
 
   useEffect(() => {
     const handleMessageSent = () => {
@@ -159,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
     window.addEventListener('messageSent', handleMessageSent);
     return () => window.removeEventListener('messageSent', handleMessageSent);
-  }, [userId]);
+  }, [localUserId]);
 
   useEffect(() => {
     const handleChatTitleUpdated = (e: any) => {
@@ -172,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
   const handleNewChat = async () => {
     try {
-      const user_id = userId ? parseInt(userId) : undefined;
+      const user_id = localUserId ? parseInt(localUserId) : undefined;
       const newChat = await createChat({ user_id, title: 'New Chat' });
       setChats(prev => [newChat, ...prev]);
       setIsCollapsed(false);
@@ -186,18 +145,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!window.confirm('Delete this chat?')) return;
     
     try {
-      if (userId) {
+      if (localUserId) {
         const response = await fetch(`/api/chats/delete/${chatId}`, { 
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+          }
         });
         
         if (!response.ok) throw new Error('Error deleting chat');
         
-        setChats(prev => prev.filter((c: Chat) => c.id !== chatId));
-      } else {
-        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-        localStorage.setItem('temporary_chats', JSON.stringify(tempChats.filter((c: Chat) => c.id !== chatId)));
         setChats(prev => prev.filter((c: Chat) => c.id !== chatId));
       }
       
@@ -216,10 +174,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!newTitle.trim()) return;
     
     try {
-      if (userId) {
+      if (localUserId) {
         const response = await fetch(`/api/chat/title/${chatId}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+          },
           body: JSON.stringify({ title: newTitle.trim() }),
         });
         
@@ -233,27 +194,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
             chat.id === chatId ? { 
               ...chat, 
               title: updatedChat.title, 
-              updated_at: new Date().toISOString()
-            } : chat
-          );
-          return sortChats(updatedChats);
-        });
-      } else {
-        // Обновляем временный чат
-        const tempChats = JSON.parse(localStorage.getItem('temporary_chats') || '[]');
-        const updatedChats = tempChats.map((chat: Chat) => 
-          chat.id === chatId ? { 
-            ...chat, 
-            title: newTitle.trim(),
-            updated_at: new Date().toISOString()
-          } : chat
-        );
-        localStorage.setItem('temporary_chats', JSON.stringify(updatedChats));
-        setChats(prev => {
-          const updatedChats = prev.map(chat => 
-            chat.id === chatId ? { 
-              ...chat, 
-              title: newTitle.trim(),
               updated_at: new Date().toISOString()
             } : chat
           );
@@ -445,16 +385,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                 </div>
               </div>
 
-              {showMigrationPrompt && (
-                <div className="migration-prompt">
-                  <p>You have temporary chats. Would you like to migrate them to your account?</p>
-                  <button onClick={migrateTemporaryChats}>Migrate</button>
-                  <button onClick={() => {
-                    localStorage.removeItem('temporary_chats');
-                    setShowMigrationPrompt(false);
-                  }}>Cancel</button>
-                </div>
-              )}
+              {/* Removed migration prompt html */}
             </>
           )}
         </div>
