@@ -138,13 +138,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       setError(null);
-      let endpoint;
-      if (!isTeacherMode || !teacherSessionId) {
-        endpoint = `/api/chats/messages/by_chat/${chatId}`;
-      } else {
-        endpoint = `/api/teacher/sessions/${teacherSessionId}/messages/`;
-      }
-      const res = await fetch(endpoint, {
+      const res = await fetch(`/api/chats/messages/by_chat/${chatId}`, {
         headers: { 'X-Authorization': `Bearer ${getToken()}` }
       });
       if (!res.ok) throw new Error("Error loading messages");
@@ -164,7 +158,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, fetchChatInfo]);
+  }, []);
 
   const sendMessage = useCallback(async (message: string, chatId: number) => {
     try {
@@ -174,41 +168,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let body;
 
       if (isTeacherMode) {
-        // Если тема не определена, пробуем определить её из сообщения
-        if (!topic) {
-          const topicMatch = message.match(/тема[:\s]+([^.,;]+)/i) ||
-            message.match(/хочу изучать ([^.,;]+)/i) ||
-            message.match(/интересует ([^.,;]+)/i);
-          if (topicMatch) {
-            const detectedTopic = topicMatch[1].trim();
-            // Ищем существующую сессию с этой темой
-            const existingSessionRes = await fetch('/api/teacher/sessions/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                user_id: getUserId(),
-                topic: detectedTopic
-              })
-            });
-            if (existingSessionRes.ok) {
-              const existingSession = await existingSessionRes.json();
-              // Обновляем chat с новой сессией
-              await fetch(`/api/chats/${chatId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  teacher_session_id: existingSession.id
-                })
-              });
-              setTeacherSessionId(existingSession.id);
-              setTopic(existingSession.topic);
-              setLevel(existingSession.level);
-            }
-          }
-        }
-
         if (!teacherSessionId) {
-          // Если сессия не найдена, отправляем сообщение через /ask endpoint
+          // Session is created/linked on the backend via get_or_create_teacher_session(chat_id)
           endpoint = '/api/teacher/ask';
           body = JSON.stringify({
             prompt: message,
@@ -220,7 +181,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           body = JSON.stringify({
             user_id: getUserId(),
             chat_id: chatId,
-            role: 'student',
+            role: 'user',
             message
           });
         }
@@ -233,7 +194,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               id: Date.now(),
               user_id: currentUserIdObj,
               chat_id: chatId,
-              role: 'student',
+              role: 'user',
               message,
               created_at: new Date().toISOString()
             }
@@ -322,7 +283,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId, topic]);
+  }, [isTeacherMode, teacherSessionId]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {

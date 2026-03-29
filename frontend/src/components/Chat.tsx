@@ -59,15 +59,21 @@ export default function Chat() {
     return () => window.removeEventListener('resize', handleResize);
   }, [messages.length, scrollToBottom]);
 
-  // Загружаем информацию о чате и сообщения при монтировании
+  // Загружаем информацию о чате, затем сообщения (последовательно; история всегда через messages/by_chat)
   useEffect(() => {
-    if (id) {
-      initialScrollDoneRef.current = false;
-      initialMessagesCountRef.current = 0; // Сбрасываем счетчик при смене чата
-      const chatId = parseInt(id);
-      fetchChatInfo(chatId);
-      fetchMessages(chatId);
-    }
+    if (!id) return;
+    initialScrollDoneRef.current = false;
+    initialMessagesCountRef.current = 0;
+    const chatId = parseInt(id, 10);
+    let cancelled = false;
+    (async () => {
+      await fetchChatInfo(chatId);
+      if (cancelled) return;
+      await fetchMessages(chatId);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [id, fetchChatInfo, fetchMessages]);
 
   // Delete empty chat on unmount if no messages (double check: frontend and backend)
@@ -99,7 +105,7 @@ export default function Chat() {
 
   // Определяем, нужно ли показывать индикатор "думаю"
   const lastMsg = messages[messages.length - 1];
-  const showThinking = loading && lastMsg && (lastMsg.role === 'user' || lastMsg.role === 'student') && lastMsg.user_id === currentUserId;
+  const showThinking = loading && lastMsg && lastMsg.role === 'user' && lastMsg.user_id === currentUserId;
 
   if (error) return <div className="chat-error">{error}</div>;
 
