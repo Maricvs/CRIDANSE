@@ -10,11 +10,15 @@ from models.models import Profile, Message, Chat
 from app.components.documents.document_service import get_context_for_query, get_user_documents
 from api.auth import get_current_regular_user
 from app.components.teacher.teacher_materials_service import get_user_materials_list
+from dotenv import load_dotenv
+import os
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '.env'))
 
 
 router = APIRouter()
 
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def get_teacher_prompt(topic: str = None, level: str = None, context: str = "") -> str:
     if topic and level:

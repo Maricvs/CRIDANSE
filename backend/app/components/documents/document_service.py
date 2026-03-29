@@ -1,4 +1,6 @@
 import os
+from dotenv import load_dotenv
+
 import uuid
 from typing import List, Optional, Dict, Any
 from fastapi import UploadFile
@@ -21,8 +23,9 @@ CHUNK_SIZE = 1000  # approximate number of words in a chunk
 OVERLAP_SIZE = 200  # overlap between chunks
 EMBEDDING_MODEL = "text-embedding-3-small"  # OpenAI model for embeddings
 
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '..', '.env'))
 # Initialize OpenAI client
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Function to count tokens
 def num_tokens_from_string(string: str) -> int:

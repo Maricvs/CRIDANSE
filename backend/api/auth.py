@@ -16,7 +16,7 @@ from app.models.teacher_model import TeacherSession
 from fastapi import Request
 
 # Загружаем переменные окружения
-load_dotenv()
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', '.env'))
 
 router = APIRouter()
 
