@@ -63,7 +63,7 @@ html, body, #root {
 /* Область чата */
 .main-content {
   flex-grow: 1;
-  padding: 20px;
+  padding: 0;
   display: flex;
   justify-content: center;
   align-items: stretch;
@@ -87,12 +87,10 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 1rem;
+  padding: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  max-width: 768px;
-  margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
   position: relative;

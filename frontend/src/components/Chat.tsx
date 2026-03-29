@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useCallback } from "react";
 import ChatField from './ChatField';
+import TypewriterMessage from './TypewriterMessage';
 import './Chat.css';
 import { useChat } from '../context/ChatContext';
 
@@ -16,6 +17,7 @@ export default function Chat() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const initialScrollDoneRef = useRef(false);
+  const initialMessagesCountRef = useRef(0);
 
   // Проверяем валидность id сразу
   if (!id || id === 'undefined' || id === null || id === '') {
@@ -39,8 +41,12 @@ export default function Chat() {
     }
   }, [messages.length, scrollToBottom]);
 
-  // Начальная прокрутка после загрузки
-  // (этот useEffect можно удалить, т.к. теперь всегда auto)
+  // Устанавливаем начальное количество сообщений для определения "новых"
+  useEffect(() => {
+    if (messages.length > 0 && initialMessagesCountRef.current === 0) {
+      initialMessagesCountRef.current = messages.length;
+    }
+  }, [messages.length]);
 
   // Прокрутка при изменении размера окна
   useEffect(() => {
@@ -57,6 +63,7 @@ export default function Chat() {
   useEffect(() => {
     if (id) {
       initialScrollDoneRef.current = false;
+      initialMessagesCountRef.current = 0; // Сбрасываем счетчик при смене чата
       const chatId = parseInt(id);
       fetchChatInfo(chatId);
       fetchMessages(chatId);
@@ -107,15 +114,25 @@ export default function Chat() {
             Start a new conversation by sending a message
           </div>
         )}
-        {messages.map((msg) => {
+        {messages.map((msg, index) => {
           // Новая универсальная логика: ИИ всегда слева, пользователь всегда справа
           const isBotMessage = msg.role === "assistant" || msg.role === "teacher";
+          const isNewBotMessage = isBotMessage && initialMessagesCountRef.current > 0 && index >= initialMessagesCountRef.current;
+          
           return (
             <div
               key={msg.id}
               className={`message ${isBotMessage ? "bot-message" : "user-message"} fade-in`}
             >
-              {msg.message}
+              {isNewBotMessage ? (
+                <TypewriterMessage 
+                  text={msg.message} 
+                  animate={true} 
+                  onType={() => scrollToBottom('auto')} 
+                />
+              ) : (
+                msg.message
+              )}
             </div>
           );
         })}

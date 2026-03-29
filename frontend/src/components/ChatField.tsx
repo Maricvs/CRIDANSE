@@ -84,19 +84,20 @@ export default function ChatField() {
   }, [message]);
 
   return (
-    <div className="chat-field">
-      {/* Topic/Level info bar */}
-      {isTeacherMode && topic && level && (
-        <div className="teacher-info-bar">
-          <span className="teacher-badge">{topic}</span>
-          <span className="teacher-badge level">{level}</span>
-        </div>
-      )}
-      <div className="input-container">
-        <textarea
-          ref={textareaRef}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+    <div className="chat-field-container">
+      <div className="chat-field-wrapper">
+        {/* Topic/Level info bar */}
+        {isTeacherMode && topic && level && (
+          <div className="teacher-info-bar">
+            <span className="teacher-badge">{topic}</span>
+            <span className="teacher-badge level">{level}</span>
+          </div>
+        )}
+        <div className="input-container">
+          <textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={isTeacherMode ? "Ask your question..." : "Type your message..."}
           disabled={loading}
@@ -120,6 +121,7 @@ export default function ChatField() {
           >
             <RiChatUploadLine className="send-icon" />
           </button>
+        </div>
         </div>
       </div>
     </div>

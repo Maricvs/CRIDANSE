@@ -270,15 +270,14 @@
     padding-bottom: 60px;
   }
 
-  .chat-field {
+  .chat-field-container {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     padding: 6px;
-    background-color: #1e1e1e;
+    background: linear-gradient(180deg, transparent, var(--bg-color) 60%);
     z-index: 1000;
-    border-top: 1px solid #333;
     border-radius: 0;
     margin: 0;
     width: 100%;
@@ -301,12 +300,11 @@
     width: 100%;
     min-height: 44px;
     padding: 10px 12px;
-    padding-right: 100px; /* Добавляем отступ справа для кнопок */
+    padding-right: 90px; /* Добавляем отступ справа для кнопок */
     font-size: 16px;
     line-height: 1.25;
-    border: 1px solid #444;
-    border-radius: 12px;
-    background-color: #2a2a2a;
+    border: none;
+    background-color: transparent;
     color: white;
     resize: none;
     outline: none;
@@ -317,17 +315,14 @@
 
   .action-buttons {
     position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    right: 4px;
+    bottom: 6px;
     display: flex;
     gap: 8px;
     margin: 0;
-    width: 100%;
-    justify-content: center;
-    padding: 0 12px;
+    width: auto;
+    justify-content: flex-end;
     align-items: center;
-    pointer-events: none; /* Разрешаем клики сквозь кнопки */
   }
 
   .chat-action-button {
@@ -365,46 +360,59 @@
   }
 }
 
-.chat-field {
-  max-width: 768px;
-  margin: auto;
+/* Обновленные стили поля ввода в стиле ChatGPT */
+.chat-field-container {
   width: 100%;
-  padding: 1rem;
-  background-color: #1e1e1e;
-  border-top: 1px solid #333;
-  border: 1px solid #444;
-  border-radius: 12px;
-  background-color: #2a2a2a;
   position: sticky;
   bottom: 0;
   z-index: 10;
+  padding: 1rem;
+  background: linear-gradient(180deg, transparent, var(--bg-color) 60%);
+  box-sizing: border-box;
+}
+
+.chat-field-wrapper {
+  max-width: 768px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-container {
-  gap: 12px;
-  max-width: 768px;
-  margin: 0 auto;
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  background-color: #2f2f2f;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+  padding: 8px 16px;
+  width: 100%;
 }
 
 textarea {
   flex: 1;
-  width: -webkit-fill-available;
-  min-height: 44px;
+  width: 100%;
+  min-height: 24px;
   max-height: 200px;
+  padding: 8px 0;
   font-size: 16px;
-  line-height: 1.25;
+  line-height: 1.5;
   border: none;
-  border-radius: 12px;
   background-color: transparent;
   color: white;
   resize: none;
   outline: none;
   font-family: 'Figtree', sans-serif;
+  box-sizing: border-box;
+  padding-right: 90px; /* Отступ для кнопок */
 }
 
 textarea:focus {
-  border-color: #666;
+  border: none;
+  outline: none;
 }
 
 textarea::placeholder {
@@ -412,12 +420,55 @@ textarea::placeholder {
 }
 
 .action-buttons {
+  position: absolute;
+  right: 12px;
+  bottom: 8px; /* Выравнивание по нижнему краю внутри инпута */
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 8px;
-  margin-top: 0.5rem;
-  width: 100%;
+}
+
+.chat-action-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 24px;
+  padding: 0;
+}
+
+.chat-action-button:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-action-button.active {
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.send-button {
+  background-color: #fff;
+  color: #000;
+  border-radius: 50%;
+}
+.send-button:hover {
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.send-button:disabled {
+  background-color: #444;
+  color: #888;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Стиль для первого сообщения в чате */
