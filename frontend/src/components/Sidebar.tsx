@@ -20,11 +20,20 @@ interface Chat {
   updated_at: string;
   last_message_time?: string;
   isTemporary?: boolean;
+  folder_id?: number | null;
+}
+
+interface Folder {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
@@ -107,8 +116,23 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     }
   };
 
+  const fetchFolders = async () => {
+    if (!localUserId) return;
+    try {
+      const response = await fetch(`/api/chats/folders`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('user_token')}` }
+      });
+      if (!response.ok) throw new Error('Error loading folders');
+      const data = await response.json();
+      setFolders(data);
+    } catch (err) {
+      console.error('Error loading folders:', err);
+    }
+  };
+
   useEffect(() => {
     fetchChats();
+    fetchFolders();
   }, [localUserId]);
 
   useEffect(() => {
@@ -266,6 +290,44 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     setShowUserMenu(!showUserMenu);
   };
 
+  const chatsWithoutFolder = chats.filter(chat => !chat.folder_id);
+  const foldersWithChats = folders.map(folder => ({
+    ...folder,
+    chats: chats.filter(chat => chat.folder_id === folder.id)
+  })).filter(folder => folder.chats.length > 0);
+
+  const renderChatItem = (chat: Chat) => {
+    const isActive = chat.id === parseInt(selectedChatId || '', 10);
+    return (
+      <li
+        key={chat.id}
+        className={`${isActive ? 'active' : ''} ${isRenamingInProgress && editingChatId === chat.id ? 'renaming' : ''}`}
+        onContextMenu={(e) => handleContextMenu(e, chat.id)}
+      >
+        {editingChatId === chat.id ? (
+          <input
+            autoFocus
+            defaultValue={chat.title}
+            onBlur={(e) => handleBlur(chat.id, e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+              }
+            }}
+          />
+        ) : (
+          <Link
+            to={`/chat/${chat.id}`}
+            onClick={handleLinkClick}
+            className={selectedChatId === String(chat.id) ? 'active-chat' : ''}
+          >
+            {chat.title}
+          </Link>
+        )}
+      </li>
+    );
+  };
+
   return (
     <>
       {isCollapsed && (
@@ -311,37 +373,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                         {chats.length === 0 && (
                           <li className="no-chats">No chats</li>
                         )}
-                        {chats.map(chat => {
-                          const isActive = chat.id === parseInt(selectedChatId || '', 10);
-                          return (
-                            <li 
-                              key={chat.id} 
-                              className={`${isActive ? 'active' : ''} ${isRenamingInProgress && editingChatId === chat.id ? 'renaming' : ''}`}
-                              onContextMenu={(e) => handleContextMenu(e, chat.id)}
-                            >
-                              {editingChatId === chat.id ? (
-                                <input
-                                  autoFocus
-                                  defaultValue={chat.title}
-                                  onBlur={(e) => handleBlur(chat.id, e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      (e.target as HTMLInputElement).blur();
-                                    }
-                                  }}
-                                />
-                              ) : (
-                                <Link 
-                                  to={`/chat/${chat.id}`} 
-                                  onClick={handleLinkClick}
-                                  className={selectedChatId === String(chat.id) ? 'active-chat' : ''}
+                        {chats.length > 0 && (
+                          <>
+                            {foldersWithChats.map((folder) => (
+                              <React.Fragment key={`folder-${folder.id}`}>
+                                <li
+                                  style={{ listStyle: 'none', fontSize: '0.85em', opacity: 0.75, padding: '0.4em 0.4em 0.2em', fontWeight: 600 }}
                                 >
-                                  {chat.title}
-                                </Link>
-                              )}
-                            </li>
-                          );
-                        })}
+                                  {folder.name}
+                                </li>
+                                {folder.chats.map(renderChatItem)}
+                              </React.Fragment>
+                            ))}
+                            {chatsWithoutFolder.map(renderChatItem)}
+                          </>
+                        )}
                       </ul>
                     </div>
                   </li>
