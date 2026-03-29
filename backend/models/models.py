@@ -26,7 +26,7 @@ class Profile(Base):
     messages = relationship("Message", back_populates="user")
     # 🔧 ДОБАВЛЕНО: связь с документами
     documents = relationship("Document", back_populates="user")
-    chat_folders = relationship("ChatFolder", back_populates="user", cascade="all, delete")
+    chat_folders = relationship("ChatFolder", back_populates="user", cascade="all, delete-orphan")
 
 # Таблица chats.messages
 class Message(Base):
