@@ -61,7 +61,8 @@ def get_chats(user_id: int, db: Session = Depends(get_db)):
                 "created_at": chat.created_at.isoformat(),
                 "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat(),
                 "last_message_time": last_message.created_at.isoformat() if last_message else None,
-                "is_teacher_chat": chat.is_teacher_chat
+                "is_teacher_chat": chat.is_teacher_chat,
+                "folder_id": chat.folder_id
             })
         return result
     except Exception as e:
@@ -108,6 +109,7 @@ def create_chat(chat: ChatCreate, db: Session = Depends(get_db)):
             "title": new_chat.title,
             "is_teacher_chat": new_chat.is_teacher_chat,
             "teacher_session_id": new_chat.teacher_session_id,
+            "folder_id": new_chat.folder_id,
             "created_at": new_chat.created_at.isoformat()
         })
     except Exception as e:
@@ -162,6 +164,7 @@ def get_chat(chat_id: int, db: Session = Depends(get_db)):
             "title": chat.title,
             "is_teacher_chat": chat.is_teacher_chat,
             "teacher_session_id": chat.teacher_session_id,
+            "folder_id": chat.folder_id,
             "created_at": chat.created_at.isoformat(),
             "updated_at": chat.updated_at.isoformat() if hasattr(chat, 'updated_at') else chat.created_at.isoformat()
         }
