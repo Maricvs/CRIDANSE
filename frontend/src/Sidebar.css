@@ -17,22 +17,20 @@ a:hover {
   flex-direction: column;
   border-right: 1px solid #333;
   z-index: 999;
-  position: fixed;
-  transition: transform 0.3s ease-in-out;
+  position: relative;
+  flex-shrink: 0;
+  transition: width 0.3s ease-in-out, transform 0.3s ease-in-out, border-color 0.3s;
   overflow: hidden;
-  left: 0;
-  top: 0;
   box-sizing: border-box;
 }
 
 .sidebar.expanded {
   width: 260px;
-  transform: translateX(0);
 }
 
 .sidebar.collapsed {
   width: 0;
-  transform: translateX(-100%);
+  border-right-color: transparent;
 }
 
 .sidebar-section li,

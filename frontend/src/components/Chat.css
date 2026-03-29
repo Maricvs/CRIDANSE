@@ -85,11 +85,6 @@
 }
 
 /* Адаптивные стили */
-@media (min-width: 768px) {
-  .chat-wrapper.with-sidebar {
-    width: calc(100% - 260px);
-  }
-}
 
 @media (max-width: 767px) {
   .chat-container {

@@ -63,25 +63,21 @@ html, body, #root {
 /* Область чата */
 .main-content {
   flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 0;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: stretch;
   overflow: hidden;
   background-color: var(--bg-color);
-  width: calc(100% - 260px);
-  margin-left: 260px;
+  width: 100%;
   flex-direction: column;
-  transition: margin-left 0.3s ease, width 0.3s ease;
   height: 100%;
   box-sizing: border-box;
   position: relative;
 }
 
-.main-content.sidebar-collapsed {
-  margin-left: 0;
-  width: 100%;
-}
 
 .chat-wrapper {
   flex: 1;
