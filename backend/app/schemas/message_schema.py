@@ -5,7 +5,7 @@ from typing import Optional
 class MessageBase(BaseModel):
     user_id: int
     chat_id: int
-    role: str  # 'user', 'assistant', 'teacher', 'student'
+    role: str  # 'user', 'assistant', 'teacher'
     message: str
 
 class MessageCreate(MessageBase):

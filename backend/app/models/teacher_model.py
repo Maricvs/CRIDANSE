@@ -9,7 +9,7 @@ class TeacherSession(Base):
     __table_args__ = {"schema": "teacher"}
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
     topic = Column(String(255), nullable=True)
     level = Column(String(50), nullable=True)  # beginner, intermediate, advanced
     created_at = Column(DateTime, default=datetime.utcnow)

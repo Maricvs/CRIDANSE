@@ -26,6 +26,7 @@ class Profile(Base):
     messages = relationship("Message", back_populates="user")
     # 🔧 ДОБАВЛЕНО: связь с документами
     documents = relationship("Document", back_populates="user")
+    chat_folders = relationship("ChatFolder", back_populates="user", cascade="all, delete")
 
 # Таблица chats.messages
 class Message(Base):
@@ -45,6 +46,20 @@ class Message(Base):
     # 🔧 ДОБАВЛЕНО: связь с Profile (user)
     user = relationship("Profile", back_populates="messages")
 
+# Таблица chats.folders
+class ChatFolder(Base):
+    __tablename__ = "folders"
+    __table_args__ = {"schema": "chats"}
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.profiles.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("Profile", back_populates="chat_folders")
+    chats = relationship("Chat", back_populates="folder")
+
 # Таблица chats.chats
 class Chat(Base):
     __tablename__ = "chats"
@@ -55,10 +70,12 @@ class Chat(Base):
     title = Column(String(255), nullable=False, default="Новый чат")
     is_teacher_chat = Column(Boolean, default=False, nullable=False)
     teacher_session_id = Column(Integer, ForeignKey("teacher.teacher_sessions.id"), nullable=True)
+    folder_id = Column(Integer, ForeignKey("chats.folders.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     messages = relationship("Message", back_populates="chat", cascade="all, delete")
     teacher_session = relationship("TeacherSession", foreign_keys=[teacher_session_id])
+    folder = relationship("ChatFolder", back_populates="chats")
 
 # Таблица documents.documents
 class Document(Base):

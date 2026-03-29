@@ -53,9 +53,7 @@ def get_teacher_prompt(topic: str = None, level: str = None, context: str = "") 
     return base_prompt
 
 def convert_role_for_openai(role: str) -> str:
-    if role == "student":
-        return "user"
-    elif role == "teacher":
+    if role == "teacher":
         return "assistant"
     return role
 
@@ -251,7 +249,7 @@ async def send_teacher_message(
     student_message = Message(
         user_id=user.id,
         chat_id=chat_id,
-        role="student",
+        role="user",
         message=message
     )
     db.add(student_message)
@@ -308,7 +306,7 @@ async def ask_teacher_advanced(
     
     # Если topic определён, ищем или создаём сессию по (user_id, topic)
     if topic:
-        session = get_or_create_teacher_session(db, current_user.id, topic, level)
+        session = get_or_create_teacher_session(db, current_user.id, topic, level, chat_id=chat_id)
         session_id = session.id
         # Отправляем сообщение и получаем ответ
         message = await send_teacher_message(
@@ -325,7 +323,7 @@ async def ask_teacher_advanced(
         db_user_message = Message(
             user_id=current_user.id,
             chat_id=chat_id,
-            role="student",
+            role="user",
             message=prompt
         )
         db.add(db_user_message)
@@ -360,15 +358,8 @@ async def ask_teacher_advanced(
         if match:
             new_topic = match.group(1).strip()
             new_level = match.group(2).strip()
-            session = get_or_create_teacher_session(db, current_user.id, new_topic, new_level)
+            session = get_or_create_teacher_session(db, current_user.id, new_topic, new_level, chat_id=chat_id)
             session_id_to_return = session.id
-            
-            # Привязываем чат к сессии
-            chat = db.query(Chat).filter(Chat.id == chat_id).first()
-            if chat:
-                chat.teacher_session_id = session.id
-                db.add(chat)
-                db.commit()
 
         # 6. Возвращаем последнее сообщение учителя с session_id
         response_data = {
@@ -398,15 +389,25 @@ def update_topic_level(session_id: int, data: dict = Body(...), db: Session = De
     db.refresh(session)
     return session
 
-def get_or_create_teacher_session(db: Session, user_id: int, topic: str, level: str = None) -> TeacherSession:
-    session = db.query(TeacherSession).filter(
-        TeacherSession.user_id == user_id,
-        TeacherSession.topic == topic
-    ).first()
-    if session:
-        return session
+def get_or_create_teacher_session(db: Session, user_id: int, topic: str, level: str = None, chat_id: int = None) -> TeacherSession:
+    chat = None
+    if chat_id:
+        chat = db.query(Chat).filter(Chat.id == chat_id, Chat.user_id == user_id).first()
+        if chat and chat.teacher_session_id:
+            session = db.query(TeacherSession).filter(TeacherSession.id == chat.teacher_session_id).first()
+            if session:
+                return session
+
+    # Создаем новую сессию, не ищем по (user_id, topic) среди других чатов
     session = TeacherSession(user_id=user_id, topic=topic, level=level)
     db.add(session)
     db.commit()
     db.refresh(session)
+    
+    if chat:
+        chat.is_teacher_chat = True
+        chat.teacher_session_id = session.id
+        db.add(chat)
+        db.commit()
+        
     return session 
