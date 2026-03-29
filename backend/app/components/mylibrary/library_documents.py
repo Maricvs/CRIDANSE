@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Optional
 import re
 from db import Base, get_db
-from models.models import Document as DocumentModel
+from models.models import Document as DocumentModel, Profile
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
 from app.components.documents.document_service import process_document_content, search_relevant_chunks
