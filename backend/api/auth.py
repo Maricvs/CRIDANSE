@@ -33,7 +33,9 @@ class OAuth2CustomToken(OAuth2):
         super().__init__(flows=flows)
 
     async def __call__(self, request: Request):
-        authorization: str = request.headers.get("Authorization")
+        authorization: str = (
+            request.headers.get("X-Authorization") or request.headers.get("Authorization")
+        )
         if not authorization:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

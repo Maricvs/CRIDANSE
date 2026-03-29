@@ -120,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     if (!localUserId) return;
     try {
       const response = await fetch(`/api/chats/folders`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('user_token')}` }
+        headers: { 'X-Authorization': `Bearer ${localStorage.getItem('user_token')}` }
       });
       if (!response.ok) throw new Error('Error loading folders');
       const data = await response.json();
