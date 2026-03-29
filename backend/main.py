@@ -5,7 +5,6 @@ from api import gpt_api, auth, chat
 from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
 from app.components.teacher import teacher_service
-from app.components.documents import document_router
 from app.components.documents.admin_document_router import router as admin_documents_router
 from models.models import Profile, Document, DocumentChunk
 from api import notify_form
@@ -40,7 +39,6 @@ app.include_router(library_documents.router, prefix="/api/documents")
 app.include_router(document_processor_router, prefix="/api/document_ai/processor")
 app.include_router(document_ai_service_router, prefix="/api/document_ai/service")
 app.include_router(teacher_service.router, prefix="/api/teacher")
-app.include_router(document_router.router, prefix="/api/document_search")
 app.include_router(notify_form.router)
 app.include_router(logs.router, prefix="/api/logs")
 app.include_router(users.router, prefix="/api/users")

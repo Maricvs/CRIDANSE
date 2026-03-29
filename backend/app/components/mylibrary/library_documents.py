@@ -10,8 +10,10 @@ from db import Base, get_db
 from models.models import Document as DocumentModel
 from app.schemas.document_schema import Document as DocumentSchema
 from app.utils.cleanup_documents import cleanup_missing_files
-from app.components.documents.document_service import process_document_content
+from app.components.documents.document_service import process_document_content, search_relevant_chunks
 from app.services.file_service import save_uploaded_file, delete_file, get_file_info
+from app.schemas.document_schema import SearchQuery, SearchResult
+from api.auth import get_current_user
 
 router = APIRouter()
 
@@ -189,3 +191,12 @@ async def cleanup_documents(db: Session = Depends(get_db)):
             status_code=500,
             detail=f"Ошибка при очистке документов: {str(e)}"
         )
+
+@router.post("/search", response_model=list[SearchResult])
+async def search_documents(
+    search_query: SearchQuery,
+    current_user: Profile = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Performs semantic search in user's documents"""
+    return await search_relevant_chunks(db, current_user, search_query)

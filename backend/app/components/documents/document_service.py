@@ -109,71 +109,7 @@ def calculate_similarity(embedding1: List[float], embedding2: List[float]) -> fl
     return dot_product / (magnitude1 * magnitude2)
 
 # Functions for working with documents
-async def upload_document(
-    db: Session,
-    user: Profile,
-    file: UploadFile,
-    title: str
-) -> Document:
-    """Uploads document, saves it and creates embeddings"""
-    try:
-        # Save file through unified service
-        file_path, original_filename, file_size = await save_uploaded_file(file)
-        
-        # Create document record in DB
-        document_data = DocumentCreate(
-            title=title,
-            file_type=os.path.splitext(original_filename)[1].lower().lstrip('.')
-        )
-        
-        db_document = Document(
-            user_id=user.id,
-            title=document_data.title,
-            file_path=file_path,
-            file_type=document_data.file_type,
-            file_size=file_size,
-            file_name=original_filename
-        )
-        
-        db.add(db_document)
-        db.commit()
-        db.refresh(db_document)
-        
-        # Extract text from document
-        text = extract_text_from_file(file_path, document_data.file_type)
-        
-        # Split text into chunks
-        chunks = split_text_into_chunks(text)
-        
-        # Create embeddings for each chunk
-        for i, chunk_text in enumerate(chunks):
-            embedding = await get_embedding(chunk_text)
-            
-            # Save chunk to DB
-            chunk_data = DocumentChunkCreate(
-                content=chunk_text,
-                chunk_index=i,
-                embedding=embedding
-            )
-            
-            db_chunk = DocumentChunk(
-                document_id=db_document.id,
-                content=chunk_data.content,
-                embedding=json.dumps(embedding),  # Save as JSON
-                chunk_index=chunk_data.chunk_index
-            )
-            
-            db.add(db_chunk)
-        
-        db.commit()
-        return db_document
-        
-    except Exception as e:
-        print(f"❌ [ERROR] Error uploading document: {str(e)}")
-        # If file was saved, delete it
-        if 'file_path' in locals():
-            await delete_file(file_path)
-        raise e
+
 
 async def get_user_documents(
     db: Session,
@@ -288,44 +224,7 @@ async def get_context_for_query(
     return "\n".join(context_parts)
 
 # Function for generating response using GPT and context
-async def generate_teacher_response(
-    db: Session,
-    user: Profile,
-    query: str
-) -> str:
-    """Generates teacher's response based on document context"""
-    # Get relevant context from documents
-    context = await get_context_for_query(db, user, query)
-    
-    if not context:
-        return "I apologize, but I couldn't find relevant information in the uploaded materials. Please upload study materials or clarify your question."
 
-    # Form teacher prompt
-    prompt = f"""You are a teacher who answers student questions based on provided study materials.
-    
-CONTEXT FROM STUDY MATERIALS:
-{context}
-
-STUDENT'S QUESTION:
-{query}
-
-Please answer the student's question using ONLY information from the provided context.
-If there isn't enough information in the context for a complete answer, tell this to the student and answer based only on what is available in the context.
-Be pedagogical, explain complex topics in simple language. Use examples from the context when necessary.
-Always reference study materials, but don't mention the search process or embeddings in your answer."""
-    
-    # Call GPT to generate response
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are an experienced teacher who answers student questions based on study materials."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3,
-        max_tokens=1500
-    )
-    
-    return response.choices[0].message.content
 
 # Функция для обработки содержимого документа
 async def process_document_content(document_id: int, db: Session) -> bool:

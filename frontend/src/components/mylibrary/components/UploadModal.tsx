@@ -63,7 +63,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ isOpen, onClose }) => {
     formDataToSend.append('user_id', userId);
 
     try {
-      const response = await fetch('/api/documents', {
+      const response = await fetch('/api/documents/upload', {
         method: 'POST',
         body: formDataToSend
       });
