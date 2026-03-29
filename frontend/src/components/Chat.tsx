@@ -12,8 +12,18 @@ export default function Chat() {
     loading,
     error,
     fetchChatInfo,
-    fetchMessages
+    fetchMessages,
+    isTeacherMode,
+    teacherProgress
   } = useChat();
+
+  const hasTeacherProgressBlock =
+    isTeacherMode &&
+    (
+      (teacherProgress.status != null && teacherProgress.status !== '') ||
+      (teacherProgress.current_objective != null && teacherProgress.current_objective !== '') ||
+      (teacherProgress.completion_estimate !== null && teacherProgress.completion_estimate !== undefined)
+    );
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const initialScrollDoneRef = useRef(false);
@@ -115,6 +125,22 @@ export default function Chat() {
   return (
     <div className={wrapperClass}>
       <div className="chat-messages">
+        {hasTeacherProgressBlock && (
+          <div
+            className="teacher-progress-compact"
+            style={{ padding: '6px 12px', fontSize: '0.8rem', borderBottom: '1px solid rgba(0,0,0,0.08)' }}
+          >
+            {teacherProgress.status != null && teacherProgress.status !== '' && (
+              <div>Status: {teacherProgress.status}</div>
+            )}
+            {teacherProgress.current_objective != null && teacherProgress.current_objective !== '' && (
+              <div>Objective: {teacherProgress.current_objective}</div>
+            )}
+            {teacherProgress.completion_estimate != null && (
+              <div>Progress: {teacherProgress.completion_estimate}%</div>
+            )}
+          </div>
+        )}
         {messages.length === 0 && (
           <div className="empty-chat-message">
             Start a new conversation by sending a message

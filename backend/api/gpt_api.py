@@ -40,9 +40,12 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
             .all()
         )
 
-        # ✅ Преобразуем в формат OpenAI
+        # ✅ Преобразуем в формат OpenAI (teacher -> assistant for mixed-mode chats; DB roles unchanged)
         conversation = [
-            {"role": m.role, "content": m.message}
+            {
+                "role": "assistant" if m.role == "teacher" else m.role,
+                "content": m.message,
+            }
             for m in db_messages
         ]
 

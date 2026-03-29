@@ -18,16 +18,24 @@ interface CreatedChat {
   teacher_session_id?: number | null;
 }
 
+export interface TeacherProgressState {
+  status: string | null;
+  current_objective: string | null;
+  completion_estimate: number | null;
+}
+
 interface ChatContextType {
   messages: Message[];
   isTeacherMode: boolean;
   teacherSessionId: number | null;
   topic?: string | null;
   level?: string | null;
+  teacherProgress: TeacherProgressState;
   loading: boolean;
   error: string | null;
   fetchChatInfo: (chatId: number) => Promise<void>;
   fetchMessages: (chatId: number) => Promise<void>;
+  fetchTeacherProgress: (sessionId: number) => Promise<void>;
   sendMessage: (message: string, chatId: number) => Promise<void>;
   toggleTeacherMode: (chatId: number) => Promise<void>;
   createChat: (chat: { user_id?: number, title: string, is_teacher_chat?: boolean }) => Promise<CreatedChat>;
@@ -61,14 +69,46 @@ const getUserIdFromToken = (token: string | null): number | undefined => {
 const getToken = () => localStorage.getItem('user_token');
 const getUserId = () => getUserIdFromToken(getToken());
 
+const emptyTeacherProgress = (): TeacherProgressState => ({
+  status: null,
+  current_objective: null,
+  completion_estimate: null,
+});
+
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTeacherMode, setIsTeacherMode] = useState(false);
   const [teacherSessionId, setTeacherSessionId] = useState<number | null>(null);
   const [topic, setTopic] = useState<string | null>(null);
   const [level, setLevel] = useState<string | null>(null);
+  const [teacherProgress, setTeacherProgress] = useState<TeacherProgressState>(emptyTeacherProgress);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchTeacherProgress = useCallback(async (sessionId: number) => {
+    try {
+      const res = await fetch(`/api/teacher/sessions/${sessionId}/progress`, {
+        headers: { 'X-Authorization': `Bearer ${getToken()}` }
+      });
+      if (res.status === 404) {
+        setTeacherProgress(emptyTeacherProgress());
+        return;
+      }
+      if (!res.ok) {
+        console.error('Teacher progress fetch failed:', res.status);
+        return;
+      }
+      const data = await res.json();
+      setTeacherProgress({
+        status: data.status ?? null,
+        current_objective: data.current_objective ?? null,
+        completion_estimate:
+          typeof data.completion_estimate === 'number' ? data.completion_estimate : null,
+      });
+    } catch (e) {
+      console.error('Teacher progress fetch error:', e);
+    }
+  }, []);
 
   React.useEffect(() => {
     const initializeGuest = async () => {
@@ -119,20 +159,23 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           setTopic(null);
           setLevel(null);
         }
+        await fetchTeacherProgress(data.teacher_session_id);
       } else {
         // Always clear topic and level if not in teacher mode, even if teacher_session_id exists
         setTopic(null);
         setLevel(null);
+        setTeacherProgress(emptyTeacherProgress());
       }
     } catch (err) {
       setError("Failed to load chat info");
       setTopic(null);
       setLevel(null);
+      setTeacherProgress(emptyTeacherProgress());
       console.error('Error loading chat info:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchTeacherProgress]);
 
   const fetchMessages = useCallback(async (chatId: number) => {
     try {
@@ -160,14 +203,26 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  /** Minimal mixed-mode routing v1: `!general ` forces general GPT; otherwise follow teacher toggle. */
+  function shouldUseTeacherFlow(text: string): boolean {
+    if (text.trim().startsWith('!general ')) return false;
+    return isTeacherMode;
+  }
+
   const sendMessage = useCallback(async (message: string, chatId: number) => {
     try {
       setLoading(true);
       setError(null);
+      const useTeacherFlow = shouldUseTeacherFlow(message);
+      const trimmed = message.trim();
+      const contentForGeneral = trimmed.startsWith('!general ')
+        ? trimmed.slice('!general '.length)
+        : message;
+
       let endpoint;
       let body;
 
-      if (isTeacherMode) {
+      if (useTeacherFlow) {
         if (!teacherSessionId) {
           // Session is created/linked on the backend via get_or_create_teacher_session(chat_id)
           endpoint = '/api/teacher/ask';
@@ -222,11 +277,17 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             setLevel(session.level || null);
           }
         }
+        const progressSessionId =
+          typeof aiMsg.session_id === 'number' ? aiMsg.session_id : teacherSessionId;
+        if (progressSessionId) {
+          await fetchTeacherProgress(progressSessionId);
+        }
+        window.dispatchEvent(new Event('messageSent'));
       } else {
         endpoint = `/api/chats/message`;
         body = JSON.stringify({
           chat_id: chatId,
-          message,
+          message: contentForGeneral,
           user_id: getUserId(),
           role: 'user'
         });
@@ -239,7 +300,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               user_id: currentUser,
               chat_id: chatId,
               role: 'user', // Also using 'user' consistent with backend instead of student
-              message,
+              message: contentForGeneral,
               created_at: new Date().toISOString()
             }
           ]);
@@ -254,7 +315,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Authorization': `Bearer ${getToken()}` },
           body: JSON.stringify({
-            prompt: message,
+            prompt: contentForGeneral,
             user_id: getUserId(),
             chat_id: chatId
           })
@@ -276,6 +337,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           }
           window.dispatchEvent(new CustomEvent('chatTitleUpdated', { detail: { chatId, newTitle: gptData.new_title } }));
         }
+        window.dispatchEvent(new Event('messageSent'));
       }
     } catch (err) {
       setError("Failed to send message");
@@ -283,7 +345,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  }, [isTeacherMode, teacherSessionId]);
+  }, [isTeacherMode, teacherSessionId, fetchTeacherProgress]);
 
   const toggleTeacherMode = useCallback(async (chatId: number) => {
     try {
@@ -318,6 +380,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setIsTeacherMode(false);
         setTopic(null);
         setLevel(null);
+        setTeacherProgress(emptyTeacherProgress());
       }
 
       // Обновляем сообщения с правильного эндпоинта
@@ -359,10 +422,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       teacherSessionId,
       topic,
       level,
+      teacherProgress,
       loading,
       error,
       fetchChatInfo,
       fetchMessages,
+      fetchTeacherProgress,
       sendMessage,
       toggleTeacherMode,
       createChat,
