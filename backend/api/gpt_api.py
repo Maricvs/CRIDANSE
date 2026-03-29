@@ -15,6 +15,9 @@ from app.schemas.message_schema import MessageSchema, AskGptResponse
 router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+# Placeholder titles until auto-rename runs (must match frontend create-chat defaults)
+DEFAULT_CHAT_TITLES = frozenset({"Новый чат", "New Chat", "New Teacher Chat"})
+
 # ✅ Расширенная модель запроса
 class GPTRequest(BaseModel):
     prompt: str
@@ -101,11 +104,11 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
         db.add(bot_message)
         db.commit()
         db.refresh(bot_message)
-        # 🧠 Генерация названия чата только если сообщений >= 4 и title == "Новый чат"
+        # 🧠 Генерация названия чата только если сообщений >= 4 и title — дефолтный плейсхолдер
         from models.models import Chat  # можно наверх, если ещё не импортировано
         chat = db.query(Chat).filter(Chat.id == request.chat_id).first()
         all_messages = db.query(Message).filter(Message.chat_id == request.chat_id).order_by(Message.created_at.asc()).all()
-        if chat and chat.title == "Новый чат" and len(all_messages) >= 4:
+        if chat and chat.title in DEFAULT_CHAT_TITLES and len(all_messages) >= 4:
             try:
                 # Берём первые 2-3 сообщения и ответы
                 context_msgs = []
@@ -127,7 +130,7 @@ async def ask_gpt(request: GPTRequest, db: Session = Depends(get_db)):
             except Exception as title_error:
                 print("Ошибка генерации названия чата:", title_error)
         new_title = None
-        if chat and chat.title != "Новый чат":
+        if chat and chat.title not in DEFAULT_CHAT_TITLES:
             new_title = chat.title
         # Возвращаем сообщение + новое название (если оно появилось)
         response_data = AskGptResponse(
