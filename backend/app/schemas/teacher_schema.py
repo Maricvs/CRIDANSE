@@ -17,4 +17,14 @@ class TeacherSession(TeacherSessionBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
+
+class TeacherProgressRead(BaseModel):
+    """Minimal read model for teacher progress (API response)."""
+    status: str
+    current_objective: Optional[str] = None
+    completion_estimate: Optional[int] = None
+
+    class Config:
+        from_attributes = True

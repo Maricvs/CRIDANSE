@@ -1,9 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from db import get_db
-from app.models.teacher_model import TeacherSession
-from app.schemas.teacher_schema import TeacherSessionCreate, TeacherSession as TeacherSessionSchema
-from typing import List
+from app.models.teacher_model import TeacherSession, TeacherProgress
+from app.schemas.teacher_schema import (
+    TeacherSessionCreate,
+    TeacherSession as TeacherSessionSchema,
+    TeacherProgressRead,
+)
+from typing import List, Optional
 from app.schemas.message_schema import MessageSchema, MessageBase
 from openai import OpenAI
 from models.models import Profile, Message, Chat
@@ -11,6 +15,7 @@ from app.components.documents.document_service import get_context_for_query, get
 from api.auth import get_current_regular_user
 from app.components.teacher.teacher_materials_service import get_user_materials_list
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 import re
 
@@ -18,6 +23,46 @@ import re
 router = APIRouter()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+
+def _attach_teacher_progress_for_new_session(db: Session, session: TeacherSession) -> None:
+    """Insert TeacherProgress for a newly added session. Call after flush() so session.id is set."""
+    db.add(
+        TeacherProgress(
+            teacher_session_id=session.id,
+            user_id=session.user_id,
+            status="active",
+            current_objective=None,
+            completion_estimate=None,
+        )
+    )
+
+
+def get_teacher_progress_by_session_id(
+    db: Session, session_id: int
+) -> Optional[TeacherProgress]:
+    """Return TeacherProgress for the given teacher session id, or None if missing."""
+    return (
+        db.query(TeacherProgress)
+        .filter(TeacherProgress.teacher_session_id == session_id)
+        .first()
+    )
+
+
+def _update_teacher_progress_after_interaction(
+    db: Session, session: TeacherSession
+) -> None:
+    """Bump TeacherProgress after a teacher reply. No-op if row missing."""
+    progress = get_teacher_progress_by_session_id(db, session.id)
+    if not progress:
+        return
+    progress.updated_at = datetime.utcnow()
+    if progress.current_objective is None:
+        t = (session.topic or "").strip()
+        progress.current_objective = (t[:512] if t else "learning started")
+    prev = progress.completion_estimate if progress.completion_estimate is not None else 0
+    progress.completion_estimate = min(100, prev + 5)
+
 
 def get_teacher_prompt(topic: str = None, level: str = None, context: str = "") -> str:
     if topic and level:
@@ -126,6 +171,8 @@ def create_session(session: TeacherSessionCreate, db: Session = Depends(get_db))
     # Если сессия не найдена или тема не указана, создаем новую
     db_session = TeacherSession(**session.dict())
     db.add(db_session)
+    db.flush()
+    _attach_teacher_progress_for_new_session(db, db_session)
     db.commit()
     db.refresh(db_session)
     return db_session
@@ -136,6 +183,28 @@ def get_session(session_id: int, db: Session = Depends(get_db)):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     return session
+
+
+@router.get("/sessions/{session_id}/progress", response_model=TeacherProgressRead)
+def get_session_progress(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_regular_user),
+):
+    session = db.query(TeacherSession).filter(TeacherSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    progress = get_teacher_progress_by_session_id(db, session_id)
+    if not progress:
+        raise HTTPException(status_code=404, detail="Progress not found")
+    return TeacherProgressRead(
+        status=progress.status,
+        current_objective=progress.current_objective,
+        completion_estimate=progress.completion_estimate,
+    )
+
 
 @router.post("/sessions/{session_id}/messages/", response_model=MessageSchema)
 async def create_message(session_id: int, message: MessageBase, db: Session = Depends(get_db)):
@@ -177,6 +246,7 @@ async def create_message(session_id: int, message: MessageBase, db: Session = De
         message=teacher_response
     )
     db.add(db_teacher_message)
+    _update_teacher_progress_after_interaction(db, session)
     db.commit()
     db.refresh(db_teacher_message)
     return db_teacher_message
@@ -214,6 +284,8 @@ async def create_teacher_session(
         level=session_data.level
     )
     db.add(db_session)
+    db.flush()
+    _attach_teacher_progress_for_new_session(db, db_session)
     db.commit()
     db.refresh(db_session)
     return db_session
@@ -276,6 +348,7 @@ async def send_teacher_message(
         message=teacher_response
     )
     db.add(teacher_message)
+    _update_teacher_progress_after_interaction(db, session)
 
     db.commit()
     db.refresh(teacher_message)
@@ -360,6 +433,8 @@ async def ask_teacher_advanced(
             new_level = match.group(2).strip()
             session = get_or_create_teacher_session(db, current_user.id, new_topic, new_level, chat_id=chat_id)
             session_id_to_return = session.id
+            _update_teacher_progress_after_interaction(db, session)
+            db.commit()
 
         # 6. Возвращаем последнее сообщение учителя с session_id
         response_data = {
@@ -401,6 +476,8 @@ def get_or_create_teacher_session(db: Session, user_id: int, topic: str, level: 
     # Создаем новую сессию, не ищем по (user_id, topic) среди других чатов
     session = TeacherSession(user_id=user_id, topic=topic, level=level)
     db.add(session)
+    db.flush()
+    _attach_teacher_progress_for_new_session(db, session)
     db.commit()
     db.refresh(session)
     
