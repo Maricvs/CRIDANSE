@@ -33,7 +33,9 @@ class OAuth2CustomToken(OAuth2):
         super().__init__(flows=flows)
 
     async def __call__(self, request: Request):
-        authorization: str = request.headers.get("Authorization")
+        authorization: str = request.headers.get("X-Authorization")
+        if not authorization:
+            authorization = request.headers.get("Authorization")
         if not authorization:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -220,7 +222,7 @@ def guest_login(db: Session = Depends(get_db)):
 def save_oauth_profile(profile: OAuthProfile, request: Request, db: Session = Depends(get_db)):
     try:
         guest_user = None
-        auth_header = request.headers.get("Authorization")
+        auth_header = request.headers.get("X-Authorization") or request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
             try:
