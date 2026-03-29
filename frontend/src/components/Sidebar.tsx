@@ -4,7 +4,7 @@ import {
   FaCreditCard, FaUser, FaFile,
   FaBook, FaSignInAlt, FaBars, FaChevronLeft,
   FaSignOutAlt, FaPlus, FaComment, FaTrash, FaEdit,
-  FaGlobe, FaQuestionCircle
+  FaGlobe, FaQuestionCircle, FaFolder
 } from 'react-icons/fa';
 import '../Sidebar.css';
 import { useChat } from '../context/ChatContext';
@@ -34,9 +34,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [chats, setChats] = useState<Chat[]>([]);
   const [folders, setFolders] = useState<Folder[]>([]);
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isSavingFolder, setIsSavingFolder] = useState(false);
   const [editingChatId, setEditingChatId] = useState<number | null>(null);
   const [isRenamingInProgress, setIsRenamingInProgress] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; chatId: number } | null>(null);
+  const [contextMenuView, setContextMenuView] = useState<'main' | 'folders'>('main');
+  const [isMovingChat, setIsMovingChat] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -165,6 +170,87 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
     }
   };
 
+  const handleNewFolderClick = () => {
+    setIsCreatingFolder(true);
+    setNewFolderName('');
+  };
+
+  const cancelNewFolder = () => {
+    setIsCreatingFolder(false);
+    setNewFolderName('');
+  };
+
+  const submitNewFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name || !localUserId) return;
+    setIsSavingFolder(true);
+    try {
+      const response = await fetch('/api/chats/folders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+        },
+        body: JSON.stringify({ name })
+      });
+      if (!response.ok) throw new Error('Failed to create folder');
+      await fetchFolders();
+      setIsCreatingFolder(false);
+      setNewFolderName('');
+    } catch (err) {
+      console.error('Error creating folder:', err);
+      alert('Failed to create folder.');
+    } finally {
+      setIsSavingFolder(false);
+    }
+  };
+
+  const moveChatToFolder = async (chatId: number, folderId: number) => {
+    if (!localUserId) return;
+    setIsMovingChat(true);
+    try {
+      const response = await fetch(`/api/chats/${chatId}/folder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+        },
+        body: JSON.stringify({ folder_id: folderId })
+      });
+      if (!response.ok) throw new Error('Failed to move chat');
+      setChats(prev => prev.map(c => (c.id === chatId ? { ...c, folder_id: folderId } : c)));
+      setContextMenu(null);
+      setContextMenuView('main');
+    } catch (err) {
+      console.error('Error moving chat:', err);
+      alert('Failed to move chat.');
+    } finally {
+      setIsMovingChat(false);
+    }
+  };
+
+  const removeChatFromFolder = async (chatId: number) => {
+    if (!localUserId) return;
+    setIsMovingChat(true);
+    try {
+      const response = await fetch(`/api/chats/${chatId}/folder`, {
+        method: 'DELETE',
+        headers: {
+          'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to remove from folder');
+      setChats(prev => prev.map(c => (c.id === chatId ? { ...c, folder_id: null } : c)));
+      setContextMenu(null);
+      setContextMenuView('main');
+    } catch (err) {
+      console.error('Error removing chat from folder:', err);
+      alert('Failed to remove from folder.');
+    } finally {
+      setIsMovingChat(false);
+    }
+  };
+
   const deleteChat = async (chatId: number) => {
     if (!window.confirm('Delete this chat?')) return;
     
@@ -184,6 +270,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
       }
       
       setContextMenu(null);
+      setContextMenuView('main');
       
       if (parseInt(selectedChatId || '') === chatId) {
         navigate('/');
@@ -235,12 +322,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
   const handleContextMenu = (e: React.MouseEvent, chatId: number) => {
     e.preventDefault();
+    setContextMenuView('main');
     setContextMenu({ x: e.clientX, y: e.clientY, chatId });
   };
 
   const handleRename = (chatId: number) => {
     setEditingChatId(chatId);
     setContextMenu(null);
+    setContextMenuView('main');
   };
 
   const handleBlur = async (chatId: number, newTitle: string) => {
@@ -291,10 +380,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
   };
 
   const chatsWithoutFolder = chats.filter(chat => !chat.folder_id);
-  const foldersWithChats = folders.map(folder => ({
+  const foldersGrouped = folders.map(folder => ({
     ...folder,
     chats: chats.filter(chat => chat.folder_id === folder.id)
-  })).filter(folder => folder.chats.length > 0);
+  }));
 
   const renderChatItem = (chat: Chat) => {
     const isActive = chat.id === parseInt(selectedChatId || '', 10);
@@ -363,6 +452,49 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
                     <button className="new-chat-button" onClick={handleNewChat}>
                       <FaPlus className="icon" /> New chat
                     </button>
+                    <button
+                      type="button"
+                      className="new-chat-button"
+                      onClick={handleNewFolderClick}
+                      style={{ marginTop: 6 }}
+                    >
+                      <FaFolder className="icon" /> New folder
+                    </button>
+                    {isCreatingFolder && (
+                      <div style={{ padding: '6px 4px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <input
+                          type="text"
+                          value={newFolderName}
+                          onChange={(e) => setNewFolderName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') submitNewFolder();
+                            if (e.key === 'Escape') cancelNewFolder();
+                          }}
+                          placeholder="Folder name"
+                          disabled={isSavingFolder}
+                          autoFocus
+                          style={{ width: '100%', boxSizing: 'border-box', padding: '4px 6px' }}
+                        />
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button
+                            type="button"
+                            onClick={submitNewFolder}
+                            disabled={isSavingFolder || !newFolderName.trim()}
+                            style={{ flex: 1, padding: '4px 8px' }}
+                          >
+                            Create
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelNewFolder}
+                            disabled={isSavingFolder}
+                            style={{ flex: 1, padding: '4px 8px' }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div className="chat-link">
                       <FaComment className="icon" />
                       <span>Chats</span>
@@ -370,12 +502,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
 
                     <div className="chat-scrollable">
                       <ul className="chat-list">
-                        {chats.length === 0 && (
+                        {chats.length === 0 && folders.length === 0 && (
                           <li className="no-chats">No chats</li>
                         )}
-                        {chats.length > 0 && (
+                        {(chats.length > 0 || folders.length > 0) && (
                           <>
-                            {foldersWithChats.map((folder) => (
+                            {foldersGrouped.map((folder) => (
                               <React.Fragment key={`folder-${folder.id}`}>
                                 <li
                                   style={{ listStyle: 'none', fontSize: '0.85em', opacity: 0.75, padding: '0.4em 0.4em 0.2em', fontWeight: 600 }}
@@ -437,20 +569,71 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapse }) => {
         </div>
       </div>
 
-      {contextMenu && (
-        <div
-          className="context-menu"
-          style={{ top: contextMenu.y, left: contextMenu.x }}
-          onMouseLeave={() => setContextMenu(null)}
-        >
-          <div className="context-menu-item" onClick={() => handleRename(contextMenu.chatId)}>
-            <FaEdit /> Rename
+      {contextMenu && (() => {
+        const contextChat = chats.find(c => c.id === contextMenu.chatId);
+        const contextChatFolderId = contextChat?.folder_id ?? null;
+        const folderTargets = folders.filter(f => f.id !== contextChatFolderId);
+        return (
+          <div
+            className="context-menu"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+            onMouseLeave={() => {
+              setContextMenu(null);
+              setContextMenuView('main');
+            }}
+          >
+            {contextMenuView === 'main' ? (
+              <>
+                <div className="context-menu-item" onClick={() => !isMovingChat && handleRename(contextMenu.chatId)}>
+                  <FaEdit /> Rename
+                </div>
+                <div
+                  className="context-menu-item"
+                  onClick={() => !isMovingChat && setContextMenuView('folders')}
+                >
+                  <FaFolder /> Move to folder
+                </div>
+                {contextChatFolderId != null && (
+                  <div
+                    className="context-menu-item"
+                    onClick={() => !isMovingChat && removeChatFromFolder(contextMenu.chatId)}
+                  >
+                    Remove from folder
+                  </div>
+                )}
+                <div className="context-menu-item" onClick={() => !isMovingChat && deleteChat(contextMenu.chatId)}>
+                  <FaTrash /> Delete
+                </div>
+              </>
+            ) : (
+              <>
+                <div
+                  className="context-menu-item"
+                  onClick={() => !isMovingChat && setContextMenuView('main')}
+                  style={{ fontWeight: 600 }}
+                >
+                  <FaChevronLeft style={{ marginRight: 6 }} /> Back
+                </div>
+                {folderTargets.length === 0 ? (
+                  <div className="context-menu-item" style={{ cursor: 'default', opacity: 0.8 }}>
+                    No folders
+                  </div>
+                ) : (
+                  folderTargets.map(folder => (
+                    <div
+                      key={folder.id}
+                      className="context-menu-item"
+                      onClick={() => !isMovingChat && moveChatToFolder(contextMenu.chatId, folder.id)}
+                    >
+                      {folder.name}
+                    </div>
+                  ))
+                )}
+              </>
+            )}
           </div>
-          <div className="context-menu-item" onClick={() => deleteChat(contextMenu.chatId)}>
-            <FaTrash /> Delete
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </>
   );
 };
