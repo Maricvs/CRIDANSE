@@ -14,6 +14,7 @@ class MessageCreate(MessageBase):
 class MessageSchema(MessageBase):
     id: int
     created_at: datetime
+    session_id: Optional[int] = None
 
     class Config:
         from_attributes = True
