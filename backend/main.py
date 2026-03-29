@@ -1,7 +1,7 @@
 #backend/main.py
 from db import Base, engine
 from fastapi import FastAPI
-from api import gpt_api, auth, chat
+from api import gpt_api, auth, chat, chat_folders
 from app.components.mylibrary import library_documents
 from app.components.document_ai import document_processor_router, document_ai_service_router
 from app.components.teacher import teacher_service
@@ -34,6 +34,7 @@ Base.metadata.create_all(bind=engine)
 # Затем подключаем остальные роутеры
 app.include_router(gpt_api.router, prefix="/api/gpt")
 app.include_router(auth.router, prefix="/api/auth")
+app.include_router(chat_folders.router, prefix="/api/chats")
 app.include_router(chat.router, prefix="/api/chats")
 app.include_router(library_documents.router, prefix="/api/documents")
 app.include_router(document_processor_router, prefix="/api/document_ai/processor")
