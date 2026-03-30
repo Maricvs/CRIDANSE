@@ -86,29 +86,29 @@ export default function Chat() {
     };
   }, [id, fetchChatInfo, fetchMessages]);
 
-  // Delete empty chat on unmount if no messages (double check: frontend and backend)
+  // Delete empty chat only when leaving this chat (id change or unmount). Do not depend on messages.length
+  // or cleanup runs on first send and can race DELETE before /api/gpt/ask completes.
   useEffect(() => {
+    const chatId = id;
     return () => {
-      if (id) {
-        fetch(`/api/chats/messages/by_chat/${id}`, {
-          headers: { 'X-Authorization': `Bearer ${localStorage.getItem('user_token')}` }
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (Array.isArray(data) && data.length === 0 && messages.length === 0) {
-              fetch(`/api/chats/delete/${id}`, {
-                method: 'DELETE',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
-                }
-              });
-            }
-          });
-      }
+      if (!chatId) return;
+      fetch(`/api/chats/messages/by_chat/${chatId}`, {
+        headers: { 'X-Authorization': `Bearer ${localStorage.getItem('user_token')}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data) && data.length === 0) {
+            fetch(`/api/chats/delete/${chatId}`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Authorization': `Bearer ${localStorage.getItem('user_token')}`
+              }
+            });
+          }
+        });
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, messages.length]);
+  }, [id]);
 
   // Определяем текущий user_id
   const currentUserId = parseInt(localStorage.getItem('user_id') || '0');
